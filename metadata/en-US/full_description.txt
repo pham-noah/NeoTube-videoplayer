@@ -1,0 +1,6 @@
+YouTube and YouTube Music in a single app. No ads, plays in the background.
+<ul><li>Manage watchlist, music library without login</li><li>Manage watch history without login</li><li>Download video</li><li>RSS feed reader for YouTube channels</li><li>Hide shorts</li><li>Live chat</li><li>Play original audio</li><li>Customize with CSS</li><li>Liquid Glass theme with four accent colours</li></ul>
+<h2>How it works</h2>
+<ul><li>Wrap https://m.youtube.com and https://music.youtube.com in Android webview</li><li>Inject code to block ads</li><li>Hook playback controls and support playing in background</li></ul>
+<h2>About this build</h2>
+NeoTube is an independent fork of <a href="https://github.com/nonbili/NouTube">NouTube</a> and is not affiliated with it. It is licensed under the AGPL-3.0 and its source code is available at the repository linked from the app.

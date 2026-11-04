@@ -1,0 +1,23 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "types": ["bun", "expo/types", "nativewind/types"]
+  },
+  "include": [
+    "*.ts",
+    "*.tsx",
+    "app/**/*.ts",
+    "app/**/*.tsx",
+    "components/**/*.ts",
+    "components/**/*.tsx",
+    "content/**/*.ts",
+    "lib/**/*.ts",
+    "states/**/*.ts",
+    "plugins/**/*.ts",
+    "types/**/*.d.ts",
+    ".expo/types/**/*.ts",
+    "expo-env.d.ts",
+    "nativewind-env.d.ts"
+  ],
+  "exclude": ["desktop", "extension", "android", "node_modules", "ios", "dist", ".expo"]
+}

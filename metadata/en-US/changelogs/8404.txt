@@ -1,0 +1,11 @@
+- Speed up watch page loading and opening subsequent videos
+- Keep background playback going when rotating the device
+- Fix duplicate channel subscriptions across URL formats
+- Add Galician and Italian translations and update existing translations
+- New Liquid Glass theme with four accent colours: Aurora, Crimson, Purple, Cappuccino
+- Frosted glass sheets on Android, so the page behind is no longer readable through them
+- Setting to keep YouTube's autoplay off; queues and playlists still continue
+- Proxy username and password, alongside host and port
+- Prefer H.264 no longer silences videos by rejecting their audio codec
+- Faster video start: a saved playback quality is applied before playback begins
+- Settings and list changes redraw only the part that changed
