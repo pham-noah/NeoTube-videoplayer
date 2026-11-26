@@ -1,5 +1,5 @@
 import { useCallback, useEffect } from 'react'
-import { Linking, ScrollView, View } from 'react-native'
+import { AppState, Linking, ScrollView, View } from 'react-native'
 import { t } from 'i18next'
 import { useValue } from '@legendapp/state/react'
 import MaterialIcons from '@react-native-vector-icons/material-icons'
@@ -76,6 +76,18 @@ export const UpdateSheet: React.FC<{
     },
     [release.version],
   )
+
+  /* "Allow installs" leaves the app for Android's settings; coming back means
+   * the permission was granted, so retry the install instead of asking for the
+   * same tap again. */
+  useEffect(() => {
+    const subscription = AppState.addEventListener('change', (next) => {
+      if (next !== 'active') return
+      const latest = updateDownload$.state.peek()
+      if (latest.status === 'blocked') void install(latest.path)
+    })
+    return () => subscription.remove()
+  }, [install])
 
   const busy = current.status === 'downloading' || current.status === 'verifying'
   const downloaded = current.status === 'ready' || current.status === 'blocked'

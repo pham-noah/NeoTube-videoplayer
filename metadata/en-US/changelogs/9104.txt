@@ -1,0 +1,9 @@
+0.3.1
+
+Install fix
+- 0.3.0 could download its update and then not install it: the downloaded
+  package was reported missing, because the installer read the file's
+  file:// URI as a filesystem path.
+- The FileProvider that hands the package to Android's installer is now
+  declared, limited to cache/updates and the app's files.
+- Everything else is 0.3.0.

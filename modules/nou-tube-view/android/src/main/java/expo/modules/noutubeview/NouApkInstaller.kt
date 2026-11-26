@@ -38,9 +38,12 @@ class NouApkInstaller(private val context: Context) {
   /** Starts the package installer for `path`. Returns false when the install
    *  source is still blocked, which the caller turns into openInstallSettings. */
   fun install(path: String): Boolean {
-    val file = File(path)
+    // expo-file-system hands over a file:// URI; File() cannot open one, so take
+    // the path out of it. A bare path is used as given.
+    val localised = if (path.startsWith("file://")) Uri.parse(path).path ?: path else path
+    val file = File(localised)
     if (!file.isFile) {
-      throw Exception("No downloaded package at $path")
+      throw Exception("No downloaded package at $localised")
     }
     if (!canInstall()) {
       return false
