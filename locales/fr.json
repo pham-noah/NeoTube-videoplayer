@@ -433,7 +433,21 @@
     "expiresAt": "Renouvellement ou expiration : {{value}}",
     "legalNotice": "Les abonnements sont renouvelés automatiquement, sauf en cas de résiliation. En vous abonnant, vous acceptez les conditions d'utilisation (CLUF) et la politique de confidentialité.",
     "termsOfUse": "Conditions d'utilisation (CLUF)",
-    "privacyPolicy": "Politique de confidentialité"
+    "privacyPolicy": "Politique de confidentialité",
+    "accountChoiceTitle": "Données provenant d'un autre compte",
+    "accountChoiceMessage": "Les signets, dossiers, paramètres et styles de cet appareil ont été synchronisés avec un autre compte NouTube. La synchronisation est suspendue jusqu'à ce que vous décidiez de la suite à donner.",
+    "accountChoiceUseAccount": "Utiliser les données de ce compte",
+    "accountChoiceMerge": "Ajouter cet appareil au compte",
+    "accountChoiceLater": "Plus tard",
+    "accountChoiceHint": "L'utilisation des données de ce compte remplace celles présentes sur cet appareil. La fusion ajoute à ce compte les données propres à cet appareil. Dans les deux cas, une sauvegarde de cet appareil est d'abord effectuée.",
+    "accountChoiceToast": "La synchronisation est suspendue : cet appareil contient des données provenant d'un autre compte. Choisissez la marche à suivre dans Paramètres › Synchronisation.",
+    "accountChoiceFailed": "Impossible de transférer les données vers ce compte : {{message}}",
+    "exportSwitchBackup": "Exporter les données antérieures au changement",
+    "exportSwitchBackupHint": "Enregistré le {{date}}. Enregistre les signets au format CSV et les paramètres dans un fichier de sauvegarde, à importer dans les Paramètres.",
+    "mergeBackupHint": "Un autre appareil a modifié certains des mêmes éléments que celui-ci, et ses modifications ont été conservées. Vous pouvez rétablir les paramètres d'origine de cet appareil.",
+    "restoreMergeBackup": "Restaurer {{name}} à partir du {{date}}",
+    "backupSettings": "paramètres",
+    "backupUserStyles": "styles et scripts"
   },
   "feeds": {
     "updates": "Mises à jour",

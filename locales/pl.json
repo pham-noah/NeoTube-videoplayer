@@ -124,7 +124,13 @@
     "pinFormat": "Przypnij jako format domyślny",
     "unpinFormat": "Odepnij domyślny format",
     "clearQueueConfirm": "Wyczyścić kolejkę?",
-    "clearQueueBody": "Wszystkie filmy z kolejki zostaną usunięte. Można to cofnąć."
+    "clearQueueBody": "Wszystkie filmy z kolejki zostaną usunięte. Można to cofnąć.",
+    "useDownloadsFolder": "Użyj folderu Pobrane",
+    "failedToSelectFolder": "Nie udało się wybrać folderu. Spróbuj ponownie.",
+    "downloadIosHint": "Pobiera pojedynczy plik MP4, gdy jest dostępny. Pobieraj wyłącznie filmy, do których zapisywania masz uprawnienia.",
+    "exportDownload": "Eksportuj",
+    "downloadErrorSignInIos": "YouTube wymaga zalogowania się do obejrzenia tego filmu, co nie jest obsługiwane w systemie iOS.",
+    "downloadErrorFormatIos": "Dla tego filmu nie jest dostępny żaden zgodny progresywny format MP4."
   },
   "update": {
     "check": "Sprawdź aktualizacje",
@@ -317,6 +323,9 @@
         },
         "hideEndScreens": {
           "label": "Ukryj ekrany końcowe"
+        },
+        "hideComments": {
+          "label": "Ukryj komentarze"
         }
       },
       "custom": {
@@ -536,7 +545,21 @@
     "expiresAt": "Odnowienie lub wygaśnięcie: {{value}}",
     "legalNotice": "Subskrypcje odnawiają się automatycznie, chyba że zostaną anulowane. Dokonując subskrypcji, akceptujesz Warunki użytkowania (EULA) oraz Politykę prywatności.",
     "termsOfUse": "Warunki użytkowania (EULA)",
-    "privacyPolicy": "Polityka prywatności"
+    "privacyPolicy": "Polityka prywatności",
+    "accountChoiceTitle": "Dane z innego konta",
+    "accountChoiceMessage": "Zakładki, foldery, ustawienia i style na tym urządzeniu były synchronizowane z innym kontem NouTube. Synchronizacja jest wstrzymana do czasu podjęcia decyzji, co z nimi zrobić.",
+    "accountChoiceUseAccount": "Użyj danych tego konta",
+    "accountChoiceMerge": "Scal dane z tego urządzenia z kontem",
+    "accountChoiceLater": "Później",
+    "accountChoiceHint": "Użycie danych tego konta zastąpi zawartość zapisaną na tym urządzeniu. Scalenie doda do tego konta elementy znajdujące się wyłącznie na tym urządzeniu. W obu przypadkach najpierw zostanie utworzona kopia zapasowa danych z tego urządzenia.",
+    "accountChoiceToast": "Synchronizacja jest wstrzymana: na tym urządzeniu znajdują się dane z innego konta. Wybierz dalsze działanie w sekcji Ustawienia › Synchronizacja.",
+    "accountChoiceFailed": "Nie udało się przełączyć danych na to konto: {{message}}",
+    "exportSwitchBackup": "Eksportuj dane sprzed przełączenia",
+    "exportSwitchBackupHint": "Zapisano {{date}}. Zapisuje zakładki w formacie CSV, a ustawienia jako plik kopii zapasowej do zaimportowania w Ustawieniach.",
+    "mergeBackupHint": "Inne urządzenie zmieniło niektóre z tych samych elementów co to urządzenie i to jego zmiany zostały zachowane. Możesz przywrócić poprzednią zawartość z tego urządzenia.",
+    "restoreMergeBackup": "Przywróć: {{name}} z dnia {{date}}",
+    "backupSettings": "ustawienia",
+    "backupUserStyles": "style i skrypty"
   },
   "bookmarks": {
     "removed": "Usunięto zakładkę",
@@ -619,5 +642,20 @@
   "common": {
     "on": "Wł.",
     "off": "Wył."
+  },
+  "shortcuts": {
+    "title": "Skróty klawiszowe",
+    "hint": "Skróty klawiszowe są ignorowane podczas pisania w polu tekstowym.",
+    "newTab": "Nowa karta",
+    "reopenClosedTab": "Otwórz ponownie zamkniętą kartę",
+    "closeTab": "Zamknij kartę",
+    "selectTab": "Przejdź do zakładki 1-9",
+    "library": "Biblioteka",
+    "history": "Historia",
+    "openUrl": "Otwórz URL",
+    "download": "Pobierz",
+    "settings": "Ustawienia",
+    "shortcuts": "Skróty klawiszowe",
+    "closeModal": "Zamknij okno dialogowe lub panel"
   }
 }

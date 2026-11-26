@@ -4,7 +4,7 @@ import { AccentDots } from '@/components/picker/AccentDots'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { debounce } from 'es-toolkit'
 import { useLocales } from 'expo-localization'
-import { isAndroid, isIos, isWeb, nIf } from '@/lib/utils'
+import { clsx, isAndroid, isIos, isWeb, nIf } from '@/lib/utils'
 import { isDynamicColorAvailable } from '@/lib/dynamic-palette'
 import { useValue } from '@legendapp/state/react'
 import { settings$, ZOOM_PRESETS } from '@/states/settings'
@@ -51,6 +51,7 @@ import {
   SettingsToggleRow,
 } from './settings/primitives'
 import { feederLoop } from '@/lib/feeder'
+import { ToolbarButtonOrderList } from './ToolbarButtonOrderList'
 
 // SettingsTree imports the row from this module.
 export { iconWrapCls, sectionLabelCls, SettingsActionRow, SettingsSection, SettingsToggleRow }
@@ -141,6 +142,7 @@ const distractionFreeStyleRows: { id: BuiltinUserStyleId; icon: MaterialIconsIco
   { id: 'hide-mix-playlist', icon: 'playlist-play' },
   { id: 'hide-community-posts', icon: 'forum' },
   { id: 'hide-ask-button', icon: 'auto-awesome' },
+  { id: 'hide-comments', icon: 'comments-disabled' },
 ]
 
 const distractionFreeStyleDefinitions = distractionFreeStyleRows.map((row) => ({
@@ -817,31 +819,46 @@ export const SettingsAppearanceContent = () => {
 
       <View className={!isWeb ? 'mt-8' : undefined}>
         <SettingsSection label={t('settings.toolbarButtons')}>
+          {nIf(
+            isAndroid,
+            <View className={clsx(surfaceCls, 'mb-3')}>
+              <ToolbarButtonOrderList />
+            </View>,
+          )}
           <View className={surfaceCls}>
-            <SettingsToggleRow
-              label={t('settings.showLibraryButtonInHeader')}
-              icon="video-library"
-              value={settings.showLibraryButtonInHeader}
-              onPress={() => settings$.showLibraryButtonInHeader.set(!settings.showLibraryButtonInHeader)}
-            />
+            {nIf(
+              !isAndroid,
+              <SettingsToggleRow
+                label={t('settings.showLibraryButtonInHeader')}
+                icon="video-library"
+                value={settings.showLibraryButtonInHeader}
+                onPress={() => settings$.showLibraryButtonInHeader.set(!settings.showLibraryButtonInHeader)}
+              />,
+            )}
             <SettingsToggleRow
               label={t('settings.showStarButtonInHeader')}
               icon="star-outline"
               value={settings.showStarButtonInHeader}
               onPress={() => settings$.showStarButtonInHeader.set(!settings.showStarButtonInHeader)}
+              isLast={isAndroid && !settings.feedsEnabled}
             />
-            <SettingsToggleRow
-              label={t('settings.showHomeButtonInHeader')}
-              icon="home"
-              value={settings.showHomeButtonInHeader}
-              onPress={() => settings$.showHomeButtonInHeader.set(!settings.showHomeButtonInHeader)}
-            />
-            <SettingsToggleRow
-              label={t('settings.channelsFeed')}
-              icon="rss-feed"
-              value={settings.feedsEnabled}
-              onPress={() => settings$.feedsEnabled.set(!settings.feedsEnabled)}
-            />
+            {nIf(
+              !isAndroid,
+              <>
+                <SettingsToggleRow
+                  label={t('settings.showHomeButtonInHeader')}
+                  icon="home"
+                  value={settings.showHomeButtonInHeader}
+                  onPress={() => settings$.showHomeButtonInHeader.set(!settings.showHomeButtonInHeader)}
+                />
+                <SettingsToggleRow
+                  label={t('settings.channelsFeed')}
+                  icon="rss-feed"
+                  value={settings.feedsEnabled}
+                  onPress={() => settings$.feedsEnabled.set(!settings.feedsEnabled)}
+                />
+              </>,
+            )}
             {nIf(
               settings.feedsEnabled,
               <SettingsToggleRow
@@ -855,12 +872,9 @@ export const SettingsAppearanceContent = () => {
                 }}
               />,
             )}
+            {nIf(!isWeb && settings.feedsEnabled, <FeedNotificationsToggle isLast={isAndroid} />)}
             {nIf(
-              !isWeb && settings.feedsEnabled,
-              <FeedNotificationsToggle />,
-            )}
-            {nIf(
-              !isWeb,
+              isIos,
               <>
                 <SettingsToggleRow
                   label={t('settings.showBackButtonInHeader')}
@@ -876,40 +890,40 @@ export const SettingsAppearanceContent = () => {
                 />
               </>,
             )}
-            <SettingsToggleRow
-              label={t('settings.showReloadButtonInHeader')}
-              icon="refresh"
-              value={settings.showReloadButtonInHeader}
-              onPress={() => settings$.showReloadButtonInHeader.set(!settings.showReloadButtonInHeader)}
-            />
-            <SettingsToggleRow
-              label={t('settings.showHistoryButtonInHeader')}
-              icon="history"
-              value={settings.showHistoryButtonInHeader}
-              onPress={() => settings$.showHistoryButtonInHeader.set(!settings.showHistoryButtonInHeader)}
-            />
-            <SettingsToggleRow
-              label="Show playback speed control"
-              icon="speed"
-              value={settings.showPlaybackSpeedControl}
-              onPress={() => settings$.showPlaybackSpeedControl.set(!settings.showPlaybackSpeedControl)}
-            />
-            <SettingsToggleRow
-              label="Show video quality control"
-              icon="high-quality"
-              value={settings.showPlaybackQualityControl}
-              onPress={() => settings$.showPlaybackQualityControl.set(!settings.showPlaybackQualityControl)}
-              isLast={!hasSleepTimerNativeSupport()}
-            />
             {nIf(
-              hasSleepTimerNativeSupport(),
-              <SettingsToggleRow
-                label={t('settings.showSleepTimerButtonInHeader')}
-                icon="bedtime"
-                value={settings.showSleepTimerButtonInHeader}
-                onPress={() => settings$.showSleepTimerButtonInHeader.set(!settings.showSleepTimerButtonInHeader)}
-                isLast
-              />,
+              !isAndroid,
+              <>
+                <SettingsToggleRow
+                  label={t('settings.showReloadButtonInHeader')}
+                  icon="refresh"
+                  value={settings.showReloadButtonInHeader}
+                  onPress={() => settings$.showReloadButtonInHeader.set(!settings.showReloadButtonInHeader)}
+                />
+                <SettingsToggleRow
+                  label={t('settings.showHistoryButtonInHeader')}
+                  icon="history"
+                  value={settings.showHistoryButtonInHeader}
+                  onPress={() => settings$.showHistoryButtonInHeader.set(!settings.showHistoryButtonInHeader)}
+                />
+              </>,
+            )}
+            {nIf(
+              !isAndroid,
+              <>
+                <SettingsToggleRow
+                  label="Show playback speed control"
+                  icon="speed"
+                  value={settings.showPlaybackSpeedControl}
+                  onPress={() => settings$.showPlaybackSpeedControl.set(!settings.showPlaybackSpeedControl)}
+                />
+                <SettingsToggleRow
+                  label="Show video quality control"
+                  icon="high-quality"
+                  value={settings.showPlaybackQualityControl}
+                  onPress={() => settings$.showPlaybackQualityControl.set(!settings.showPlaybackQualityControl)}
+                  isLast
+                />
+              </>,
             )}
           </View>
         </SettingsSection>
@@ -1126,6 +1140,14 @@ export const SettingsToolsContent = () => {
     <View>
       <SettingsSection label={t('settings.tools')}>
         <View className={surfaceCls}>
+          {nIf(
+            isWeb,
+            <SettingsActionRow
+              label={t('shortcuts.title')}
+              icon="keyboard"
+              onPress={() => ui$.shortcutsModalOpen.set(true)}
+            />,
+          )}
           {sleepTimerSupported ? (
             <SettingsActionRow
               label={t('sleepTimer.label')}
@@ -1368,7 +1390,7 @@ export const SettingsTransferContent: React.FC<{
   )
 }
 
-const FeedNotificationsToggle = () => {
+const FeedNotificationsToggle: React.FC<{ isLast?: boolean }> = ({ isLast }) => {
   const enabled = useValue(settings$.feedNotificationsEnabled)
   const [busy, setBusy] = useState(false)
   const toggle = async () => {
@@ -1390,6 +1412,7 @@ const FeedNotificationsToggle = () => {
       icon="notifications-none"
       value={enabled}
       onPress={() => void toggle()}
+      isLast={isLast}
     />
   )
 }

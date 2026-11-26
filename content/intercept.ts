@@ -8,6 +8,8 @@ import {
   transformReelResponse,
   transformSearchResponse,
 } from '@/lib/intercept'
+import { transformWatchResponseStream } from '@/lib/watch-response-stream'
+import { noAdFetchArgs, noAdRequestBody } from './no-ad-request'
 
 const adsBlocked = () => window.NouTube?.getSettings?.()?.blockAds !== false
 
@@ -93,7 +95,7 @@ export function intercept() {
   window.fetch = async (...args) => {
     const request = args[0]
     const url = request instanceof Request ? request.url : request.toString()
-    let res = await winFetch(...args)
+    let res = await winFetch(...((window as any).NouTubeNoAdRequests && adsBlocked() ? await noAdFetchArgs(args) : args))
     // Relative to the page, as fetch itself resolves it: without a base a relative
     // url throws here and turns a response that arrived fine into a rejection.
     const match = new URL(url, location.origin).pathname.match(RE_INTERCEPT)
@@ -106,6 +108,17 @@ export function intercept() {
     }
     if (res.status > 200 || !match) {
       return res
+    }
+
+    if (match[1] === 'get_watch' && res.body) {
+      const headers = new Headers(res.headers)
+      // The body is decoded by fetch and may change length during filtering.
+      headers.delete('content-length')
+      headers.delete('content-encoding')
+      return new Response(
+        transformWatchResponseStream(res.body, (text) => transformGetWatchResponse(text, options)),
+        { status: res.status, statusText: res.statusText, headers },
+      )
     }
 
     const text = await res.text()
@@ -134,8 +147,22 @@ export function intercept() {
   const responseGetter = Object.getOwnPropertyDescriptor(XMLHttpRequest.prototype, 'response')!.get!
   const textGetter = Object.getOwnPropertyDescriptor(XMLHttpRequest.prototype, 'responseText')!.get!
   const xhrOpen = XMLHttpRequest.prototype.open
+  const xhrSend = XMLHttpRequest.prototype.send
+  const playerEndpoints = new WeakMap<XMLHttpRequest, string>()
+  XMLHttpRequest.prototype.send = function (body) {
+    const endpoint = playerEndpoints.get(this)
+    const rewritten = (window as any).NouTubeNoAdRequests && adsBlocked() && endpoint ? noAdRequestBody(endpoint, body) : null
+    return xhrSend.call(this, (rewritten ?? body) as XMLHttpRequestBodyInit)
+  }
   XMLHttpRequest.prototype.open = function (...args: any[]) {
     const url = args[1].toString()
+    const parsed = new URL(url, location.origin)
+    const endpoint = parsed.pathname.match(/^\/youtubei\/v1\/(player|get_watch)$/)?.[1]
+    playerEndpoints.delete(this)
+    if (args[0].toUpperCase() === 'POST' && endpoint &&
+        ['youtube.com', 'www.youtube.com', 'm.youtube.com', 'music.youtube.com'].includes(parsed.hostname)) {
+      playerEndpoints.set(this, endpoint)
+    }
     const match = new URL(url, location.origin).pathname.match(RE_INTERCEPT)
     let cached = false
     let filteredText: string

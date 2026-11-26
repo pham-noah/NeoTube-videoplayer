@@ -114,7 +114,9 @@
     "unpinFormat": "Desafixar formato padrão",
     "shareIncludePosition": "Incluir posição atual",
     "clearQueueConfirm": "Limpar a fila?",
-    "clearQueueBody": "Todos os vídeos da fila serão removidos. Dá para desfazer."
+    "clearQueueBody": "Todos os vídeos da fila serão removidos. Dá para desfazer.",
+    "useDownloadsFolder": "Usar a pasta Downloads",
+    "failedToSelectFolder": "Não foi possível selecionar uma pasta. Tente novamente."
   },
   "settings": {
     "resetAll": "Redefinir configurações",
@@ -208,6 +210,9 @@
         },
         "hideEndScreens": {
           "label": "Ocultar cartões finais"
+        },
+        "hideComments": {
+          "label": "Ocultar comentários"
         }
       },
       "scripts": {
@@ -427,7 +432,21 @@
     "expiresAt": "Renova ou expira: {{value}}",
     "legalNotice": "As assinaturas são renovadas automaticamente, a menos que sejam canceladas. Ao assinar, você concorda com os Termos de Uso (EULA) e com a Política de Privacidade.",
     "termsOfUse": "Termos de Uso (EULA)",
-    "privacyPolicy": "Política de Privacidade"
+    "privacyPolicy": "Política de Privacidade",
+    "accountChoiceTitle": "Dados de outra conta",
+    "accountChoiceMessage": "Favoritos, pastas, configurações e css neste dispositivo foram sincronizados com outra conta NouTube. A sincronização está pausada até que você escolha o que fazer com eles.",
+    "accountChoiceUseAccount": "Usar dados desta conta",
+    "accountChoiceMerge": "Vincular este dispositivo à conta",
+    "accountChoiceLater": "Depois",
+    "accountChoiceHint": "Usar os dados desta conta substitui o que está neste dispositivo. A mesclagem adiciona a esta conta o que existe apenas neste dispositivo. Em ambos os casos, é feito primeiro um backup deste dispositivo.",
+    "accountChoiceToast": "A sincronização está pausada: este dispositivo contém dados de outra conta. Escolha o que fazer em \"Configurações › Sincronização\".",
+    "accountChoiceFailed": "Não foi possível transferir os dados para esta conta: {{message}}",
+    "exportSwitchBackup": "Exportar dados anteriores à mudança",
+    "exportSwitchBackupHint": "Salvo em {{date}}. Salva os favoritos como CSV e as configurações como um arquivo de backup, para importar em “Configurações”.",
+    "mergeBackupHint": "Outro dispositivo alterou alguns dos mesmos itens que este dispositivo, e essas alterações foram mantidas. Você pode restaurar o que este dispositivo continha.",
+    "restoreMergeBackup": "Restaurar {{name}} a partir de {{date}}",
+    "backupSettings": "configurações",
+    "backupUserStyles": "CSS e scripts"
   },
   "changelog": {
     "label": "Histórico de atualização",
@@ -613,5 +632,20 @@
   "common": {
     "on": "Ativado",
     "off": "Desativado"
+  },
+  "shortcuts": {
+    "title": "Atalhos do teclado",
+    "hint": "Atalhos do teclado são ignorados ao digitar em um campo de texto.",
+    "newTab": "Nova aba",
+    "reopenClosedTab": "Reabrir aba fechada",
+    "closeTab": "Fechar aba",
+    "selectTab": "Mudar para a aba 1-9",
+    "library": "Biblioteca",
+    "history": "Histórico",
+    "openUrl": "Abrir URL",
+    "download": "Download",
+    "settings": "Configurações",
+    "shortcuts": "Atalhos do teclado",
+    "closeModal": "Fechar diálogo ou painel"
   }
 }

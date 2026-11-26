@@ -5,6 +5,9 @@
   <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK" />
   <uses-permission android:name="android.permission.BLUETOOTH"/>
   <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
+  <!-- The in-app updater hands its downloaded APK to this app's own FileProvider,
+       and Android 8+ will not start the package installer without this. -->
+  <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
 
   <application>
     <service

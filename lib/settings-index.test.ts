@@ -39,6 +39,21 @@ describe('settings index', () => {
     expect(searchSettings('youtube', lookup).length).toBeGreaterThan(0)
   })
 
+  it('finds whole pages, not only rows', () => {
+    // Both of these answered "No setting matches" before about/changelog/sync
+    // were in the index; they are the first two things anyone types.
+    expect(searchSettings('about', lookup).some((hit) => hit.page === 'about')).toBe(true)
+    expect(searchSettings('version', lookup).some((hit) => hit.labelKey === 'about.copyVersionShort')).toBe(true)
+    expect(searchSettings('changelog', lookup).some((hit) => hit.page === 'changelog')).toBe(true)
+  })
+
+  it('never puts a template placeholder in a result title', () => {
+    // A result row renders the label as-is, so an entry pointing at a string
+    // like "Copy version {{version}}" showed the braces to the user.
+    const leaky = settingsIndex.filter((entry) => lookup(entry.labelKey).includes('{{')).map((entry) => entry.labelKey)
+    expect(leaky).toEqual([])
+  })
+
   it('returns nothing for an empty query', () => {
     expect(searchSettings('   ', lookup)).toEqual([])
   })

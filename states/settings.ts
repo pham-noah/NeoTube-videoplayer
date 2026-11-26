@@ -7,6 +7,13 @@ import { normalizeAccent, type Accent } from '@/lib/accent'
 import { normalizeI18nLanguage, type SupportedI18nLanguage } from '@/lib/i18n'
 import type { DownloadPreset } from '@/lib/download-format'
 import type { LibrarySort } from '@/lib/library-sort'
+import {
+  defaultToolbarButtonOrder,
+  sanitizeToolbarButtonOrder,
+  sanitizeToolbarMenuButtons,
+  type MenuToolbarButtonId,
+  type ToolbarButtonId,
+} from '@/lib/toolbar-buttons'
 
 export interface SettingsSnapshot {
   language: SupportedI18nLanguage | null
@@ -59,6 +66,11 @@ export interface SettingsSnapshot {
   showSleepTimerButtonInHeader: boolean
   showLibraryButtonInHeader: boolean
   showStarButtonInHeader: boolean
+  showQueueButtonInHeader: boolean
+  showScriptsButtonInHeader: boolean
+  // Order of the leading toolbar buttons (Android), and the ⋮ menu entries shown there.
+  toolbarButtonOrder: ToolbarButtonId[]
+  toolbarMenuButtons: MenuToolbarButtonId[]
   showMediaNotificationPrevButton: boolean
   showMediaNotificationNextButton: boolean
   showMediaNotificationRewindButton: boolean
@@ -187,6 +199,14 @@ export const normalizeSettings = <T extends Partial<SettingsSnapshot> | undefine
   if (typeof data.showStarButtonInHeader !== 'boolean') {
     data.showStarButtonInHeader = true
   }
+  if (typeof data.showQueueButtonInHeader !== 'boolean') {
+    data.showQueueButtonInHeader = true
+  }
+  if (typeof data.showScriptsButtonInHeader !== 'boolean') {
+    data.showScriptsButtonInHeader = true
+  }
+  data.toolbarButtonOrder = sanitizeToolbarButtonOrder(data.toolbarButtonOrder)
+  data.toolbarMenuButtons = sanitizeToolbarMenuButtons(data.toolbarMenuButtons)
   if (typeof data.showMediaNotificationPrevButton !== 'boolean') {
     data.showMediaNotificationPrevButton = true
   }
@@ -321,6 +341,11 @@ export const getSettingsSnapshot = (value: Partial<Store> | undefined = settings
   showLibraryButtonInHeader:
     typeof value?.showLibraryButtonInHeader === 'boolean' ? value.showLibraryButtonInHeader : true,
   showStarButtonInHeader: typeof value?.showStarButtonInHeader === 'boolean' ? value.showStarButtonInHeader : true,
+  showQueueButtonInHeader: typeof value?.showQueueButtonInHeader === 'boolean' ? value.showQueueButtonInHeader : true,
+  showScriptsButtonInHeader:
+    typeof value?.showScriptsButtonInHeader === 'boolean' ? value.showScriptsButtonInHeader : true,
+  toolbarButtonOrder: sanitizeToolbarButtonOrder(value?.toolbarButtonOrder),
+  toolbarMenuButtons: sanitizeToolbarMenuButtons(value?.toolbarMenuButtons),
   showMediaNotificationPrevButton:
     typeof value?.showMediaNotificationPrevButton === 'boolean' ? value.showMediaNotificationPrevButton : true,
   showMediaNotificationNextButton:
@@ -397,6 +422,10 @@ export const settings$ = observable<Store>({
   showSleepTimerButtonInHeader: false,
   showLibraryButtonInHeader: true,
   showStarButtonInHeader: true,
+  showQueueButtonInHeader: true,
+  showScriptsButtonInHeader: true,
+  toolbarButtonOrder: defaultToolbarButtonOrder,
+  toolbarMenuButtons: [],
   showMediaNotificationPrevButton: true,
   showMediaNotificationNextButton: true,
   showMediaNotificationRewindButton: true,

@@ -18,6 +18,11 @@ export const executeQuietly = (webview: WebviewTag | null, script: string) => {
   } catch {}
 }
 
+/* WebKit throws on localStorage while the webview is still on about:blank,
+ * which must not keep the settings from reaching a page that is already up. */
+export const settingsSyncScript = (value: string) =>
+  `try { localStorage.setItem('nou:settings', '${value}') } catch {} window.NouTube?.setSettings?.(${value})`
+
 /* Tells the page which half of the split watch view it is, so it can hand over
  * the links the other half owns (see content/split-view.ts). */
 export const splitRolePrelude = (enabled: boolean, role: 'browse' | 'player', mini = false) =>

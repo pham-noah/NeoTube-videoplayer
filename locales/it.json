@@ -132,7 +132,13 @@
     "shareVideoUrl": "URL del video",
     "shareIncludePosition": "Includi la posizione attuale",
     "clearQueueConfirm": "Svuotare la coda?",
-    "clearQueueBody": "Tutti i video nella coda verranno rimossi. Puoi annullare."
+    "clearQueueBody": "Tutti i video nella coda verranno rimossi. Puoi annullare.",
+    "useDownloadsFolder": "Usa cartella Download",
+    "failedToSelectFolder": "Impossibile selezionare una cartella. Riprova.",
+    "downloadIosHint": "Scarica un singolo file MP4, se disponibile. Scarica solo i video per i quali hai l'autorizzazione al salvataggio.",
+    "exportDownload": "Esporta",
+    "downloadErrorSignInIos": "YouTube richiede una sessione con accesso effettuato per questo video, funzionalità non supportata su iOS.",
+    "downloadErrorFormatIos": "Per questo video non è disponibile alcun formato MP4 progressivo compatibile."
   },
   "update": {
     "check": "Controlla aggiornamenti",
@@ -197,7 +203,7 @@
     "emptyBodyNoChannels": "Gli aggiornamenti dei canali YouTube preferiti compariranno qui.",
     "emptyTitleFolder": "Nessun aggiornamento in {{folder}}",
     "emptyTitleChannel": "Nessun aggiornamento da {{channel}}",
-    "emptyBodyFiltered": "Al momento non ci sono video recenti qui. Controlla più tardi oppure passa a Tutte.",
+    "emptyBodyFiltered": "Al momento non ci sono video recenti. Riprova più tardi oppure passa alla visualizzazione \"Tutti\".",
     "emptyActionFetchNow": "Aggiorna ora",
     "fetchToastSuccess": "Feed aggiornato",
     "fetchToastRunning": "Aggiornamento già in corso",
@@ -361,6 +367,9 @@
         },
         "hideEndScreens": {
           "label": "Nascondi le schermate finali"
+        },
+        "hideComments": {
+          "label": "Nascondi commenti"
         }
       },
       "custom": {
@@ -531,7 +540,21 @@
     "signOutSwitch": "Disconnettiti e cambia account",
     "expiresAt": "Si rinnova o scade: {{value}}",
     "termsOfUse": "Termini di utilizzo (EULA)",
-    "privacyPolicy": "Politica sulla riservatezza"
+    "privacyPolicy": "Politica sulla riservatezza",
+    "accountChoiceTitle": "Dati provenienti da un altro account",
+    "accountChoiceMessage": "I segnalibri, le cartelle, le impostazioni e gli stili di questo dispositivo sono stati sincronizzati con un altro account NouTube. La sincronizzazione è in pausa finché non scegli cosa farne.",
+    "accountChoiceUseAccount": "Usa i dati di questo account",
+    "accountChoiceMerge": "Unisci questo dispositivo nell'account",
+    "accountChoiceLater": "Dopo",
+    "accountChoiceHint": "L'utilizzo dei dati di questo account sostituisce quelli presenti su questo dispositivo. L'unione aggiunge a questo account solo i dati presenti su questo dispositivo. In entrambi i casi, viene prima creato un backup di questo dispositivo.",
+    "accountChoiceToast": "La sincronizzazione è in pausa: questo dispositivo contiene dati di un altro account. Scegli cosa fare in Impostazioni › Sincronizzazione.",
+    "accountChoiceFailed": "Impossibile trasferire i dati a questo account: {{message}}",
+    "exportSwitchBackup": "Esporta i dati precedenti al cambio",
+    "exportSwitchBackupHint": "Salvato il {{date}}. Salva i segnalibri come file CSV e le impostazioni come file di backup, da importare in Impostazioni.",
+    "mergeBackupHint": "Un altro dispositivo ha modificato alcune delle stesse impostazioni di questo dispositivo e le modifiche sono state mantenute. Puoi ripristinare le impostazioni predefinite di questo dispositivo.",
+    "restoreMergeBackup": "Ripristina {{name}} da {{date}}",
+    "backupSettings": "impostazioni",
+    "backupUserStyles": "stili e script"
   },
   "pageLoadError": {
     "title": "Impossibile caricare questa pagina",
@@ -605,5 +628,20 @@
   "common": {
     "on": "Attivo",
     "off": "Disattivo"
+  },
+  "shortcuts": {
+    "title": "Scorciatoie da tastiera",
+    "hint": "Le scorciatoie da tastiera vengono ignorate durante la digitazione in un campo di testo.",
+    "newTab": "Nuova scheda",
+    "reopenClosedTab": "Riapri scheda chiusa",
+    "closeTab": "Chiudi scheda",
+    "selectTab": "Passa alla scheda 1-9",
+    "library": "Libreria",
+    "history": "Cronologia",
+    "openUrl": "Apri URL",
+    "download": "Download",
+    "settings": "Impostazioni",
+    "shortcuts": "Scorciatoie da tastiera",
+    "closeModal": "Chiudi finestra di dialogo o pannello"
   }
 }

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- What the updater's FileProvider may hand out: the app's own cache and files
+     directories, where expo-file-system puts a downloaded package, and nothing
+     else on the device. -->
+<paths>
+  <cache-path name="updates" path="updates/" />
+  <files-path name="files" path="." />
+</paths>

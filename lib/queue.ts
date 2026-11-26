@@ -1,4 +1,5 @@
 import { ui$ } from '@/states/ui'
+import { settings$ } from '@/states/settings'
 import { getVideoId } from './page'
 import { queue$ } from '@/states/queue'
 import { useValue } from '@legendapp/state/react'
@@ -27,8 +28,14 @@ export function usePlayingQueueIndex() {
  * of restarting from the top: the last queue video that was opened, or the
  * entry after it when that one already played to the end.
  * Set resumeUnrelated to false to advance only within the current queue.
+ * YouTube Music keeps its own queue, so an unrelated song there never resumes
+ * this one. Pass ytMusic when pageUrl does not tell, as the player's own urls
+ * point at www.youtube.com even on YouTube Music.
  */
-export function getNextQueueUrl(pageUrl: string, { resumeUnrelated = true } = {}): string | undefined {
+export function getNextQueueUrl(
+  pageUrl: string,
+  { resumeUnrelated = true, ytMusic = isYTMusicUrl(pageUrl) } = {},
+): string | undefined {
   const bookmarks = queue$.bookmarks.get()
   const videoId = getVideoId(pageUrl)
   if (!videoId || !bookmarks.length) return
@@ -37,7 +44,7 @@ export function getNextQueueUrl(pageUrl: string, { resumeUnrelated = true } = {}
   if (index >= 0) {
     return bookmarks[index + 1]?.url
   }
-  if (!resumeUnrelated) return
+  if (!resumeUnrelated || ytMusic) return
 
   const lastPlayedId = getVideoId(queue$.lastPlayedUrl.get())
   const lastPlayedIndex = lastPlayedId ? bookmarks.findIndex((x) => getVideoId(x.url) == lastPlayedId) : -1
@@ -46,6 +53,32 @@ export function getNextQueueUrl(pageUrl: string, { resumeUnrelated = true } = {}
     return bookmarks[0].url
   }
   return queue$.lastPlayedEnded.get() ? bookmarks[lastPlayedIndex + 1]?.url : bookmarks[lastPlayedIndex].url
+}
+
+/**
+ * Marks `endedUrl` finished and returns the queue url to open next, if any.
+ *
+ * `manual` is a press of next -- from the page, the media controls or the
+ * taskbar -- which always moves on to the queue, while a video that just ended
+ * only does so when autoplay is on. `ytMusic` is for the player urls YouTube
+ * Music hands out, which point at www.youtube.com.
+ */
+export function advanceQueue(endedUrl: string, { manual = false, ytMusic = false } = {}): string | undefined {
+  // Skipping counts as finished too, or the resume point would pull every
+  // later skip back to the queue video that was skipped.
+  trackQueueEnded(endedUrl)
+  return getNextQueueUrl(endedUrl, {
+    resumeUnrelated: manual || !settings$.disableAutoplay.get(),
+    ...(manual && ytMusic ? { ytMusic: true } : {}),
+  })
+}
+
+function isYTMusicUrl(url: string) {
+  try {
+    return new URL(url).host == 'music.youtube.com'
+  } catch {
+    return false
+  }
 }
 
 // The video the page url pointed at last, so that url tweaks YouTube makes

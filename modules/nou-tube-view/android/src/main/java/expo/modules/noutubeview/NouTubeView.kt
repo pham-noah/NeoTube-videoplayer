@@ -397,7 +397,6 @@ class NouTubeView(context: Context, appContext: AppContext) : ExpoView(context, 
 
   companion object {
     private const val LINK_LOADING_GROUP_ID = 0x4e4f55
-    private const val REQUEST_POST_NOTIFICATIONS = 102
 
     // A flaky mobile connection resets the odd request; the stock WebView error page
     // strands the user there, so retry the main frame a few times before giving up (#339).
@@ -427,7 +426,6 @@ class NouTubeView(context: Context, appContext: AppContext) : ExpoView(context, 
     // requestPermissions is fire-and-forget from a view (there is no result
     // callback to observe here), so ask at most once per process: a remount
     // must not re-raise the system dialog after the user denied it.
-    private var notificationPermissionRequested = false
 
     // Which view the media notification and the system media controls follow.
     // The split watch view keeps two views alive and JS says which of them
@@ -879,20 +877,6 @@ class NouTubeView(context: Context, appContext: AppContext) : ExpoView(context, 
     val activity = currentActivity
     if (activity == null) {
       return
-    }
-
-    // The media notification is invisible without this on Android 13+, and the
-    // app never surfaces in the system media controls ("not a music app", #309).
-    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU &&
-      !notificationPermissionRequested &&
-      activity.checkSelfPermission(android.Manifest.permission.POST_NOTIFICATIONS) !=
-      android.content.pm.PackageManager.PERMISSION_GRANTED
-    ) {
-      notificationPermissionRequested = true
-      activity.requestPermissions(
-        arrayOf(android.Manifest.permission.POST_NOTIFICATIONS),
-        REQUEST_POST_NOTIFICATIONS
-      )
     }
 
     // A remount runs this again; drop the previous binding instead of stacking

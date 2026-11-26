@@ -37,6 +37,8 @@ module.exports = ({ config }: { config: ExpoConfig }) => {
         // The player keeps going with the screen off and on the lock screen.
         UIBackgroundModes: ['audio'],
         NSMicrophoneUsageDescription: 'Voice search on YouTube uses the microphone.',
+        // Only standard HTTPS, so builds skip the export compliance prompt.
+        ITSAppUsesNonExemptEncryption: false,
       },
     },
     android: {

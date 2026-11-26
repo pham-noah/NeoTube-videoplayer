@@ -1,3 +1,4 @@
+import { chooseConsent } from './feed-gate'
 import { preparePictureInPicture, setPictureInPicture, watchPictureInPictureVideo } from './picture-in-picture'
 import {
   hideShorts,
@@ -29,14 +30,11 @@ let blocklist = createDefaultBlocklistSnapshot()
 const getPlayer = (): any => document.getElementById('movie_player')
 
 let bridged = false
-function bridgeShortcuts() {
+function bridgePaste() {
   if (bridged) {
     return
   }
   bridged = true
-  window.addEventListener('keyup', (e) => {
-    emit('keyup', { key: e.key, metaKey: e.metaKey, ctrlKey: e.ctrlKey })
-  })
   window.addEventListener('paste', (e) => {
     /* Leave pastes into YouTube's search box, comment box etc. alone. */
     if (isEditable(e.target) || isEditable(document.activeElement)) {
@@ -152,7 +150,9 @@ function next() {
     // The page url stops naming the playing video once the user browses
     // away with the mini player, so prefer the player's own.
     const videoUrl = getPlayer()?.getVideoUrl?.() || ''
-    emit('playback-next', { url: videoUrl.includes('v=') ? videoUrl : document.location.href })
+    const url = videoUrl.includes('v=') ? videoUrl : document.location.href
+    // The YouTube Music player names its videos with www.youtube.com urls.
+    emit('playback-next', isYTMusic ? { url, ytMusic: true } : { url })
   } else {
     skipToNext()
   }
@@ -228,6 +228,9 @@ export function initNouTube() {
   }
 
   return {
+    // The consent dialog is inside the page, so its buttons are the page's; the
+    // shell only asks for a choice the user already made on screen.
+    chooseConsent,
     getVideoLinkTitle,
     getSettings,
     setSettings,
@@ -270,7 +273,7 @@ export function initNouTube() {
     },
     playDefaultAudio,
     restoreLastPlaying,
-    bridgeShortcuts,
+    bridgePaste,
     getPlayerFormats,
   }
 }

@@ -55,10 +55,14 @@ interface Store {
   libraryModalTab: string
   queueModalOpen: boolean
   settingsModalOpen: boolean
+  /* The page Settings opens on. Null means the root: a long press on the header
+   * asks for the appearance page, which is where the toolbar is edited. */
+  settingsModalPage: string | null
   sleepTimerModalOpen: boolean
   playbackSpeedModalOpen: boolean
   playbackQualityModalOpen: boolean
   urlModalOpen: boolean
+  shortcutsModalOpen: boolean
   urlModalUrl: string
   cookieModalOpen: boolean
   // Session only: the sign-in banner comes back on the next launch.
@@ -110,10 +114,12 @@ export const ui$ = observable<Store>({
   libraryModalTab: '',
   queueModalOpen: false,
   settingsModalOpen: false,
+  settingsModalPage: null,
   sleepTimerModalOpen: false,
   playbackSpeedModalOpen: false,
   playbackQualityModalOpen: false,
   urlModalOpen: false,
+  shortcutsModalOpen: false,
   urlModalUrl: '',
   cookieModalOpen: false,
   googleLoginNoticeDismissed: false,

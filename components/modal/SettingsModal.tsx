@@ -7,16 +7,23 @@ import { useValue } from '@legendapp/state/react'
 import { BaseModal } from './BaseModal'
 import { GlassSurface } from '@/components/glass/GlassSurface'
 import { ui$ } from '@/states/ui'
-import { SettingsTree, type SettingsTreeHandle } from './SettingsTree'
+import { SettingsTree, type SettingsPage, type SettingsTreeHandle } from './SettingsTree'
 import { SafeAreaView } from 'react-native-safe-area-context'
+import { useModalFocusReturn } from '@/lib/hooks/useWebviewFocusReturn'
+import { useModal } from '@/lib/hooks/useModal'
 
 export const SettingsModal = () => {
   const settingsModalOpen = useValue(ui$.settingsModalOpen)
+  // A long press on the header opens Settings at the page that holds the
+  // toolbar editor, so the header that the user is holding is the thing the
+  // screen edits. Every other entry point leaves this null and lands on the root.
+  const settingsModalPage = useValue(ui$.settingsModalPage)
   const urlModalOpen = useValue(ui$.urlModalOpen)
   const cookieModalOpen = useValue(ui$.cookieModalOpen)
   const userAgentModalOpen = useValue(ui$.userAgentModalOpen)
   const { width } = useWindowDimensions()
   const tree = useRef<SettingsTreeHandle>(null)
+  useModalFocusReturn(settingsModalOpen)
 
   const isNarrowNative = !isWeb && width < 768
   const appVersion = isWeb ? desktopVersion : version
@@ -31,6 +38,7 @@ export const SettingsModal = () => {
   const closeSettingsTree = useCallback(() => {
     closeSettingsChildren()
     ui$.settingsModalOpen.set(false)
+    ui$.settingsModalPage.set(null)
   }, [closeSettingsChildren])
 
   const closeTopOverlay = useCallback(() => {
@@ -74,29 +82,22 @@ export const SettingsModal = () => {
     return () => subscription.remove()
   }, [handleBack, settingsModalOpen])
 
-  useEffect(() => {
-    if (!settingsModalOpen || !isWeb || !window.addEventListener) {
-      return
-    }
-
-    const onKeyUp = (e: KeyboardEvent) => {
-      if (e.key !== 'Escape') {
-        return
-      }
-      handleBack()
-      e.preventDefault()
-      e.stopImmediatePropagation?.()
-    }
-
-    window.addEventListener('keyup', onKeyUp, true)
-    return () => window.removeEventListener('keyup', onKeyUp, true)
-  }, [handleBack, settingsModalOpen])
+  // Child modals (Open URL, cookies...) sit above this on the Escape stack and
+  // close themselves first.
+  useModal(handleBack, settingsModalOpen && isWeb)
 
   if (!settingsModalOpen) {
     return null
   }
 
-  const content = <SettingsTree ref={tree} version={appVersion} onExit={closeSettingsTree} />
+  const content = (
+    <SettingsTree
+      ref={tree}
+      version={appVersion}
+      onExit={closeSettingsTree}
+      initialPage={(settingsModalPage as SettingsPage | null) || undefined}
+    />
+  )
 
   if (isWeb) {
     return (

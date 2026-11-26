@@ -83,6 +83,25 @@ export const settingsIndex: SettingsEntry[] = [
   { page: 'appearance', labelKey: 'settings.showMediaNotificationCloseButton', sectionKey: 'settings.mediaNotificationButtons', keywords: ['notification'] },
   { page: 'appearance', labelKey: 'settings.autoHideSidebar', sectionKey: 'settings.sidebar', keywords: ['sidebar'] },
 
+  // About, changelog and sync were pages with no rows in the index: searching
+  // "version" or "about" -- the two things people actually type when they want
+  // to report a bug -- answered "No setting matches". A page is a result too.
+  { page: 'about', labelKey: 'about.label', keywords: ['version', 'build', 'app', 'info', 'copy'] },
+  // The row's own label carries {{version}} for the screen reader; a result list
+  // has no version to put in it, so the search uses the plain wording.
+  { page: 'about', labelKey: 'about.copyVersionShort', sectionKey: 'about.label', keywords: ['version', 'copy', 'build', 'bug'] },
+  { page: 'about', labelKey: 'update.check', sectionKey: 'about.updates', keywords: ['update', 'upgrade', 'release', 'newest', 'github'] },
+  { page: 'about', labelKey: 'update.auto', sectionKey: 'about.updates', keywords: ['update', 'automatic', 'startup'] },
+  { page: 'about', labelKey: 'about.source', sectionKey: 'about.code', keywords: ['github', 'repository', 'repo', 'code'] },
+  { page: 'about', labelKey: 'about.report', sectionKey: 'about.code', keywords: ['issue', 'bug', 'problem', 'github'] },
+  { page: 'about', labelKey: 'about.upstream', sectionKey: 'about.code', keywords: ['noutube', 'upstream', 'based on'] },
+  { page: 'about', labelKey: 'about.license', sectionKey: 'about.license', keywords: ['agpl', 'gpl', 'licence', 'open source'] },
+  { page: 'about', labelKey: 'about.faq', sectionKey: 'about.help', keywords: ['help', 'questions', 'support'] },
+  { page: 'about', labelKey: 'about.madeBy', sectionKey: 'about.credit', keywords: ['author', 'credits', 'developer'] },
+  { page: 'about', labelKey: 'about.supportUpstream', sectionKey: 'about.supportUpstream', keywords: ['donate', 'sponsor', 'noutube'] },
+  { page: 'changelog', labelKey: 'changelog.label', keywords: ['releases', 'notes', 'what is new', 'changes'] },
+  { page: 'sync', labelKey: 'sync.label', keywords: ['account', 'subscription', 'premium', 'sign in', 'bookmarks'] },
+
   // Tools
   { page: 'home', labelKey: 'settings.resetAll', keywords: ['default', 'defaults', 'restore', 'factory'] },
   { page: 'changed', labelKey: 'settings.changed', keywords: ['changed', 'modified', 'custom', 'differs'] },

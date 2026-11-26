@@ -16,7 +16,9 @@
     "madeBy": "Made by Noah Pham",
     "source": "NeoTube on GitHub",
     "report": "Report a problem",
-    "reportHint": "Open an issue on GitHub"
+    "reportHint": "Open an issue on GitHub",
+    "copyVersion": "Copy version {{version}}",
+    "copyVersionShort": "Copy version"
   },
   "changelog": {
     "label": "Changelog",
@@ -140,7 +142,13 @@
     "shareVideoUrl": "Video URL",
     "shareIncludePosition": "Include current position",
     "clearQueueConfirm": "Clear the queue?",
-    "clearQueueBody": "Every video in the queue will be removed. You can undo this."
+    "clearQueueBody": "Every video in the queue will be removed. You can undo this.",
+    "useDownloadsFolder": "Use Downloads folder",
+    "failedToSelectFolder": "Could not select a folder. Please try again.",
+    "downloadIosHint": "Downloads a single MP4 when available. Only download videos you have permission to save.",
+    "exportDownload": "Export",
+    "downloadErrorSignInIos": "YouTube wants a signed-in session for this video, which is not supported on iOS.",
+    "downloadErrorFormatIos": "No compatible progressive MP4 format is available for this video."
   },
   "update": {
     "check": "Check for updates",
@@ -160,7 +168,18 @@
     "openPage": "Open the release page",
     "auto": "Check automatically",
     "autoHint": "Ask GitHub when you open this page.",
-    "noReleases": "No release was found for this repository."
+    "noReleases": "No release was found for this repository.",
+    "cancel": "Cancel",
+    "retry": "Try again",
+    "install": "Install",
+    "verifying": "Checking the download…",
+    "allowInstalls": "Android has not allowed {{app}} to install packages yet.",
+    "allowInstallsAction": "Allow installs",
+    "notificationChannel": "App updates",
+    "checkedCurrent": "Checked just now — you have v{{version}}, the newest release.",
+    "checkedNoReleases": "Checked just now — no releases are published yet.",
+    "checkedFailed": "Checked just now — GitHub could not be reached.",
+    "installReady": "{{version}} is ready to install"
   },
   "sleepTimer": {
     "label": "Sleep timer",
@@ -378,6 +397,9 @@
         },
         "hideEndScreens": {
           "label": "Hide end screens"
+        },
+        "hideComments": {
+          "label": "Hide comments"
         }
       },
       "custom": {
@@ -504,7 +526,22 @@
     "changedHint": "Settings that differ from the defaults.",
     "changedNone": "Everything is at its default",
     "changedNoneHint": "Change a setting and it will show up here.",
-    "resetOne": "Reset"
+    "resetOne": "Reset",
+    "toolbarButton": {
+      "library": "Library",
+      "back": "Back",
+      "forward": "Forward",
+      "home": "Home",
+      "switchHome": "YouTube / YouTube Music",
+      "speed": "Playback speed",
+      "quality": "Video quality",
+      "sleepTimer": "Sleep timer",
+      "queue": "Queue",
+      "scripts": "Pinned scripts",
+      "moveUp": "Move up",
+      "moveDown": "Move down"
+    },
+    "toolbarHint": "Hold to edit the toolbar"
   },
   "native": {
     "format_bestQuality": "Best quality",
@@ -619,5 +656,35 @@
   "common": {
     "on": "On",
     "off": "Off"
+  },
+  "shortcuts": {
+    "title": "Keyboard shortcuts",
+    "hint": "Letter shortcuts are ignored while typing in a text field.",
+    "newTab": "New tab",
+    "reopenClosedTab": "Reopen closed tab",
+    "closeTab": "Close tab",
+    "selectTab": "Switch to tab 1-9",
+    "library": "Library",
+    "history": "History",
+    "openUrl": "Open URL",
+    "download": "Download",
+    "settings": "Settings",
+    "shortcuts": "Keyboard shortcuts",
+    "closeModal": "Close dialog or panel"
+  },
+  "taskbar": {
+    "previous": "Previous",
+    "play": "Play",
+    "pause": "Pause",
+    "next": "Next"
+  },
+  "feedGate": {
+    "consentTitle": "YouTube is asking about cookies",
+    "consentBody": "The feed stays empty until this is answered. Rejecting is enough — it just means no personalisation.",
+    "reject": "Reject all",
+    "accept": "Accept all",
+    "emptyTitle": "Nothing to watch yet",
+    "emptyBody": "YouTube has no recommendations to show. Turning watch history on is what fills this page.",
+    "openHistory": "Open watch history"
   }
 }

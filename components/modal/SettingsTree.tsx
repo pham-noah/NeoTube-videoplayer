@@ -28,6 +28,7 @@ import {
 } from './SettingsModalTabSettings'
 import { SettingsChangelogContent } from './SettingsModalTabChangelog'
 import { SettingsUserStylesContent } from './SettingsUserStylesContent'
+import { UpdateProgressRow } from './settings/UpdateProgressRow'
 import { SettingsBlocklistContent } from './SettingsBlocklistContent'
 import { ResetSettingsRow } from './settings/ResetSettingsRow'
 import { SettingsToggleRow } from './settings/primitives'
@@ -38,7 +39,9 @@ import { FAQ_URL } from '@/lib/help'
 import { SearchField } from '../row/SearchField'
 import { EmptyState } from '../row/EmptyState'
 import { searchSettings } from '@/lib/settings-index'
-import { hapticTick } from '@/lib/haptics'
+import { setStringAsync as copyToClipboard } from 'expo-clipboard'
+import { hapticSuccess, hapticTick } from '@/lib/haptics'
+import { SettingsScrollContext, useSettingsScrollView } from './settings-scroll'
 
 const repo = FORK.repoUrl
 // Upstream's developer, shown as credit, not NeoTube's.
@@ -173,23 +176,44 @@ export const SettingsTree = forwardRef<
     /* Downloads, cookies, proxy and other shell-owned tools do not have an
      * extension counterpart. */
     showShellTools?: boolean
+    /* Opens on this page with the root underneath it, so back still leaves
+     * settings rather than the app. */
+    initialPage?: SettingsPage
   }
->(({ version, onExit, renderSync, showShellTools = true }, ref) => {
+>(({ version, onExit, renderSync, showShellTools = true, initialPage }, ref) => {
   const tw = useTwColor()
   const theme = useValue(settings$.theme)
   const { user, plan } = useValue(auth$)
   const colorScheme = useColorScheme()
   const isDark = colorScheme !== 'light'
-  const [pageStack, setPageStack] = useState<SettingsPage[]>(['home'])
+  const [pageStack, setPageStack] = useState<SettingsPage[]>(() =>
+    initialPage && initialPage !== 'home' ? ['home', initialPage] : ['home'],
+  )
+  const { scroller, scrollViewProps } = useSettingsScrollView()
   const [importingList, setImportingList] = useState(false)
   const [importingTakeout, setImportingTakeout] = useState(false)
   const [updateSupported, setUpdateSupported] = useState(false)
   const [availableRelease, setAvailableRelease] = useState<AppRelease | null>(null)
   const [checkingUpdate, setCheckingUpdate] = useState(false)
+  /* What the last check found, left under the row. A toast for "you are up to
+   * date" is gone before anybody reads it, and the row is already the thing the
+   * user just pressed. */
+  const [checkNote, setCheckNote] = useState<string | null>(null)
+  /* Tapping the version copies it -- the first thing anyone asks for in a bug
+   * report -- and says so in the same place, not through a toast that is gone
+   * before it is read. */
+  const [versionCopied, setVersionCopied] = useState(false)
   // Search is a page of its own rather than a filter on the current one: the
   // point is to find a row you cannot see, which may live three pages away.
   const [searchOpen, setSearchOpen] = useState(false)
   const [query, setQuery] = useState('')
+
+  const copyVersion = () => {
+    void copyToClipboard(`NeoTube v${version}`)
+    hapticSuccess()
+    setVersionCopied(true)
+    setTimeout(() => setVersionCopied(false), 1600)
+  }
 
   const currentPage = pageStack[pageStack.length - 1]
   const canGoBack = pageStack.length > 1
@@ -252,13 +276,14 @@ export const SettingsTree = forwardRef<
       if (nativeUpdate) {
         const result = await checkForAppUpdate({ currentVersion: version, repo: FORK.repoUrl })
         if (result.status === 'available') {
+          setCheckNote(null)
           setAvailableRelease(result.release)
         } else if (result.status === 'current') {
-          showToast(t('update.upToDate'))
+          setCheckNote(t('update.checkedCurrent', { version }))
         } else if (result.status === 'no-release') {
-          showToast(t('update.noReleases'))
+          setCheckNote(t('update.checkedNoReleases'))
         } else {
-          showToast(result.message ? `${t('update.error')} (${result.message})` : t('update.error'))
+          setCheckNote(result.message ? `${t('update.checkedFailed')} (${result.message})` : t('update.checkedFailed'))
         }
         return
       }
@@ -343,7 +368,7 @@ export const SettingsTree = forwardRef<
             <View className="flex-1">
               <NouText className="font-medium">{t(entry.labelKey)}</NouText>
               <NouText className="mt-0.5 text-xs uppercase tracking-[0.14em] text-zinc-500" numberOfLines={1}>
-                {entry.sectionKey && entry.sectionKey !== entry.labelKey
+                {entry.sectionKey && t(entry.sectionKey) !== pageMeta[entry.page].title
                   ? `${pageMeta[entry.page].title} · ${t(entry.sectionKey)}`
                   : pageMeta[entry.page].title}
               </NouText>
@@ -512,12 +537,24 @@ export const SettingsTree = forwardRef<
       case 'about':
         return (
           <View className="gap-6">
-            <View className="rounded-[28px] bg-white dark:bg-zinc-900 px-5 py-5">
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel={t('about.copyVersion', { version })}
+              onPress={copyVersion}
+              className="rounded-[28px] bg-white dark:bg-zinc-900 px-5 py-5"
+            >
               <NouText className="text-[11px] uppercase tracking-[0.18em] text-zinc-600 dark:text-zinc-500">
                 {FORK.appName}
               </NouText>
-              <NouText className="mt-2 text-xl font-semibold tracking-tight">v{version}</NouText>
-            </View>
+              <View className="mt-2 flex-row items-center gap-2">
+                <NouText className="text-xl font-semibold tracking-tight">v{version}</NouText>
+                {versionCopied ? (
+                  <MaterialIcons name="check" size={16} color="#14b8a6" />
+                ) : (
+                  <MaterialIcons name="content-copy" size={14} color={tw('zinc-500')} />
+                )}
+              </View>
+            </Pressable>
 
             {updateSupported || nativeUpdate ? (
               <SettingsSection label={t('about.updates')}>
@@ -534,7 +571,7 @@ export const SettingsTree = forwardRef<
                   )}
                   <SettingsActionRow
                     label={t('update.check')}
-                    description={t('update.checkHint')}
+                    description={checkNote ?? t('update.checkHint')}
                     icon="system-update"
                     onPress={handleCheckForUpdate}
                     loading={checkingUpdate}
@@ -687,12 +724,16 @@ export const SettingsTree = forwardRef<
         </View>)}
       </View>
 
-      <ScrollView className="flex-1">
-        <View className={clsx('px-4 py-5', isWeb && 'mx-auto w-full max-w-3xl')}>
-          {searchOpen ? renderSearchResults() : renderPage()}
-          <View className="h-16" />
-        </View>
-      </ScrollView>
+      <UpdateProgressRow onPress={() => pushPage('about')} />
+
+      <SettingsScrollContext.Provider value={scroller}>
+        <ScrollView className="flex-1" {...scrollViewProps}>
+          <View className={clsx('px-4 py-5', isWeb && 'mx-auto w-full max-w-3xl')}>
+            {searchOpen ? renderSearchResults() : renderPage()}
+            <View className="h-16" />
+          </View>
+        </ScrollView>
+      </SettingsScrollContext.Provider>
     </View>
   )
 })

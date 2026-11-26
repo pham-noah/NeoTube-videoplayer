@@ -1,0 +1,28 @@
+0.3.0
+
+Upstream 0.7.11, merged
+- YouTube Music's "media next" no longer adds songs to the app's queue.
+- A feed preview no longer lands in watch history.
+- TLS checks are enforced again.
+- yt-dlp init errors are reported instead of failing silently.
+- The header toolbar is configurable: every button can be shown, hidden or
+  moved to the menu, and the bar can be reordered.
+
+Updater
+- "Get the update" downloads the APK in the app, with progress and a cancel
+  that stops the transfer.
+- The finished file goes straight to Android's package installer, and the app
+  asks to be allowed as an install source when it has not been.
+- A failed or truncated download says why and offers a retry.
+
+Interface
+- Settings search finds pages as well as settings, so "version" opens About.
+- The update check reports its result where you tapped it, not in a toast.
+- The version card in About copies the version for a bug report.
+- A notice above the page answers YouTube's cookie wall, and explains the
+  empty feed when watch history is off.
+- The header toolbar can be rearranged; long-press it to open the editor.
+
+Build
+- scripts/build-release.mjs builds a release in one command from a short-path
+  mirror, and audits the APK's version, ABI and signer.

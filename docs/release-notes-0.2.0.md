@@ -49,3 +49,16 @@ Vietnamese, and Chinese in both scripts.
 
 Signed with the project's own release key, so it installs over any earlier
 build of the same application id.
+
+## Checksums
+
+    sha256  e95b1c0ee4198403de651121035b043887cf3163192d0277321f91e3c7bda76a
+    size    64,552,112 bytes
+    arch    arm64-v8a
+    build   dev.neotube.app, versionCode 8904
+
+## About
+
+NeoTube is a fork of [NouTube](https://github.com/nonbili/NouTube), and this
+repository is the published copy. Signed with the project's release key, so it
+installs over 0.1.0 without uninstalling; a debug-signed build has to go first.

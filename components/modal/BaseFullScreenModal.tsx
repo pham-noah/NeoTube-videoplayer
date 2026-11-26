@@ -7,6 +7,7 @@ import { useKeyboardHeight } from '@/lib/hooks/useKeyboardHeight'
 import { useModal } from '@/lib/hooks/useModal'
 import { useTwColor } from '@/lib/theme'
 import { GlassSurface } from '../glass/GlassSurface'
+import { useModalFocusReturn } from '@/lib/hooks/useWebviewFocusReturn'
 
 /*
  * A page, not a card: editors that own the whole screen (code, long forms) get
@@ -31,6 +32,7 @@ export const BaseFullScreenModal: React.FC<{
 }> = ({ title, icon, onClose, actions, children }) => {
   const tw = useTwColor()
   useModal(onClose)
+  useModalFocusReturn()
   const isDark = useColorScheme() !== 'light'
   const insets = useSafeAreaInsets()
   const keyboardHeight = useKeyboardHeight()

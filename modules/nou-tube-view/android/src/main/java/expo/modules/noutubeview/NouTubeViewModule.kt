@@ -32,6 +32,11 @@ class NouTubeViewModule : Module() {
     return NouYtDlp(context)
   }
 
+  private fun installer(): NouApkInstaller? {
+    val context = appContext.reactContext ?: return null
+    return NouApkInstaller(context)
+  }
+
   private fun applyProxy(settings: NouSettings) {
     if (!WebViewFeature.isFeatureSupported(WebViewFeature.PROXY_OVERRIDE)) {
       nouController.log("proxy override is not supported")
@@ -308,7 +313,8 @@ class NouTubeViewModule : Module() {
           "error" to false,
           "filePath" to result.savedPath
         ))
-      } catch (e: Exception) {
+      } catch (e: Throwable) {
+        // Errors too: without this terminal event the download stays on "Starting..." forever.
         sendEvent("downloadProgress", mapOf(
           "url" to url,
           "progress" to 0f,
@@ -338,6 +344,22 @@ class NouTubeViewModule : Module() {
 
     AsyncFunction("getDownloadsPath") {
       android.os.Environment.DIRECTORY_DOWNLOADS
+    }
+
+    /* ---- self-update: the download lives in JS, only the install is native ---- */
+
+    Function("canInstallApk") {
+      installer()?.canInstall() ?: false
+    }
+
+    Function("openInstallSettings") {
+      installer()?.openInstallSettings()
+    }
+
+    /* True when the installer started. False means this app is not yet an
+     * allowed install source; the caller opens the settings screen. */
+    AsyncFunction("installApk") { path: String ->
+      installer()?.install(path) ?: false
     }
 
     AsyncFunction("updateYtDlp") {

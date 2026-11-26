@@ -1,5 +1,9 @@
 import NouTubeViewModule from '@/modules/nou-tube-view'
+import { StorageAccessFramework } from 'expo-file-system/legacy'
+import { isAndroid } from './utils'
+import { settings$ } from '@/states/settings'
 import type { UpdateCheckResult } from './main-interface'
+import type { TaskbarControlsState } from './taskbar-controls'
 
 export type FormatOption = {
   formatId: string
@@ -35,6 +39,7 @@ export interface MainClient {
   discordLogin(): Promise<{ loggedIn: boolean }>
   discordLogout(): Promise<void> | void
   getDiscordStatus(): Promise<{ loggedIn: boolean }> | { loggedIn: boolean }
+  setTaskbarControls(state: TaskbarControlsState): Promise<void> | void
 }
 
 type NouTubeDownloadClient = {
@@ -76,7 +81,12 @@ export const mainClient: MainClient = {
     }
   },
   async selectFolder() {
-    return null
+    if (!isAndroid) return null
+    const currentPath = settings$.downloadPath.peek()
+    const result = await StorageAccessFramework.requestDirectoryPermissionsAsync(
+      currentPath.startsWith('content://') ? currentPath : null,
+    )
+    return result.granted ? result.directoryUri : null
   },
   async openFolder() {},
   async openFile(filePath) {
@@ -127,4 +137,5 @@ export const mainClient: MainClient = {
   async getDiscordStatus() {
     return nativeModule.getDiscordStatus?.() ?? { loggedIn: false }
   },
+  async setTaskbarControls() {},
 }

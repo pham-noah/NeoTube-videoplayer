@@ -6,6 +6,8 @@ import { BackHandler, KeyboardAvoidingView, Modal, Pressable, useWindowDimension
 import { SafeAreaProvider, SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import { GlassSurface } from '@/components/glass/GlassSurface'
 import { UndoToastInline } from '@/components/row/UndoToastInline'
+import { useModalFocusReturn } from '@/lib/hooks/useWebviewFocusReturn'
+import { useModal } from '@/lib/hooks/useModal'
 
 const sheetStyle = { borderTopRightRadius: 28, borderBottomRightRadius: 28 }
 
@@ -25,6 +27,8 @@ export const BaseModal: React.FC<{
   useNativeModal?: boolean
   presentation?: BaseModalPresentation
 }> = ({ className, children, onClose, onRequestClose, useNativeModal = !isWeb, presentation = 'sheet' }) => {
+  useModal(onRequestClose || onClose, isWeb)
+  useModalFocusReturn()
   useEffect(() => {
     openModalCount$.set((count) => count + 1)
     return () => openModalCount$.set((count) => Math.max(0, count - 1))

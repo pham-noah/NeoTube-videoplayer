@@ -172,6 +172,22 @@ export async function notifyFeedVideos(updates: FeedNotificationUpdate[]): Promi
   })
 }
 
+/* Android 13 keeps the media controls out of the shade until the app has asked.
+ * Asked at the launch screen it is a dialog about nothing the user has done yet;
+ * asked the first time something is actually playing, it is about the thing on
+ * screen. NouTubeView.initService used to do the launch-time version. */
+let mediaPermissionAsked = false
+export async function requestNotificationPermissionForPlayback(): Promise<void> {
+  if (mediaPermissionAsked || !canNotify) return
+  mediaPermissionAsked = true
+  if (await hasPermission()) return
+  try {
+    await requestPermission()
+  } catch (error) {
+    console.warn('Notification permission request failed:', error)
+  }
+}
+
 let lastResponseId: string | undefined
 export function listenFeedNotifications(openFeed: () => void): () => void {
   if (nativeNotifications) {

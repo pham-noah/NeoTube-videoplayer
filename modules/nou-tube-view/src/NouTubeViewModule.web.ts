@@ -26,6 +26,16 @@ class NouTubeViewModule extends NativeModule {
   getSystemCaptionStyle() {
     return null
   }
+
+  canInstallApk() {
+    return false
+  }
+
+  openInstallSettings() {}
+
+  async installApk() {
+    throw new Error('installApk is only available on Android')
+  }
 }
 
 export default registerWebModule(NouTubeViewModule, 'NouTubeViewModule')

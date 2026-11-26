@@ -59,6 +59,30 @@
   <content_rating type="oars-1.1" />
 
   <releases>
+    <release version="0.3.5" date="2026-11-24">
+      <description>
+        <ul>
+          <li>Add Windows taskbar playback controls</li>
+          <li>Support mouse back/forward buttons</li>
+          <li>Add a Hide comments setting</li>
+          <li>Save Opus audio downloads as .opus</li>
+          <li>Restore TLS checks and handle download and playback failures</li>
+          <li>Update Italian, Polish, Portuguese, Russian and Ukrainian translations</li>
+        </ul>
+      </description>
+    </release>
+    <release version="0.3.4" date="2026-11-16">
+      <description>
+        <ul>
+          <li>Keep restored background tabs paused until first shown</li>
+          <li>Keep focus in webview, close modals with Escape, and handle shortcuts in main process</li>
+          <li>Speed up video startup with streamed HTML filtering</li>
+          <li>Add opt-in community posts to the feed reader</li>
+          <li>Fix video titles when starring thumbnail links</li>
+          <li>Update Polish translation</li>
+        </ul>
+      </description>
+    </release>
     <release version="0.3.3" date="2026-11-09">
       <description>
         <ul>

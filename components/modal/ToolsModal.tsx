@@ -8,12 +8,14 @@ import { NouText } from '../NouText'
 import { NouButton } from '../button/NouButton'
 import { GlassSwitch } from '../glass/GlassSwitch'
 import { mainClient } from '@/lib/main-client'
-import { downloads$ } from '@/states/downloads'
+import { downloads$, failDownload } from '@/states/downloads'
 import { t } from 'i18next'
 import type { FormatOption } from '@/lib/main-client'
 import { findPinnedFormats, togglePinnedFormat } from '@/lib/download-format'
 import { listFormats } from '@/lib/list-formats'
-import { isAndroid, nIf } from '@/lib/utils'
+import { isAndroid, isIos, nIf } from '@/lib/utils'
+import { File } from 'expo-file-system'
+import * as Sharing from 'expo-sharing'
 import MaterialIcons from '@react-native-vector-icons/material-icons'
 import { useTwColor } from '@/lib/theme'
 import { onAccent, statusColor } from '@/lib/colors'
@@ -35,6 +37,8 @@ export const ToolsModal = () => {
   const [parsedTitle, setParsedTitle] = useState('')
   const [loadedUrl, setLoadedUrl] = useState('')
   const [errorMsg, setErrorMsg] = useState('')
+  const [folderError, setFolderError] = useState('')
+  const [isPickingFolder, setIsPickingFolder] = useState(false)
   const [showAllFormats, setShowAllFormats] = useState(false)
   const activeDownloads = useValue(downloads$)
   const loadingUrlRef = useRef('')
@@ -43,6 +47,14 @@ export const ToolsModal = () => {
   const scrollToDownloadsRef = useRef(false)
   const isDark = useColorScheme() !== 'light'
   const effectiveDownloadPath = downloadPath || resolvedDownloadsPath
+  const downloadFolderLabel = (() => {
+    if (!isAndroid || !effectiveDownloadPath.startsWith('content://')) return effectiveDownloadPath
+    try {
+      return decodeURIComponent(effectiveDownloadPath.split('/tree/')[1]?.split('/')[0] || effectiveDownloadPath)
+    } catch {
+      return effectiveDownloadPath
+    }
+  })()
 
   const onClose = () => {
     ui$.toolsModalOpen.set(false)
@@ -80,7 +92,8 @@ export const ToolsModal = () => {
     if (!isOpen) return
     if (toolsModalUrl) {
       setUrl(toolsModalUrl)
-      loadFormats(toolsModalUrl)
+      if (isIos) setPhase('idle')
+      else loadFormats(toolsModalUrl)
     } else {
       setUrl('')
       setPhase('idle')
@@ -88,8 +101,26 @@ export const ToolsModal = () => {
     setFormats([])
   }, [isOpen, toolsModalUrl, loadFormats])
 
+  const deleteStagedFile = (savedPath: string) => {
+    if (!isIos || !savedPath) return
+    try {
+      new File(savedPath).delete()
+    } catch {
+      // Ignore missing or already-removed staged files.
+    }
+  }
+
+  const clearDownloadEntry = (dUrl: string) => {
+    const entry = downloads$[dUrl].peek()
+    if (entry?.savedPath) deleteStagedFile(entry.savedPath)
+    downloads$[dUrl].delete()
+  }
+
   const openSavedFile = (savedPath: string) => {
-    Promise.resolve(mainClient.openFile(savedPath)).catch((err: any) => {
+    const open = isIos
+      ? Sharing.shareAsync(`file://${encodeURI(savedPath)}`, { UTI: 'public.mpeg-4' })
+      : mainClient.openFile(savedPath)
+    Promise.resolve(open).catch((err: any) => {
       console.error('failed to open file', err)
     })
   }
@@ -97,7 +128,9 @@ export const ToolsModal = () => {
   // The format list stays up after a download starts, so another format of the same video can
   // be grabbed without resolving the URL again.
   const handleDownload = (formatId: string) => {
-    const targetUrl = loadedUrl || toolsModalUrl || url
+    const targetUrl = isIos ? url.trim() : loadedUrl || toolsModalUrl || url
+    const prevPath = downloads$[targetUrl].savedPath.peek()
+    if (prevPath) deleteStagedFile(prevPath)
     downloads$[targetUrl].set({
       url: targetUrl,
       title: parsedTitle || targetUrl,
@@ -117,8 +150,10 @@ export const ToolsModal = () => {
       scrollToDownloadsRef.current = true
     }
 
-    mainClient.downloadVideo(targetUrl, formatId, effectiveDownloadPath, useCookies).catch(() => {
-      // handled via downloadProgress done+error
+    mainClient.downloadVideo(targetUrl, formatId, effectiveDownloadPath, !isIos && useCookies).catch((err) => {
+      // Setup and bridge failures can reject before any progress event arrives.
+      // Keep a more detailed error already reported by the downloader.
+      failDownload(targetUrl, err instanceof Error ? err.message : t('modals.downloadFailed'))
     })
   }
 
@@ -175,7 +210,7 @@ export const ToolsModal = () => {
             }}
             onSubmitEditing={() => {
               const trimmed = url.trim()
-              if (trimmed) loadFormats(trimmed)
+              if (trimmed && !isIos) loadFormats(trimmed)
             }}
             returnKeyType="go"
             placeholder="https://www.youtube.com/watch?v=..."
@@ -184,26 +219,46 @@ export const ToolsModal = () => {
         </View>
 
         {nIf(
-          !isAndroid && (phase === 'idle' || phase === 'choosing'),
+          !isIos && (phase === 'idle' || phase === 'choosing' || phase === 'error'),
           <View className="gap-1">
             <NouText className="text-sm font-semibold text-zinc-500 dark:text-zinc-400">{t('modals.folder')}</NouText>
             <Pressable
               className="flex-row items-center gap-2 rounded border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 p-2 active:bg-zinc-100 dark:active:bg-zinc-800"
+              disabled={isPickingFolder}
               onPress={async () => {
-                const picked = await mainClient.selectFolder()
-                if (picked) settings$.downloadPath.set(picked)
+                setFolderError('')
+                setIsPickingFolder(true)
+                try {
+                  const picked = await mainClient.selectFolder()
+                  if (picked) settings$.downloadPath.set(picked)
+                } catch {
+                  setFolderError(t('modals.failedToSelectFolder'))
+                } finally {
+                  setIsPickingFolder(false)
+                }
               }}
             >
               <NouText className="flex-1 text-sm text-zinc-700 dark:text-zinc-300" numberOfLines={1}>
-                {effectiveDownloadPath || t('modals.downloadsFolder')}
+                {downloadFolderLabel || t('modals.downloadsFolder')}
               </NouText>
               <NouText className="text-xs text-zinc-400 dark:text-zinc-500">{t('buttons.browse')}</NouText>
             </Pressable>
+            {nIf(isAndroid && !!downloadPath,
+              <Pressable onPress={() => {
+                settings$.downloadPath.set('')
+                setFolderError('')
+              }}>
+                <NouText className="text-sm text-zinc-500 dark:text-zinc-400">{t('modals.useDownloadsFolder')}</NouText>
+              </Pressable>,
+            )}
+            {nIf(!!folderError,
+              <NouText className="text-sm text-red-500">{folderError}</NouText>,
+            )}
           </View>,
         )}
 
         {nIf(
-          phase === 'idle' || phase === 'choosing' || phase === 'error',
+          !isIos && (phase === 'idle' || phase === 'choosing' || phase === 'error'),
           <View className="gap-1">
             <Pressable
               onPress={() => settings$.downloadUseCookies.set(!settings$.downloadUseCookies.peek())}
@@ -223,7 +278,22 @@ export const ToolsModal = () => {
         )}
 
         {nIf(
-          phase === 'idle' || phase === 'error',
+          isIos,
+          <View className="gap-2">
+            <NouText className="text-xs text-zinc-500 dark:text-zinc-400">
+              {t('modals.downloadIosHint')}
+            </NouText>
+            <NouButton
+              disabled={!url.trim() || activeDownloads[url.trim()]?.phase === 'downloading'}
+              onPress={() => handleDownload('mp4')}
+            >
+              {t('modals.downloadVideo')}
+            </NouButton>
+          </View>,
+        )}
+
+        {nIf(
+          !isIos && (phase === 'idle' || phase === 'error'),
           <View className="flex-row justify-end">
             <NouButton disabled={!url.trim()} onPress={() => loadFormats(url.trim())}>
               {t('buttons.next')}
@@ -248,7 +318,11 @@ export const ToolsModal = () => {
               </NouText>
               <Pressable
                 onPress={() => {
-                  downloads$.set({})
+                  for (const dUrl of activeDownloadUrls) {
+                    if (activeDownloads[dUrl]?.phase !== 'downloading') {
+                      clearDownloadEntry(dUrl)
+                    }
+                  }
                 }}
                 className="px-2 py-1 rounded-md active:bg-zinc-200 dark:active:bg-zinc-800"
               >
@@ -315,11 +389,11 @@ export const ToolsModal = () => {
                             className="bg-zinc-200 dark:bg-zinc-800 px-3 py-1.5 rounded-lg active:bg-zinc-300 dark:active:bg-zinc-700"
                           >
                             <NouText className="text-xs font-semibold text-zinc-700 dark:text-zinc-300">
-                              {t('buttons.open')}
+                              {isIos ? t('modals.exportDownload') : t('buttons.open')}
                             </NouText>
                           </Pressable>
                         )}
-                        {!!d.savedPath && !isAndroid && (
+                        {nIf(!!d.savedPath && !isAndroid && !isIos,
                           <Pressable
                             onPress={() => mainClient.openFolder(d.savedPath)}
                             className="bg-zinc-200 dark:bg-zinc-800 px-3 py-1.5 rounded-lg active:bg-zinc-300 dark:active:bg-zinc-700"
@@ -327,11 +401,11 @@ export const ToolsModal = () => {
                             <NouText className="text-xs font-semibold text-zinc-700 dark:text-zinc-300">
                               {t('buttons.show')}
                             </NouText>
-                          </Pressable>
+                          </Pressable>,
                         )}
                         <Pressable
                           onPress={() => {
-                            downloads$[dUrl].delete()
+                            clearDownloadEntry(dUrl)
                           }}
                           className="bg-zinc-200 dark:bg-zinc-800 px-3 py-1.5 rounded-lg active:bg-zinc-300 dark:active:bg-zinc-700"
                         >
@@ -350,7 +424,7 @@ export const ToolsModal = () => {
                       <View className="flex-row justify-end mt-1">
                         <Pressable
                           onPress={() => {
-                            downloads$[dUrl].delete()
+                            clearDownloadEntry(dUrl)
                           }}
                           className="bg-zinc-200 dark:bg-zinc-800 px-3 py-1.5 rounded-lg active:bg-zinc-300 dark:active:bg-zinc-700"
                         >

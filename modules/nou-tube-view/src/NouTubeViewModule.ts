@@ -44,6 +44,12 @@ declare class NouTubeViewModule extends NativeModule {
   ): Promise<{ title: string; formats: Array<{ formatId: string; label: string; description: string }> }>
   downloadVideo(url: string, formatId: string, outputDir: string, useCookies: boolean): Promise<void>
   getDownloadsPath(): Promise<string>
+  /* Self-update: the download happens in JS (lib/update-install.ts); these three
+   * hand the finished file to Android's package installer. */
+  canInstallApk(): boolean
+  openInstallSettings(): void
+  /* False when this app is not yet an allowed install source. */
+  installApk(path: string): Promise<boolean>
   updateYtDlp(): Promise<void>
   setLocaleStrings(strings: Record<string, string>): void
   getSystemCaptionStyle(): {

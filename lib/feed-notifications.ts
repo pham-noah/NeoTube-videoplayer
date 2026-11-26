@@ -6,6 +6,7 @@ export async function setFeedNotificationsEnabled(_enabled: boolean): Promise<bo
 }
 export async function syncFeedNotificationTask(): Promise<boolean> { return false }
 export async function notifyFeedVideos(_updates: FeedNotificationUpdate[]): Promise<void> {}
+export async function requestNotificationPermissionForPlayback(): Promise<void> {}
 export function listenFeedNotifications(_openFeed: () => void): () => void {
   return () => {}
 }

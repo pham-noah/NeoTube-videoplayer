@@ -4,13 +4,16 @@ import { ui$, updateUrl } from '@/states/ui'
 import { tabs$, type Tab } from '@/states/tabs'
 import { queue$ } from '@/states/queue'
 import { settings$ } from '@/states/settings'
+import { requestNotificationPermissionForPlayback } from '@/lib/feed-notifications'
+import { resetFeedGate, setFeedGate } from '@/states/feed-gate'
+import { watchLoadUrl } from '@/lib/watch-load-url'
 import { bookmarks$, newBookmark } from '@/states/bookmarks'
 import { createLogger } from '@/lib/log'
 import { EmbedVideoModal } from '@/components/modal/EmbedVideoModal'
 import NouTubeViewModule, { NouTubeView } from '@/modules/nou-tube-view'
 import { AppState, StyleSheet, View } from 'react-native'
 import { setPageUrl } from '@/lib/page'
-import { getNextQueueUrl, trackQueueEnded, trackQueuePlaying } from '@/lib/queue'
+import { advanceQueue, trackQueuePlaying } from '@/lib/queue'
 import { getLastPlaying } from '@/lib/last-playing'
 import { normalizeUrl } from '@/lib/url'
 import { showToast } from '@/lib/toast'
@@ -25,15 +28,16 @@ import { auth$ } from '@/states/auth'
 import { useMe } from '@/lib/hooks/useMe'
 import { ObservableHint } from '@legendapp/state'
 import { mainClient } from '@/lib/main-client'
+import { taskbarControls } from '@/lib/taskbar-controls'
 import { onDownloadProgress } from '@/lib/download-progress'
 import { describeDownloadError } from '@/lib/download-error'
 import { t } from 'i18next'
 import { downloads$ } from '@/states/downloads'
 import { resolveUserAgent } from '@/lib/useragent'
-import { handleShortcuts } from '@/desktop/src/renderer/lib/shortcuts'
 import { retryNativeViewCall } from '@/lib/native-view-call'
 import { openPastedUrl } from '@/lib/paste-url'
 import { usePasteUrl } from '@/lib/hooks/usePasteUrl'
+import { useWebviewFocusReturn } from '@/lib/hooks/useWebviewFocusReturn'
 import { history$ } from '@/states/history'
 import { buildUserScriptSources, userScriptsInvalidationSource } from '@/lib/user-styles'
 import { getUserStylesSnapshot, userStyles$ } from '@/states/user-styles'
@@ -46,6 +50,7 @@ import { useDesktopMode } from '@/lib/hooks/useDesktopMode'
 import { SettingsModal } from '../modal/SettingsModal'
 import { PlayerFrame } from './PlayerFrame'
 import { GoogleLoginNotice } from './GoogleLoginNotice'
+import { FeedGateNotice } from './FeedGateNotice'
 import {
   closePlayer,
   isSplitWatchEnabled,
@@ -60,7 +65,16 @@ import {
   syncForegroundWebview,
   warmPlayerWebview,
 } from '@/lib/split-view'
-import { getContentSettingsSnapshot, hasRestored, markRestored, onScroll, restoreLastPlaying, splitRolePrelude } from './content-bridge'
+import {
+  executeQuietly,
+  getContentSettingsSnapshot,
+  hasRestored,
+  markRestored,
+  onScroll,
+  restoreLastPlaying,
+  settingsSyncScript,
+  splitRolePrelude,
+} from './content-bridge'
 import { DesktopTabView } from './desktop-tab-view'
 
 const logger = createLogger('sync')
@@ -71,9 +85,16 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
   const pageUrl = useValue(ui$.pageUrl)
   const embedVideoId = useValue(ui$.embedVideoId)
   usePasteUrl()
+  useWebviewFocusReturn()
   const tabs = useValue(tabs$.tabs)
   const activeTabIndex = useValue(tabs$.activeTabIndex)
+  const activeTabId = tabs[activeTabIndex]?.id
   const activePageUrl = useValue(tabs$.activePageUrl)
+  useEffect(() => {
+    if (isWeb) {
+      taskbarControls.setActiveTab(activeTabId)
+    }
+  }, [activeTabId])
   const currentPageUrl = isWeb ? activePageUrl : pageUrl
   // Portrait everywhere, unconditionally. Nothing in the app rotates except an
   // explicit fullscreen request, which is handled natively by
@@ -153,6 +174,7 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
   const userStylesState = useValue(userStyles$)
   const userScriptsOnStart = buildUserScriptSources(getUserStylesSnapshot(userStylesState))
   const preludeJs =
+    `window.NouTubeNoAdRequests = ${isAndroid || isIos};` +
     `window.NouTubeInitialSettings = ${JSON.stringify(contentSettings)};` +
     `window.NouTubeHideShorts = ${hideShorts ? 'true' : 'false'};` +
     `window.NouTubePreferH264 = ${preferH264 ? 'true' : 'false'};` +
@@ -215,7 +237,7 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
       if (payload.done) {
         if (payload.error) {
           console.error('download error', payload)
-          const { messageKey, detail } = describeDownloadError(payload.line || '')
+          const { messageKey, detail } = describeDownloadError(payload.line || '', isIos)
           downloads$[payload.url].assign({
             phase: 'error',
             errorMsg: messageKey ? t(messageKey) : detail || t('modals.downloadFailed'),
@@ -238,7 +260,7 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
   const toggleShorts = useCallback(
     (hide?: boolean) => {
       for (const ref of nativeViews()) {
-        ref.executeJavaScript(hide ? 'NouTube.hideShorts()' : 'NouTube.showShorts()')
+        executeQuietly(ref, hide ? 'window.NouTube?.hideShorts?.()' : 'window.NouTube?.showShorts?.()')
       }
     },
     [nativeViews],
@@ -248,10 +270,10 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
     const snapshot = getUserStylesSnapshot()
     const value = JSON.stringify(snapshot)
     for (const ref of nativeViews()) {
-      ref.executeJavaScript(`window.NouTube.setUserStyles(${value})`)
-      ref.executeJavaScript(userScriptsInvalidationSource)
+      executeQuietly(ref, `window.NouTube?.setUserStyles?.(${value})`)
+      executeQuietly(ref, userScriptsInvalidationSource)
       for (const source of buildUserScriptSources(snapshot)) {
-        ref.executeJavaScript(source)
+        executeQuietly(ref, source)
       }
     }
   }, [nativeViews])
@@ -260,7 +282,7 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
     const snapshot = getBlocklistSnapshot()
     const value = JSON.stringify(snapshot)
     for (const ref of nativeViews()) {
-      ref.executeJavaScript(`window.NouTube?.setBlocklist?.(${value})`)
+      executeQuietly(ref, `window.NouTube?.setBlocklist?.(${value})`)
     }
     if (isWeb) {
       void mainClient.setBlocklist(snapshot)
@@ -271,9 +293,7 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
     const settings = getContentSettingsSnapshot()
     const value = JSON.stringify(settings)
     for (const ref of nativeViews()) {
-      ref.executeJavaScript(
-        `localStorage.setItem('nou:settings', '${value}'); window.NouTube?.setSettings?.(${value})`,
-      )
+      executeQuietly(ref, settingsSyncScript(value))
     }
     if (isWeb) {
       // Electron strips ads in the main process rather than in the page (see
@@ -399,6 +419,11 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
           }
           break
         case 'onload':
+          if (source === 'browse') {
+            // A banner about the previous page's feed has no business on the
+            // page that just loaded; the content script reports again in a second.
+            resetFeedGate()
+          }
           const webview = (source === 'player' ? playerRef.current : nativeRef.current) || ui$.webview.get()
           if (!isWeb) {
             // Desktop restores the last playing video through the tab url, so
@@ -448,9 +473,21 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
             void mainClient.setDiscordPlayback(data)
           }
           break
+        case 'feed-gate':
+          // content/feed-gate.ts: what is standing in front of the feed.
+          if (source === 'browse') {
+            setFeedGate(data || {})
+          }
+          break
         case 'play-state':
           if (source === 'player') {
             setPlayerPlaying(Boolean(ui$.playerUrl.get() && data?.playing))
+            if (data?.playing) {
+              // The media notification needs POST_NOTIFICATIONS on Android 13+.
+              // Asked here, the first time something is actually playing, rather
+              // than as the app's first dialog over an empty feed.
+              void requestNotificationPermissionForPlayback()
+            }
           }
           break
         case 'playback-rate':
@@ -474,12 +511,7 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
                 : currentPageUrl
           const hasPlaylistParam = endedUrl.includes('list=')
           if (manualNext || !hasPlaylistParam) {
-            // Skipping counts as finished too, or the resume point would pull
-            // every later skip back to the queue video that was skipped.
-            trackQueueEnded(endedUrl)
-            const nextUrl = getNextQueueUrl(endedUrl, {
-              resumeUnrelated: manualNext || !settings$.disableAutoplay.get(),
-            })
+            const nextUrl = advanceQueue(endedUrl, { manual: manualNext, ytMusic: data?.ytMusic === true })
             if (nextUrl) {
               if (isWeb) {
                 tabs$.updateTabUrl(nextUrl)
@@ -503,9 +535,6 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
         case 'download':
           ui$.toolsModalUrl.set(data.url)
           ui$.toolsModalOpen.set(true)
-          break
-        case 'keyup':
-          handleShortcuts(data)
           break
         case 'paste':
           openPastedUrl(data)
@@ -583,10 +612,10 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
         try {
           const location = await webview.executeJavaScript('document.location.href')
           if (location == 'about:blank') {
-            webview.loadUrl(browseUrl)
+            webview.loadUrl(watchLoadUrl(browseUrl))
           }
         } catch (e) {
-          webview.loadUrl(browseUrl)
+          webview.loadUrl(watchLoadUrl(browseUrl))
         }
       })()
     }
@@ -615,7 +644,7 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
       openInBrowse(value)
       return
     }
-    nativeRef.current?.loadUrl(value)
+    nativeRef.current?.loadUrl(watchLoadUrl(value))
   })
 
   // The player webview is mounted for the whole session once the split is on,
@@ -684,7 +713,7 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
       closePlayer()
       setPlayerWebview(null)
       // Reload even if no video was opened, removing the page's split handlers.
-      nativeRef.current?.loadUrl(url || 'https://m.youtube.com/')
+      nativeRef.current?.loadUrl(watchLoadUrl(url || 'https://m.youtube.com/'))
       return
     }
     const url = ui$.pageUrl.get() || ui$.browsePageUrl.get()
@@ -919,6 +948,12 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
         ) : (
           <WebviewContainer headerPosition={headerPosition} nativeHeaderInset={nativeHeaderInset}>
             <GoogleLoginNotice url={splitWatchView ? browsePageUrl : currentPageUrl} />
+            <FeedGateNotice
+              onConsent={(choice) =>
+                // The consent buttons are the page's; the shell only locates them.
+                executeQuietly(nativeRef.current as unknown as Parameters<typeof executeQuietly>[0], `window.NouTube?.chooseConsent?.('${choice}')`)
+              }
+            />
             <View style={{ flex: 1 }} pointerEvents={playerFull ? 'none' : 'auto'}>
               <NouTubeView
                 ref={nativeRef}
@@ -969,7 +1004,7 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
                     const url = (loadError?.canReload && loadError.url) || fallback
                     setLoadError(errored, null)
                     const view = playerFull ? playerRef.current : nativeRef.current
-                    view?.loadUrl(url)
+                    view?.loadUrl(watchLoadUrl(url))
                   }}
                 />
               </View>,
