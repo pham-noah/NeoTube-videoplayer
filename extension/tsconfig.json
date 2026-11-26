@@ -30,6 +30,9 @@
     "**/*.ts",
     "**/*.tsx",
     "../content/types.ts",
+    "../lib/accent.ts",
+    "../lib/accent-vars.ts",
+    "../lib/tw-colors.ts",
     ".wxt/wxt.d.ts",
     ".wxt/types/*.d.ts"
   ],

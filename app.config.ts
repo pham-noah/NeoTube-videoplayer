@@ -27,7 +27,6 @@ module.exports = ({ config }: { config: ExpoConfig }) => {
     icon: './assets/images/icon.png',
     scheme: 'noutube',
     userInterfaceStyle: 'automatic',
-    newArchEnabled: true,
     ios: {
       supportsTablet: true,
       bundleIdentifier: 'dev.neotube.app',
@@ -53,7 +52,13 @@ module.exports = ({ config }: { config: ExpoConfig }) => {
     },
     web: {
       bundler: 'metro',
-      output: 'static',
+      // 'single' (SPA), not 'static': static output renders every route to HTML
+      // in Node first, and this app's entry graph assumes a browser (the WebView
+      // shell, expo-sharing, `window.electron`). Both `expo export -p web` and
+      // `expo start --web` failed on the server render, so the advertised web
+      // target produced nothing. An SPA renders in the browser where those
+      // globals exist; nothing here is crawlable HTML anyway.
+      output: 'single',
       favicon: './assets/images/favicon.png',
     },
     plugins: [
@@ -82,7 +87,7 @@ module.exports = ({ config }: { config: ExpoConfig }) => {
       [
         'expo-localization',
         {
-          supportedLocales: ['en', 'de', 'es', 'fr', 'gl', 'id', 'it', 'ja', 'pl', 'pt', 'pt-BR', 'ru', 'tr', 'uk', 'vi', 'zh-Hans', 'zh-Hant'],
+          supportedLocales: ['en', 'de', 'es', 'fr', 'gl', 'id', 'it', 'pl', 'pt', 'pt-BR', 'ru', 'tr', 'uk', 'vi', 'zh-Hans', 'zh-Hant'],
         },
       ],
       [

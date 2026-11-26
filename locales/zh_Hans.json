@@ -4,7 +4,19 @@
     "code": "源代码",
     "donate": "捐赠",
     "hint": "版本信息、更新、源代码和支持链接。",
-    "updates": "更新"
+    "updates": "更新",
+    "upstream": "基于 NouTube",
+    "license": "许可证",
+    "licenseHint": "NeoTube 是遵循 GNU AGPL v3 的自由软件。",
+    "supportUpstream": "支持 NouTube 开发者",
+    "credit": "致谢",
+    "madeBy": "作者：Noah Pham",
+    "source": "GitHub 上的 NeoTube",
+    "report": "报告问题",
+    "reportHint": "在 GitHub 上提交 issue",
+    "help": "帮助",
+    "faq": "常见问题",
+    "faqHint": "常见问题的解答"
   },
   "buttons": {
     "clear": "清除",
@@ -31,11 +43,19 @@
     "retry": "重试"
   },
   "library": {
+    "removedCount": "已删除 {{count}} 项",
+    "movedCount": "已移动 {{count}} 项",
+    "sort": "排序",
+    "sortNewest": "最新优先",
+    "sortOldest": "最旧优先",
+    "sortTitle": "标题 A–Z",
+    "selected": "已选 {{count}} 项",
     "videos": "视频",
     "channels": "频道",
     "playlists": "播放列表",
     "songs": "歌曲",
-    "artists": "音乐人"
+    "artists": "音乐人",
+    "newFolder": "新建文件夹"
   },
   "menus": {
     "edit": "编辑",
@@ -54,7 +74,10 @@
     "moveTo": "移动到…",
     "star": "收藏",
     "unstar": "取消收藏",
-    "download": "下载"
+    "download": "下载",
+    "moveUp": "上移",
+    "moveDown": "下移",
+    "playNext": "接下来播放"
   },
   "modals": {
     "editBookmark": "编辑书签",
@@ -89,9 +112,15 @@
     "showFewerFormats": "显示较少格式",
     "pinnedFormat": "已固定",
     "pinFormat": "固定为默认格式",
-    "unpinFormat": "取消固定默认格式"
+    "unpinFormat": "取消固定默认格式",
+    "clearQueueConfirm": "清空队列？",
+    "clearQueueBody": "队列中的所有视频都会被移除。可以撤销。"
   },
   "settings": {
+    "resetAll": "重置设置",
+    "resetAllBody": "将所有选项恢复为默认值。已保存的视频、历史和下载内容会保留。",
+    "resetAllConfirm": "再次点击以重置",
+    "resetDone": "设置已重置",
     "label": "设置",
     "general": "常规",
     "restoreOnStart": "启动时恢复上次会话",
@@ -331,7 +360,33 @@
     "dynamicColor": {
       "label": "动态配色",
       "hint": "使用您的系统调色板。"
-    }
+    },
+    "accent": {
+      "label": "强调色",
+      "hint": "应用与 YouTube 玻璃主题共用的一个强调色。",
+      "aurora": "极光",
+      "crimson": "绯红",
+      "purple": "紫色",
+      "cappuccino": "卡布奇诺"
+    },
+    "glass": {
+      "label": "液态玻璃主题",
+      "hint": "YouTube 上的磨砂玻璃栏和圆角卡片。"
+    },
+    "reduceEffects": {
+      "label": "减少特效",
+      "hint": "用不透明栏代替模糊效果，在旧手机上明显更轻快。"
+    },
+    "feedPosts": "信息流中的社区帖子",
+    "feedPostsDescription": "同时检查每个已保存频道的「帖子」标签页，刷新信息流会消耗更多流量。",
+    "searchPlaceholder": "搜索设置",
+    "searchEmpty": "没有匹配“{{query}}”的设置",
+    "searchHint": "输入一个词，例如“玻璃”或“代理”。",
+    "changed": "已修改设置",
+    "changedHint": "与默认值不同的设置。",
+    "changedNone": "全部为默认值",
+    "changedNoneHint": "修改设置后会显示在这里。",
+    "resetOne": "重置"
   },
   "sync": {
     "label": "同步",
@@ -391,7 +446,8 @@
     "emptyTitleWaiting": "等待订阅源更新",
     "emptyBodyWaiting": "您保存的频道已准备就绪。请保持应用打开片刻或稍后重新打开，近期上传内容将显示在此处。",
     "removeTitle": "移除 {{title}}？",
-    "removeMessage": "这将从媒体库中移除该频道并清除其订阅源视频。"
+    "removeMessage": "这将从媒体库中移除该频道并清除其订阅源视频。",
+    "communityPost": "社区帖子"
   },
   "changelog": {
     "label": "更新日志",
@@ -440,7 +496,18 @@
     "downloading": "正在下载更新 v{{version}}…",
     "error": "无法检查更新",
     "downloadedTitle": "更新已准备就绪",
-    "downloadedHint": "版本 {{version}} 已下载。立即重启以安装？"
+    "downloadedHint": "版本 {{version}} 已下载。立即重启以安装？",
+    "available": "有可用更新",
+    "fromTo": "当前为 v{{current}}，v{{next}} 已发布。",
+    "size": "{{size}} · Android 安装包",
+    "notes": "更新内容",
+    "noNotes": "此版本没有发布说明。",
+    "later": "以后再说",
+    "get": "获取更新",
+    "openPage": "打开发布页面",
+    "auto": "自动检查",
+    "autoHint": "打开此页面时向 GitHub 询问。",
+    "noReleases": "此仓库中未找到任何发布版本。"
   },
   "bookmarks": {
     "removed": "书签已移除",
@@ -448,10 +515,16 @@
     "movedToRoot": "已移出文件夹"
   },
   "folders": {
+    "none": "无文件夹",
     "removed": "文件夹 {{name}} 已移除"
   },
   "history": {
-    "cleared": "历史记录已清除"
+    "today": "今天",
+    "yesterday": "昨天",
+    "thisWeek": "本周",
+    "older": "更早",
+    "cleared": "历史记录已清除",
+    "removed": "已从历史记录中移除"
   },
   "pageLoadError": {
     "title": "无法加载此页面",
@@ -475,5 +548,47 @@
     "openYouTube": "打开 YouTube",
     "openYouTubeMusic": "打开 YouTube Music",
     "saveCurrentPage": "保存当前页面"
+  },
+  "a11y": {
+    "dragToReorder": "拖动以重新排序",
+    "library": "媒体库",
+    "back": "返回",
+    "forward": "前进",
+    "home": "首页",
+    "more": "更多操作",
+    "rowActions": "操作",
+    "selectAll": "全选",
+    "deselectAll": "取消全选",
+    "reorder": "重新排序"
+  },
+  "error": {
+    "title": "出错了",
+    "body": "NeoTube 遇到了无法恢复的错误。你的收藏、历史和设置都还在。",
+    "copy": "复制详情",
+    "copied": "已复制",
+    "retry": "重试",
+    "reload": "重新启动"
+  },
+  "empty": {
+    "browse": "浏览 YouTube",
+    "clearSearch": "清除搜索",
+    "library": "还没有保存任何内容",
+    "libraryHint": "点击视频下方的收藏图标，就能把它留在这里。",
+    "history": "还没有历史记录",
+    "historyHint": "你观看的视频会出现在这里。",
+    "queue": "队列为空",
+    "queueHint": "在播放器里把视频加入队列。",
+    "search": "没有与“{{query}}”匹配的结果"
+  },
+  "search": {
+    "placeholder": "搜索"
+  },
+  "queue": {
+    "removed": "已从队列中移除",
+    "cleared": "队列已清空"
+  },
+  "common": {
+    "on": "开",
+    "off": "关"
   }
 }

@@ -4,7 +4,19 @@
     "code": "Mã nguồn",
     "donate": "Khuyên góp",
     "hint": "Thông tin phiên bản, cập nhật, mã nguồn, và các đường dẫn được hỗ trợ.",
-    "updates": "Cập nhật"
+    "updates": "Cập nhật",
+    "upstream": "Dựa trên NouTube",
+    "license": "Giấy phép",
+    "licenseHint": "NeoTube là phần mềm tự do theo GNU AGPL v3.",
+    "supportUpstream": "Ủng hộ nhà phát triển NouTube",
+    "credit": "Ghi công",
+    "madeBy": "Thực hiện bởi Noah Pham",
+    "source": "NeoTube trên GitHub",
+    "report": "Báo lỗi",
+    "reportHint": "Mở issue trên GitHub",
+    "help": "Trợ giúp",
+    "faq": "Câu hỏi thường gặp",
+    "faqHint": "Giải đáp những thắc mắc thường gặp"
   },
   "changelog": {
     "label": "Nhật ký sửa đổi",
@@ -41,11 +53,19 @@
     "retry": "Thử lại"
   },
   "library": {
+    "removedCount": "Đã xóa {{count}}",
+    "movedCount": "Đã chuyển {{count}}",
+    "sort": "Sắp xếp",
+    "sortNewest": "Mới nhất",
+    "sortOldest": "Cũ nhất",
+    "sortTitle": "Tiêu đề A–Z",
+    "selected": "Đã chọn {{count}}",
     "videos": "Đoạn phim",
     "channels": "Kênh",
     "playlists": "Danh sách phát",
     "songs": "Bài hát",
-    "artists": "Nghệ sĩ"
+    "artists": "Nghệ sĩ",
+    "newFolder": "Thư mục mới"
   },
   "menus": {
     "edit": "Chỉnh sửa",
@@ -61,7 +81,10 @@
     "pip": "Hình-trong-hình",
     "duplicateTab": "Nhân bản cửa sổ",
     "close": "Đóng",
-    "moveTo": "Di chuyển tới…"
+    "moveTo": "Di chuyển tới…",
+    "moveUp": "Lên",
+    "moveDown": "Xuống",
+    "playNext": "Phát tiếp"
   },
   "sleepTimer": {
     "setToast": "Đã đặt thời gian đi ngủ trong {{value}} phút",
@@ -116,7 +139,8 @@
     "emptyActionAllFolders": "Hiện tất cả",
     "emptyTitleWaiting": "Đang đợi cập nhật từ trang",
     "emptyBodyWaiting": "Các kênh đã lưu đã sẵn sàng. Giữ ứng dụng mở một lúc hoặc mở lại sau, và các đăng tải mới sẽ hiện ở đây.",
-    "removeTitle": "Loại bỏ {{title}}?"
+    "removeTitle": "Loại bỏ {{title}}?",
+    "communityPost": "Bài đăng cộng đồng"
   },
   "modals": {
     "editBookmark": "Chỉnh sửa dấu trang",
@@ -135,9 +159,15 @@
     "downloadFailed": "Tải thất bại",
     "failedToLoadFormats": "Mở định dạng thất bại",
     "playbackSpeed": "Tốc độ phát",
-    "playbackQuality": "Chất lượng phát"
+    "playbackQuality": "Chất lượng phát",
+    "clearQueueConfirm": "Xoá hàng đợi?",
+    "clearQueueBody": "Mọi video trong hàng đợi sẽ bị xoá. Có thể hoàn tác."
   },
   "settings": {
+    "resetAll": "Đặt lại cài đặt",
+    "resetAllBody": "Đưa mọi tùy chọn về mặc định. Video đã lưu, lịch sử và tệp tải xuống vẫn được giữ.",
+    "resetAllConfirm": "Chạm lần nữa để đặt lại",
+    "resetDone": "Đã đặt lại cài đặt",
     "showOriginalVideoTitle": "Hiện tiêu đề gốc",
     "clickbaitThumbnail": {
       "hint": "Thay ảnh bìa bằng ảnh một khung hình trong đoạn phim"
@@ -159,7 +189,33 @@
       "defaultLabel": "Cỡ chữ",
       "defaultHint": "Tùy chỉnh cỡ chữ của YouTube."
     },
-    "appearance": "Giao diện"
+    "appearance": "Giao diện",
+    "accent": {
+      "label": "Màu nhấn",
+      "hint": "Một màu nhấn cho ứng dụng và giao diện kính của YouTube.",
+      "aurora": "Cực quang",
+      "crimson": "Đỏ thẫm",
+      "purple": "Tím",
+      "cappuccino": "Cappuccino"
+    },
+    "glass": {
+      "label": "Giao diện Liquid Glass",
+      "hint": "Thanh kính mờ và thẻ bo tròn trên YouTube."
+    },
+    "reduceEffects": {
+      "label": "Giảm hiệu ứng",
+      "hint": "Thanh đục thay vì mờ. Nhẹ hơn rõ rệt trên máy cũ."
+    },
+    "feedPosts": "Bài đăng cộng đồng trong bảng tin",
+    "feedPostsDescription": "Cũng kiểm tra tab Bài đăng của từng kênh đã lưu. Làm mới bảng tin tốn thêm dữ liệu.",
+    "searchPlaceholder": "Tìm trong cài đặt",
+    "searchEmpty": "Không có cài đặt nào khớp với “{{query}}”",
+    "searchHint": "Nhập một từ như “kính” hoặc “proxy”.",
+    "changed": "Đã thay đổi so với mặc định",
+    "changedHint": "Cài đặt khác với mặc định.",
+    "changedNone": "Mọi thứ đang ở mặc định",
+    "changedNoneHint": "Thay đổi một cài đặt và nó sẽ hiện ở đây.",
+    "resetOne": "Đặt lại"
   },
   "native": {
     "format_bestQualityDesc": "Lên đến {{height}}p cho đoạn phim + âm thanh",
@@ -173,7 +229,18 @@
     "downloading": "Đang tải bản cập nhật v{{version}}…",
     "error": "Kiểm tra cập nhật thất bại",
     "downloadedTitle": "Đã sẵn sàng cập nhật",
-    "downloadedHint": "Phiên bản {{version}} đã được tải xuống. Khởi động lại để cài đặt?"
+    "downloadedHint": "Phiên bản {{version}} đã được tải xuống. Khởi động lại để cài đặt?",
+    "available": "Có bản cập nhật",
+    "fromTo": "Bạn đang dùng v{{current}}; v{{next}} đã ra mắt.",
+    "size": "{{size}} · Gói Android",
+    "notes": "Có gì mới",
+    "noNotes": "Bản này không có ghi chú phát hành.",
+    "later": "Để sau",
+    "get": "Tải bản cập nhật",
+    "openPage": "Mở trang bản phát hành",
+    "auto": "Tự động kiểm tra",
+    "autoHint": "Hỏi GitHub khi bạn mở trang này.",
+    "noReleases": "Không tìm thấy bản phát hành nào trong kho này."
   },
   "bookmarks": {
     "removed": "Đã gỡ dấu trang",
@@ -181,6 +248,56 @@
     "movedToRoot": "Đã chuyển khỏi thư mục"
   },
   "folders": {
+    "none": "Không có thư mục",
     "removed": "Đã xoá thư mục {{name}}"
+  },
+  "a11y": {
+    "dragToReorder": "Kéo để sắp xếp lại",
+    "library": "Thư viện",
+    "back": "Quay lại",
+    "forward": "Tiến",
+    "home": "Trang chủ",
+    "more": "Thao tác khác",
+    "rowActions": "Thao tác",
+    "selectAll": "Chọn tất cả",
+    "deselectAll": "Bỏ chọn tất cả",
+    "reorder": "Sắp xếp lại"
+  },
+  "error": {
+    "title": "Đã có lỗi xảy ra",
+    "body": "NeoTube gặp lỗi không thể tự khôi phục. Dấu trang, lịch sử và cài đặt của bạn vẫn an toàn.",
+    "copy": "Sao chép chi tiết",
+    "copied": "Đã sao chép",
+    "retry": "Thử lại",
+    "reload": "Khởi động lại"
+  },
+  "empty": {
+    "browse": "Duyệt YouTube",
+    "clearSearch": "Xóa tìm kiếm",
+    "library": "Chưa lưu gì",
+    "libraryHint": "Nhấn biểu tượng dấu trang trên video để giữ nó ở đây.",
+    "history": "Chưa có lịch sử",
+    "historyHint": "Video bạn xem sẽ xuất hiện ở đây.",
+    "queue": "Hàng đợi trống",
+    "queueHint": "Thêm video vào hàng đợi từ trình phát.",
+    "search": "Không có kết quả cho “{{query}}”"
+  },
+  "search": {
+    "placeholder": "Tìm kiếm"
+  },
+  "history": {
+    "today": "Hôm nay",
+    "yesterday": "Hôm qua",
+    "thisWeek": "Tuần này",
+    "older": "Trước đó",
+    "removed": "Đã xoá khỏi lịch sử"
+  },
+  "queue": {
+    "removed": "Đã xoá khỏi hàng đợi",
+    "cleared": "Đã xoá hàng đợi"
+  },
+  "common": {
+    "on": "Bật",
+    "off": "Tắt"
   }
 }

@@ -1,11 +1,12 @@
-import { View, Pressable } from 'react-native'
-import { memo } from 'react'
+import { useColorScheme, View, Pressable } from 'react-native'
+import { memo, useState } from 'react'
+import MaterialIcons from '@react-native-vector-icons/material-icons'
 import { updateUrl, ui$ } from '@/states/ui'
 import { NouText } from '../NouText'
 import { clsx, isWeb, isIos, nIf } from '@/lib/utils'
 import { getThumbnail } from '@/lib/page'
 import { History, history$ } from '@/states/history'
-import { NouMenu } from '../menu/NouMenu'
+import { NouMenu, type Item } from '../menu/NouMenu'
 import { bookmarks$, newBookmark } from '@/states/bookmarks'
 import { library$ } from '@/states/library'
 import { useValue } from '@legendapp/state/react'
@@ -15,6 +16,10 @@ import { MaterialButton } from '../button/IconButtons'
 import { share } from '@/lib/share'
 import { RetryImage } from '../image/RetryImage'
 import { withResumeTime, withoutResumeTime } from '@/lib/last-playing'
+import { useTwColor } from '@/lib/theme'
+import { RowActionSheet } from '../row/RowActionSheet'
+import { SwipeRow } from '../row/SwipeRow'
+import { showUndoToast } from '@/states/undo-toast'
 
 const blurhash =
   '|rF?hV%2WCj[ayj[a|j[az_NaeWBj@ayfRayfQfQM{M|azj[azf6fQfQfQIpWXofj[ayj[j[fQayWCoeoeaya}j[ayfQa{oLj?j[WVj[ayayj[fQoff7azayj[ayj[j[ayofayayayj[fQj[ayayj[ayfjj[j[ayjuayj['
@@ -34,75 +39,138 @@ function getHistoryUrl({ url, current, duration }: History) {
   return nextT > 0 ? withResumeTime(url, nextT) : withoutResumeTime(url)
 }
 
+function formatDuration(seconds: number) {
+  const total = Math.round(seconds)
+  const hours = Math.floor(total / 3600)
+  const minutes = Math.floor((total % 3600) / 60)
+  const secs = total % 60
+  return hours > 0
+    ? `${hours}:${String(minutes).padStart(2, '0')}:${String(secs).padStart(2, '0')}`
+    : `${minutes}:${String(secs).padStart(2, '0')}`
+}
+
 export const HistoryItem: React.FC<{ bookmark: History }> = memo(({ bookmark }) => {
+  const tw = useTwColor()
+  const colorScheme = useColorScheme()
+  const isDark = colorScheme !== 'light'
+  const iconColor = isDark ? tw('zinc-300') : tw('slate-600')
   const historyUrl = getHistoryUrl(bookmark)
   // The saved url carries a resume time, which the library must not keep.
   const starUrl = normalizeUrl(withoutResumeTime(bookmark.url))
   const starred = useValue(library$.urls).has(getBookmarkKey(starUrl))
+  const [actionsOpen, setActionsOpen] = useState(false)
 
   const onPress = () => {
     updateUrl(historyUrl)
     ui$.assign({ historyModalOpen: false })
   }
 
+  // Removing one entry used to be the only destructive action in the app with
+  // no way back: "clear all" had an undo, the single row did not.
+  const remove = () => {
+    history$.removeHistory(bookmark)
+    showUndoToast(t('history.removed'), () => history$.restoreHistory([bookmark]))
+  }
+
+  const menuItems: Item[] = [
+    {
+      label: starred ? t('menus.unstar') : t('menus.star'),
+      icon: <MaterialIcons name={starred ? 'star' : 'star-outline'} size={18} color={iconColor} />,
+      systemImage: starred ? 'star.slash' : 'star',
+      handler: () =>
+        bookmarks$.toggleBookmark(
+          newBookmark({
+            url: starUrl,
+            title: bookmark.title,
+            json: { thumbnail: bookmark.thumbnail },
+          }),
+        ),
+    },
+    ...(isIos
+      ? []
+      : [
+          {
+            label: t('menus.download'),
+            icon: <MaterialIcons name="download" size={18} color={iconColor} />,
+            systemImage: 'arrow.down.circle',
+            handler: () => {
+              ui$.toolsModalUrl.set(starUrl)
+              ui$.toolsModalOpen.set(true)
+              ui$.assign({ historyModalOpen: false })
+            },
+          },
+        ]),
+    {
+      label: t('menus.share'),
+      icon: <MaterialIcons name="share" size={18} color={iconColor} />,
+      systemImage: 'square.and.arrow.up',
+      handler: () => share(historyUrl),
+    },
+    {
+      label: t('menus.remove'),
+      icon: <MaterialIcons name="delete-outline" size={18} color={iconColor} />,
+      systemImage: 'trash',
+      handler: remove,
+    },
+  ]
+
   const progress = bookmark.duration > 0 ? Math.min(100, Math.max(0, (bookmark.current / bookmark.duration) * 100)) : 0
 
   return (
-    <View className="flex-row my-2 overflow-hidden px-2">
-      <View className="flex-row items-center">
-        <Pressable className={clsx('w-[120px]')} onPress={onPress}>
-          <RetryImage
-            source={bookmark.thumbnail || getThumbnail(bookmark.url)}
-            contentFit="cover"
-            placeholder={{ blurhash }}
-            style={{ height: 67.5, borderRadius: 8 }}
-          />
-          {nIf(
-            bookmark.duration > 0,
-            <View className="absolute bottom-0 left-0 right-0 h-1 bg-gray-800 rounded-b-lg overflow-hidden">
-              <View className="h-full bg-red-600" style={{ width: `${progress}%` }} />
-            </View>,
-          )}
+    <SwipeRow label={t('menus.remove')} onSwipe={remove}>
+      <View className="flex-row my-2 overflow-hidden px-2">
+        <View className="flex-row items-center">
+          <Pressable
+            className={clsx('w-[120px]')}
+            onPress={onPress}
+            onLongPress={() => setActionsOpen(true)}
+            accessibilityRole="button"
+            accessibilityLabel={bookmark.title}
+            accessibilityHint={t('a11y.rowActions')}
+          >
+            <RetryImage
+              source={bookmark.thumbnail || getThumbnail(bookmark.url)}
+              contentFit="cover"
+              placeholder={{ blurhash }}
+              style={{ height: 67.5, borderRadius: 8 }}
+            />
+            {nIf(
+              bookmark.duration > 0,
+              <View className="absolute bottom-0 left-0 right-0 h-1 bg-gray-800 rounded-b-lg overflow-hidden">
+                <View className="h-full bg-red-600" style={{ width: `${progress}%` }} />
+              </View>,
+            )}
+            {/* The duration goes on the thumbnail, where YouTube puts it, rather
+                than in the title line: a row is scanned by its picture first. */}
+            {nIf(
+              bookmark.duration > 0,
+              <View className="absolute bottom-2 right-2 rounded bg-black/75 px-1">
+                <NouText className="text-[11px] text-white">{formatDuration(bookmark.duration)}</NouText>
+              </View>,
+            )}
+          </Pressable>
+        </View>
+        <Pressable
+          className="flex-1 ml-3"
+          onPress={onPress}
+          onLongPress={() => setActionsOpen(true)}
+          accessibilityRole="button"
+          accessibilityLabel={bookmark.title}
+          accessibilityHint={t('a11y.rowActions')}
+        >
+          <NouText className="leading-6" numberOfLines={3} ellipsizeMode="tail">
+            {bookmark.title}
+          </NouText>
         </Pressable>
+        <View>
+          <NouMenu
+            trigger={isWeb ? <MaterialButton name="more-vert" size={20} /> : isIos ? 'ellipsis' : 'filled.MoreVert'}
+            items={menuItems}
+          />
+        </View>
       </View>
-      <Pressable className="flex-1 ml-3" onPress={onPress}>
-        <NouText className="leading-6" numberOfLines={3} ellipsizeMode="tail">
-          {bookmark.title}
-        </NouText>
-      </Pressable>
-      <View>
-        <NouMenu
-          trigger={isWeb ? <MaterialButton name="more-vert" size={20} /> : isIos ? 'ellipsis' : 'filled.MoreVert'}
-          items={[
-            {
-              label: starred ? t('menus.unstar') : t('menus.star'),
-              handler: () =>
-                bookmarks$.toggleBookmark(
-                  newBookmark({
-                    url: starUrl,
-                    title: bookmark.title,
-                    json: { thumbnail: bookmark.thumbnail },
-                  }),
-                ),
-            },
-            ...(isIos
-              ? []
-              : [
-                  {
-                    label: t('menus.download'),
-                    handler: () => {
-                      ui$.toolsModalUrl.set(starUrl)
-                      ui$.toolsModalOpen.set(true)
-                      ui$.assign({ historyModalOpen: false })
-                    },
-                  },
-                ]),
-            { label: t('menus.share'), handler: () => share(historyUrl) },
-            { label: t('menus.remove'), handler: () => history$.removeHistory(bookmark) },
-          ]}
-        />
-      </View>
-    </View>
+      <RowActionSheet open={actionsOpen} onClose={() => setActionsOpen(false)} title={bookmark.title} items={menuItems} />
+    </SwipeRow>
   )
 })
 

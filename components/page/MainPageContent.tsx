@@ -8,18 +8,19 @@ import { bookmarks$, newBookmark } from '@/states/bookmarks'
 import { createLogger } from '@/lib/log'
 import { EmbedVideoModal } from '@/components/modal/EmbedVideoModal'
 import NouTubeViewModule, { NouTubeView } from '@/modules/nou-tube-view'
-import { StyleSheet, View } from 'react-native'
+import { AppState, StyleSheet, View } from 'react-native'
 import { setPageUrl } from '@/lib/page'
 import { getNextQueueUrl, trackQueueEnded, trackQueuePlaying } from '@/lib/queue'
 import { getLastPlaying } from '@/lib/last-playing'
 import { normalizeUrl } from '@/lib/url'
 import { showToast } from '@/lib/toast'
-import { clsx, isAndroid, isIos, isWeb, nIf } from '@/lib/utils'
+import { clsx, desktopPlatform, isAndroid, isIos, isWeb, nIf } from '@/lib/utils'
 import type { WebviewTag } from 'electron'
 import { NouHeader } from '../header/NouHeader'
 import { WebviewContainer } from './webview-container'
 import { PageLoadError } from './PageLoadError'
 import { syncSupabase } from '@/lib/supabase/sync'
+import { useAccountChoicePrompt } from '@/lib/hooks/useAccountChoicePrompt'
 import { auth$ } from '@/states/auth'
 import { useMe } from '@/lib/hooks/useMe'
 import { ObservableHint } from '@legendapp/state'
@@ -37,6 +38,7 @@ import { history$ } from '@/states/history'
 import { buildUserScriptSources, userScriptsInvalidationSource } from '@/lib/user-styles'
 import { getUserStylesSnapshot, userStyles$ } from '@/states/user-styles'
 import { blocklist$, getBlocklistSnapshot } from '@/states/blocklist'
+import { FORK } from '@/lib/fork'
 import { addSystemCaptionStyleListener, getSystemCaptionStyle } from '@/lib/system-captions'
 import { addSystemDesktopModeListener, getSystemDesktopMode } from '@/lib/desktop-mode'
 import { addPictureInPictureListener } from '@/lib/picture-in-picture'
@@ -62,6 +64,8 @@ import { getContentSettingsSnapshot, hasRestored, markRestored, onScroll, restor
 import { DesktopTabView } from './desktop-tab-view'
 
 const logger = createLogger('sync')
+// Coming back to the app syncs at most this often.
+const RETURN_SYNC_THROTTLE_MS = 30 * 1000
 
 export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) => {
   const pageUrl = useValue(ui$.pageUrl)
@@ -134,6 +138,7 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
   const loadError = (splitWatchView && playerFull ? loadErrors.player : loadErrors.browse) ?? null
   const buildPrelude = () =>
     `window.NouTubeInitialSettings = ${JSON.stringify(getContentSettingsSnapshot())};` +
+    `window.NouTubeHideShorts = ${settings$.hideShorts.get() ? 'true' : 'false'};` +
     `window.NouTubePreferH264 = ${settings$.preferH264.get() ? 'true' : 'false'};` +
     `window.NouTubeClickbaitThumbnail = ${JSON.stringify(settings$.clickbaitThumbnail.get())};` +
     `window.NouTubeUserStyles = ${JSON.stringify(getUserStylesSnapshot())};` +
@@ -149,14 +154,16 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
   const userScriptsOnStart = buildUserScriptSources(getUserStylesSnapshot(userStylesState))
   const preludeJs =
     `window.NouTubeInitialSettings = ${JSON.stringify(contentSettings)};` +
+    `window.NouTubeHideShorts = ${hideShorts ? 'true' : 'false'};` +
     `window.NouTubePreferH264 = ${preferH264 ? 'true' : 'false'};` +
     `window.NouTubeClickbaitThumbnail = ${JSON.stringify(clickbaitThumbnail)};` +
     `window.NouTubeUserStyles = ${JSON.stringify(getUserStylesSnapshot())};` +
     `window.NouTubeBlocklist = ${JSON.stringify(getBlocklistSnapshot(blocklistState))};` +
     `window.NouTubeDownloads = ${isIos ? 'false' : 'true'};`
   const { userId, me } = useMe()
+  useAccountChoicePrompt()
   const userAgent = resolveUserAgent(
-    isIos ? 'ios' : isWeb ? window.electron.process.platform : 'android',
+    isIos ? 'ios' : (desktopPlatform() ?? 'android'),
     customUserAgent,
     desktopMode,
   )
@@ -309,19 +316,28 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
 
   useEffect(() => {
     auth$.plan.set(me?.plan)
+    let lastRunAt = 0
     const runSync = () => {
+      lastRunAt = Date.now()
       void syncSupabase().catch((error) => {
         logger.error('syncSupabase failed', error)
       })
     }
 
-    if (userId && me?.plan && me.plan !== 'free') {
+    if (userId && me?.plan && me.plan !== 'free' && FORK.syncEnabled) {
       runSync()
       const timer = setInterval(
         () => runSync(),
         5 * 60 * 1000, // 5 minutes
       )
-      return () => clearInterval(timer)
+      // Coming back to the app is when another device's changes are most likely waiting.
+      const appState = AppState.addEventListener('change', (state) => {
+        if (state === 'active' && Date.now() - lastRunAt >= RETURN_SYNC_THROTTLE_MS) runSync()
+      })
+      return () => {
+        clearInterval(timer)
+        appState.remove()
+      }
     }
   }, [me?.plan, userId])
 

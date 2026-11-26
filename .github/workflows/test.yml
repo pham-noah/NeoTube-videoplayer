@@ -1,0 +1,61 @@
+name: Test
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: oven-sh/setup-bun@v2
+
+      - name: install
+        run: |
+          bun link
+          bun install --frozen-lockfile
+
+      - name: test
+        run: bun test
+
+      # App-scope typecheck. tsconfig.typecheck.json limits the program to the
+      # app (app/, components/, content/, lib/, states/, plugins/, types/) --
+      # desktop/ and extension/ have their own tsconfigs and their own
+      # dependencies (electron et al), which cannot resolve here.
+      - name: typecheck
+        run: bunx tsc --noEmit -p tsconfig.typecheck.json
+
+      - name: lint
+        run: bunx expo lint
+
+  android-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - uses: oven-sh/setup-bun@v2
+
+      - name: install and prebuild
+        run: |
+          bun link
+          bun install --frozen-lockfile
+          bun expo prebuild -p android --clean --no-install
+
+      - name: test Android module
+        run: ./gradlew :nou-tube-view:testFullDebugUnitTest :nou-tube-view:testFossDebugUnitTest
+        working-directory: android

@@ -6,6 +6,8 @@ Native screens use a glass surface (`components/glass/GlassSurface.tsx`): real b
 
 Changes from upstream: app name and package id (`dev.neotube.app`), accent palettes (`lib/accent.ts`), the glass CSS injected into YouTube (`lib/glass-css.ts`), and the settings for both. The `ytm-*` selectors in the glass CSS follow YouTube's mobile markup and may need adjusting when it changes.
 
+[Discord](https://discord.gg/tz42eZyNtD) — questions, bug reports and release news.
+
 ## Install
 
 Android: take the `.apk` from this repository's Releases tab and sideload it. The build is

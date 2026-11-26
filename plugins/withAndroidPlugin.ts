@@ -1,5 +1,21 @@
-import { ConfigPlugin, withGradleProperties, withMainActivity } from '@expo/config-plugins'
+import { ConfigPlugin, withDangerousMod, withGradleProperties, withMainActivity } from '@expo/config-plugins'
 import { withAndroidManifest, withAppBuildGradle } from '@expo/config-plugins/build/plugins/android-plugins.js'
+import { readFile, writeFile } from 'node:fs/promises'
+import path from 'node:path'
+
+// Room instantiates generated databases (including WorkManager's) by reflection.
+// Preserve their names and no-argument constructors in optimized release builds.
+const ROOM_DATABASE_KEEP_RULE = '-keep class * extends androidx.room.RoomDatabase { public <init>(); }'
+
+const withRoomDatabaseKeepRule: ConfigPlugin = (config) =>
+  withDangerousMod(config, ['android', async (config) => {
+    const rulesPath = path.join(config.modRequest.platformProjectRoot, 'app/proguard-rules.pro')
+    const contents = await readFile(rulesPath, 'utf8')
+    if (!contents.includes(ROOM_DATABASE_KEEP_RULE)) {
+      await writeFile(rulesPath, `${contents}\n# Room databases are instantiated by reflection.\n${ROOM_DATABASE_KEEP_RULE}\n`)
+    }
+    return config
+  }])
 
 // React Native seeds DisplayMetricsHolder from the *application* context
 // (ReactRootView.init, ReactHostImpl.onConfigurationChanged), which always
@@ -12,7 +28,7 @@ import { withAndroidManifest, withAppBuildGradle } from '@expo/config-plugins/bu
 //
 // The same hooks also tell the native module which display we are on, so JS can
 // mirror desktop mode onto the YouTube user agent.
-const DESKTOP_MODE_ANCHOR = 'com.facebook.react.uimanager.DisplayMetricsHolder.setWindowDisplayMetrics(activityMetrics)'
+const DESKTOP_MODE_ANCHOR = 'com.facebook.react.uimanager.DisplayMetricsHolder.setScreenDisplayMetrics(screenMetrics)'
 const DESKTOP_MODE_NOTIFY = `    expo.modules.noutubeview.nouController.updateDesktopMode(this)`
 const DISPLAY_METRICS_FIX = `
   private fun syncDisplayMetricsToCurrentDisplay() {
@@ -35,7 +51,6 @@ const DISPLAY_METRICS_FIX = `
     screenMetrics.scaledDensity = activityMetrics.scaledDensity
     screenMetrics.xdpi = activityMetrics.xdpi
     screenMetrics.ydpi = activityMetrics.ydpi
-    com.facebook.react.uimanager.DisplayMetricsHolder.setScreenDisplayMetrics(screenMetrics)
     ${DESKTOP_MODE_ANCHOR}
 ${DESKTOP_MODE_NOTIFY}
   }
@@ -94,6 +109,12 @@ const withSecondaryDisplayMetricsFix: ConfigPlugin = (config) =>
     if (config.modResults.language !== 'kt') {
       throw new Error('withSecondaryDisplayMetricsFix expects a Kotlin MainActivity')
     }
+    // RN 0.88 removed the window-metrics setter. Migrate earlier prebuilds
+    // before the idempotence checks; PixelUtil now uses screen metrics only.
+    config.modResults.contents = config.modResults.contents.replace(
+      /\n[ \t]*com\.facebook\.react\.uimanager\.DisplayMetricsHolder\.setWindowDisplayMetrics\(activityMetrics\)/g,
+      '',
+    )
     if (config.modResults.contents.includes('nouController.updateDesktopMode')) {
       return config
     }
@@ -159,30 +180,29 @@ const withPictureInPicture: ConfigPlugin = (config) => {
 }
 
 const withAndroidSigningConfig: ConfigPlugin = (config) => {
+  config = withRoomDatabaseKeepRule(config)
   config = withPictureInPicture(config)
   config = withSecondaryDisplayMetricsFix(config)
   config = withDeepLinkIntentFix(config)
 
-  config = withAndroidManifest(config, (config: any) => {
-    const app = config.modResults.manifest.application?.[0]
-    if (app) {
-      app.$['android:extractNativeLibs'] = 'true'
-    }
-    return config
-  })
-
+  // Extract the bundled yt-dlp/Python/FFmpeg libraries through Gradle's
+  // packaging setting; AGP 9 rejects setting only extractNativeLibs in XML.
   // Bump JVM memory: release builds run out of the default 512m Metaspace on
   // CI, failing :app:packageRelease. See workflow run 27182763983.
   config = withGradleProperties(config, (config) => {
-    const value = '-Xmx4g -XX:MaxMetaspaceSize=2g'
-    const existing = config.modResults.find(
-      (item): item is { type: 'property'; key: string; value: string } =>
-        item.type === 'property' && item.key === 'org.gradle.jvmargs',
-    )
-    if (existing) {
-      existing.value = value
-    } else {
-      config.modResults.push({ type: 'property', key: 'org.gradle.jvmargs', value })
+    for (const [key, value] of Object.entries({
+      'expo.useLegacyPackaging': 'true',
+      'org.gradle.jvmargs': '-Xmx4g -XX:MaxMetaspaceSize=2g',
+    })) {
+      const existing = config.modResults.find(
+        (item): item is { type: 'property'; key: string; value: string } =>
+          item.type === 'property' && item.key === key,
+      )
+      if (existing) {
+        existing.value = value
+      } else {
+        config.modResults.push({ type: 'property', key, value })
+      }
     }
     return config
   })

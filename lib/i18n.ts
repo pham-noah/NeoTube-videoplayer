@@ -8,7 +8,6 @@ import frText from '@/locales/fr.json'
 import glText from '@/locales/gl.json'
 import idText from '@/locales/id.json'
 import itText from '@/locales/it.json'
-import jaText from '@/locales/ja.json'
 import plText from '@/locales/pl.json'
 import ptText from '@/locales/pt.json'
 import ptBRText from '@/locales/pt_BR.json'
@@ -20,7 +19,11 @@ import zhHansText from '@/locales/zh_Hans.json'
 import zhHantText from '@/locales/zh_Hant.json'
 import type { Locale } from 'expo-localization'
 
-export const supportedI18nLanguages = ['de', 'en', 'es', 'fr', 'gl', 'id', 'it', 'ja', 'pl', 'pt', 'pt_BR', 'ru', 'tr', 'uk', 'vi', 'zh_Hans', 'zh_Hant'] as const
+// Japanese is deliberately absent: locales/ja.json shipped as `{}` for its whole
+// history, so the picker offered a language with no translation at all. It comes
+// back when there is a real ja.json to offer (see lib/i18n.test.ts, which fails
+// if a supported language has no strings).
+export const supportedI18nLanguages = ['de', 'en', 'es', 'fr', 'gl', 'id', 'it', 'pl', 'pt', 'pt_BR', 'ru', 'tr', 'uk', 'vi', 'zh_Hans', 'zh_Hant'] as const
 export type SupportedI18nLanguage = (typeof supportedI18nLanguages)[number]
 
 export const i18nLanguageNativeNames: Record<SupportedI18nLanguage, string> = {
@@ -31,7 +34,6 @@ export const i18nLanguageNativeNames: Record<SupportedI18nLanguage, string> = {
   gl: 'Galego',
   id: 'Bahasa Indonesia',
   it: 'Italiano',
-  ja: '日本語',
   pl: 'Polski',
   pt: 'Português',
   pt_BR: 'Português (Brasil)',
@@ -64,9 +66,6 @@ const resources: Resource = {
   },
   it: {
     translation: itText,
-  },
-  ja: {
-    translation: jaText,
   },
   pl: {
     translation: plText,

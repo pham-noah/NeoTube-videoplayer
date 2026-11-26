@@ -4,7 +4,19 @@
     "donate": "Donasi",
     "code": "Kode sumber",
     "hint": "Info versi, pembaruan, kode sumber, dan tautan dukungan.",
-    "updates": "Pembaruan"
+    "updates": "Pembaruan",
+    "upstream": "Berdasarkan NouTube",
+    "license": "Lisensi",
+    "licenseHint": "NeoTube adalah perangkat lunak bebas di bawah GNU AGPL v3.",
+    "supportUpstream": "Dukung pengembang NouTube",
+    "credit": "Kredit",
+    "madeBy": "Dibuat oleh Noah Pham",
+    "source": "NeoTube di GitHub",
+    "report": "Laporkan masalah",
+    "reportHint": "Buka issue di GitHub",
+    "help": "Bantuan",
+    "faq": "Pertanyaan umum",
+    "faqHint": "Jawaban atas pertanyaan yang sering muncul"
   },
   "buttons": {
     "clear": "Hapus",
@@ -31,11 +43,19 @@
     "retry": "Coba lagi"
   },
   "library": {
+    "removedCount": "{{count}} dihapus",
+    "movedCount": "{{count}} dipindahkan",
+    "sort": "Urutkan",
+    "sortNewest": "Terbaru",
+    "sortOldest": "Terlama",
+    "sortTitle": "Judul A–Z",
+    "selected": "{{count}} dipilih",
     "videos": "Video",
     "channels": "Channel",
     "playlists": "Playlist",
     "songs": "Lagu",
-    "artists": "Artis"
+    "artists": "Artis",
+    "newFolder": "Folder baru"
   },
   "menus": {
     "edit": "Sunting",
@@ -54,7 +74,10 @@
     "moveTo": "Pindahkan ke…",
     "star": "Tambahkan ke favorit",
     "unstar": "Hapus dari favorit",
-    "download": "Unduh"
+    "download": "Unduh",
+    "moveUp": "Naikkan",
+    "moveDown": "Turunkan",
+    "playNext": "Putar berikutnya"
   },
   "modals": {
     "editBookmark": "Sunting markah",
@@ -89,9 +112,15 @@
     "unpinFormat": "Lepaskan sematan format default",
     "sharePageUrl": "URL Halaman",
     "shareVideoUrl": "URL Video",
-    "shareIncludePosition": "Sertakan posisi saat ini"
+    "shareIncludePosition": "Sertakan posisi saat ini",
+    "clearQueueConfirm": "Kosongkan antrean?",
+    "clearQueueBody": "Semua video di antrean akan dihapus. Ini bisa dibatalkan."
   },
   "settings": {
+    "resetAll": "Setel ulang pengaturan",
+    "resetAllBody": "Mengembalikan semua opsi ke nilai bawaan. Video, riwayat, dan unduhan tetap tersimpan.",
+    "resetAllConfirm": "Ketuk lagi untuk menyetel ulang",
+    "resetDone": "Pengaturan disetel ulang",
     "label": "Pengaturan",
     "general": "Umum",
     "restoreOnStart": "Pulihkan sesi terakhir saat memulai",
@@ -325,7 +354,33 @@
     "dynamicColor": {
       "label": "Warna dinamis",
       "hint": "Gunakan palet warna sistem Anda."
-    }
+    },
+    "accent": {
+      "label": "Warna aksen",
+      "hint": "Satu aksen untuk aplikasi dan tema kaca YouTube.",
+      "aurora": "Aurora",
+      "crimson": "Merah tua",
+      "purple": "Ungu",
+      "cappuccino": "Cappuccino"
+    },
+    "glass": {
+      "label": "Tema Liquid Glass",
+      "hint": "Bilah kaca buram dan kartu bersudut bulat di YouTube."
+    },
+    "reduceEffects": {
+      "label": "Kurangi efek",
+      "hint": "Bilah buram penuh alih-alih blur. Terasa jauh lebih ringan di ponsel lama."
+    },
+    "feedPosts": "Postingan komunitas di feed",
+    "feedPostsDescription": "Ikut memeriksa tab Postingan setiap kanal tersimpan. Menyegarkan feed memakai lebih banyak data.",
+    "searchPlaceholder": "Cari pengaturan",
+    "searchEmpty": "Tidak ada pengaturan yang cocok dengan “{{query}}”",
+    "searchHint": "Ketik kata seperti “kaca” atau “proxy”.",
+    "changed": "Diubah dari bawaan",
+    "changedHint": "Pengaturan yang berbeda dari bawaan.",
+    "changedNone": "Semua masih bawaan",
+    "changedNoneHint": "Ubah pengaturan dan akan muncul di sini.",
+    "resetOne": "Setel ulang"
   },
   "sync": {
     "label": "Sinkronisasi",
@@ -413,7 +468,8 @@
     "emptyTitleWaiting": "Menunggu pembaruan feed",
     "emptyBodyWaiting": "Channel tersimpan Anda sudah siap. Biarkan aplikasi tetap terbuka sebentar atau buka kembali nanti, dan upload terbaru akan muncul di sini.",
     "removeTitle": "Hapus {{title}}?",
-    "removeMessage": "Ini akan menghapus channel dari Pustaka dan membersihkan video feed-nya."
+    "removeMessage": "Ini akan menghapus channel dari Pustaka dan membersihkan video feed-nya.",
+    "communityPost": "Postingan komunitas"
   },
   "native": {
     "format_bestQuality": "Kualitas terbaik",
@@ -434,7 +490,18 @@
     "downloading": "Mengunduh pembaruan v{{version}}…",
     "error": "Gagal memeriksa pembaruan",
     "downloadedTitle": "Pembaruan siap",
-    "downloadedHint": "Versi {{version}} telah diunduh. Mulai ulang sekarang untuk memasang?"
+    "downloadedHint": "Versi {{version}} telah diunduh. Mulai ulang sekarang untuk memasang?",
+    "available": "Pembaruan tersedia",
+    "fromTo": "Kamu memakai v{{current}}; v{{next}} sudah tersedia.",
+    "size": "{{size}} · Paket Android",
+    "notes": "Yang baru",
+    "noNotes": "Versi ini tidak menyertakan catatan rilis.",
+    "later": "Nanti",
+    "get": "Ambil pembaruan",
+    "openPage": "Buka halaman rilis",
+    "auto": "Periksa otomatis",
+    "autoHint": "Menanyakan GitHub saat halaman ini dibuka.",
+    "noReleases": "Tidak ada rilis di repositori ini."
   },
   "bookmarks": {
     "removed": "Bookmark dihapus",
@@ -442,10 +509,16 @@
     "movedToRoot": "Dipindahkan keluar dari folder"
   },
   "folders": {
+    "none": "Tanpa folder",
     "removed": "Folder {{name}} dihapus"
   },
   "history": {
-    "cleared": "Riwayat dihapus"
+    "today": "Hari ini",
+    "yesterday": "Kemarin",
+    "thisWeek": "Minggu ini",
+    "older": "Sebelumnya",
+    "cleared": "Riwayat dihapus",
+    "removed": "Dihapus dari riwayat"
   },
   "pageLoadError": {
     "title": "Tidak dapat memuat halaman ini",
@@ -469,5 +542,47 @@
     "openYouTube": "Buka YouTube",
     "openYouTubeMusic": "Buka YouTube Music",
     "saveCurrentPage": "Simpan halaman saat ini"
+  },
+  "a11y": {
+    "dragToReorder": "Seret untuk mengurutkan",
+    "library": "Pustaka",
+    "back": "Kembali",
+    "forward": "Maju",
+    "home": "Beranda",
+    "more": "Tindakan lainnya",
+    "rowActions": "Tindakan",
+    "selectAll": "Pilih semua",
+    "deselectAll": "Batalkan pilihan",
+    "reorder": "Susun ulang"
+  },
+  "error": {
+    "title": "Terjadi kesalahan",
+    "body": "NeoTube mengalami kesalahan yang tidak bisa dipulihkan. Markah, riwayat, dan pengaturan Anda tetap aman.",
+    "copy": "Salin detail",
+    "copied": "Disalin",
+    "retry": "Coba lagi",
+    "reload": "Mulai ulang"
+  },
+  "empty": {
+    "browse": "Jelajahi YouTube",
+    "clearSearch": "Hapus pencarian",
+    "library": "Belum ada yang disimpan",
+    "libraryHint": "Ketuk ikon markah pada video untuk menyimpannya di sini.",
+    "history": "Belum ada riwayat",
+    "historyHint": "Video yang Anda tonton akan muncul di sini.",
+    "queue": "Antrean kosong",
+    "queueHint": "Tambahkan video ke antrean dari pemutar.",
+    "search": "Tidak ada hasil untuk “{{query}}”"
+  },
+  "search": {
+    "placeholder": "Cari"
+  },
+  "queue": {
+    "removed": "Dihapus dari antrean",
+    "cleared": "Antrean dikosongkan"
+  },
+  "common": {
+    "on": "Aktif",
+    "off": "Nonaktif"
   }
 }

@@ -4,7 +4,19 @@
     "code": "Code source",
     "donate": "Faire un don",
     "hint": "Informations sur la version, mises à jour, code source et liens vers l'assistance.",
-    "updates": "Mises à jour"
+    "updates": "Mises à jour",
+    "help": "Aide",
+    "faq": "FAQ",
+    "faqHint": "Réponses aux questions fréquentes",
+    "upstream": "Basé sur NouTube",
+    "license": "Licence",
+    "licenseHint": "NeoTube est un logiciel libre sous GNU AGPL v3.",
+    "supportUpstream": "Soutenir le développeur de NouTube",
+    "credit": "Crédits",
+    "madeBy": "Réalisé par Noah Pham",
+    "source": "NeoTube sur GitHub",
+    "report": "Signaler un problème",
+    "reportHint": "Ouvrir un ticket sur GitHub"
   },
   "buttons": {
     "clear": "Effacer",
@@ -27,14 +39,23 @@
     "updating": "Mise à jour en cours...",
     "ytDlpUpdated": "yt-dlp est à jour",
     "undo": "Défaire",
-    "retry": "Réessayer"
+    "retry": "Réessayer",
+    "confirm": "Confirmer"
   },
   "library": {
+    "removedCount": "{{count}} supprimés",
+    "movedCount": "{{count}} déplacés",
+    "sort": "Trier",
+    "sortNewest": "Plus récents",
+    "sortOldest": "Plus anciens",
+    "sortTitle": "Titre A–Z",
+    "selected": "{{count}} sélectionnés",
     "videos": "Vidéos",
     "channels": "Chaînes",
     "playlists": "Playlists",
     "songs": "Titres",
-    "artists": "Artistes"
+    "artists": "Artistes",
+    "newFolder": "Nouveau dossier"
   },
   "menus": {
     "edit": "Modifier",
@@ -53,7 +74,10 @@
     "moveTo": "Aller à…",
     "unstar": "Retirer des favoris",
     "star": "Favoris",
-    "download": "Télécharger"
+    "download": "Télécharger",
+    "moveUp": "Monter",
+    "moveDown": "Descendre",
+    "playNext": "Lire ensuite"
   },
   "modals": {
     "editBookmark": "Modifier le signet",
@@ -88,9 +112,15 @@
     "showFewerFormats": "Afficher moins de formats",
     "pinnedFormat": "Épinglé",
     "pinFormat": "Définir comme format par défaut",
-    "unpinFormat": "Désélectionner le format par défaut"
+    "unpinFormat": "Désélectionner le format par défaut",
+    "clearQueueConfirm": "Vider la file d'attente ?",
+    "clearQueueBody": "Toutes les vidéos de la file seront retirées. C'est annulable."
   },
   "settings": {
+    "resetAll": "Réinitialiser les réglages",
+    "resetAllBody": "Remet toutes les options à leur valeur par défaut. Vidéos enregistrées, historique et téléchargements sont conservés.",
+    "resetAllConfirm": "Appuyez à nouveau pour réinitialiser",
+    "resetDone": "Réglages réinitialisés",
     "label": "Paramètres",
     "general": "Général",
     "restoreOnStart": "Restaurer la dernière session au démarrage",
@@ -267,7 +297,13 @@
       "host": "Serveur proxy",
       "port": "Port du proxy",
       "hostPlaceholder": "par exemple : 127.0.0.1 ou proxy.example.com",
-      "portPlaceholder": "par exemple 1080"
+      "portPlaceholder": "par exemple 1080",
+      "username": "Nom d'utilisateur",
+      "password": "Mot de passe",
+      "credentialsHint": "Facultatif. Les modifications sont prises en compte peu après que vous ayez cessé de taper. Les identifiants restent sur cet appareil et ne sont pas inclus dans les sauvegardes ni dans la synchronisation. Lorsque l'authentification est activée, les autres applications de cet appareil peuvent utiliser le relais proxy local.",
+      "applyFailed": "Impossible d'appliquer les paramètres de proxy.",
+      "credentialsHintIos": "Facultatif. Les modifications sont prises en compte peu après que vous ayez cessé de taper. Les identifiants restent sur cet appareil et ne sont pas inclus dans les sauvegardes ni dans la synchronisation.",
+      "iosRequires17": "Sous iOS 16, un proxy HTTP ne peut être utilisé que pour les flux. La navigation via un proxy, le protocole SOCKS et l'authentification nécessitent iOS 17 ou une version ultérieure."
     },
     "toolbar": "Barre d'outils",
     "toolbarButtons": "Boutons de la barre d'outils",
@@ -326,13 +362,78 @@
     "blockAds": {
       "label": "Bloquer les publicités",
       "hint": "Désactivez cette option pour autoriser les publicités YouTube et soutenir les créateurs."
-    }
+    },
+    "discord": {
+      "label": "Discord",
+      "enabled": "Afficher ce qui est en cours de lecture sur Discord",
+      "hint": "Connectez-vous avec votre compte Discord et définissez la vidéo ou le titre que vous écoutez comme activité. Discord ne prend pas officiellement en charge cette fonctionnalité.",
+      "login": "Se connecter à Discord",
+      "logout": "Se déconnecter de Discord"
+    },
+    "feedNotifications": "Nouvelles notifications vidéo du fil d'actualité",
+    "feedNotificationsDescription": "Vérification des chaînes enregistrées en arrière-plan. La diffusion peut être retardée par le système. La fermeture forcée de l'application interrompt les vérifications jusqu'à ce que vous rouvriez l'application.",
+    "feedNotificationsUnavailable": "Autorisez les notifications et l'activité en arrière-plan dans les paramètres système pour activer les alertes du fil d'actualité.",
+    "feedNotificationsError": "Impossible d'activer les notifications du flux. Veuillez réessayer.",
+    "dynamicColor": {
+      "label": "Couleur dynamique",
+      "hint": "Utilisez la palette de couleurs de votre système."
+    },
+    "googleLoginCookieHint": "La connexion via Google ne fonctionne souvent pas dans la vue Web. Vous devrez peut-être injecter des cookies à partir d'un navigateur sur lequel vous êtes connecté.",
+    "cookieFaq": "Comment injecter des cookies",
+    "injectCookieAction": "Insérer un cookie",
+    "disableAutoplay": "Désactiver la lecture automatique",
+    "disableAutoplayHint": "Désactivez l'option « Lecture automatique » sur YouTube pour empêcher l'affichage des vidéos recommandées. La lecture des files d'attente et des playlists se poursuit.",
+    "forceLandscape": "Forcer l'orientation paysage",
+    "forceLandscapeDescription": "Veillez à ce que l'application reste en mode paysage sur les téléphones, même lorsque la rotation automatique est désactivée. Android peut ne pas tenir compte de ce paramètre sur les tablettes et les appareils pliables dépliés.",
+    "accent": {
+      "label": "Couleur d’accent",
+      "hint": "Une seule couleur d’accent pour l’app et le thème de verre de YouTube.",
+      "aurora": "Aurore",
+      "crimson": "Cramoisi",
+      "purple": "Violet",
+      "cappuccino": "Cappuccino"
+    },
+    "glass": {
+      "label": "Thème Liquid Glass",
+      "hint": "Barres en verre dépoli et cartes arrondies sur YouTube."
+    },
+    "reduceEffects": {
+      "label": "Réduire les effets",
+      "hint": "Barres opaques au lieu de floues. Nettement plus léger sur les téléphones anciens."
+    },
+    "feedPosts": "Publications de la communauté dans le fil",
+    "feedPostsDescription": "Vérifie aussi l’onglet Publications de chaque chaîne enregistrée. Actualiser les fils consomme plus de données.",
+    "searchPlaceholder": "Rechercher un réglage",
+    "searchEmpty": "Aucun réglage ne correspond à « {{query}} »",
+    "searchHint": "Tapez un mot comme « verre » ou « proxy ».",
+    "changed": "Modifié par rapport aux valeurs par défaut",
+    "changedHint": "Réglages qui diffèrent des valeurs par défaut.",
+    "changedNone": "Tout est à sa valeur par défaut",
+    "changedNoneHint": "Modifiez un réglage et il apparaîtra ici.",
+    "resetOne": "Réinitialiser"
   },
   "sync": {
     "label": "Synchronisation",
     "hint": "Synchronisez vos signets entre vos téléphones et vos ordinateurs en tant qu'utilisateur premium.",
     "currentPlan": "Plan actuel",
-    "managePlan": "Gérer le plan"
+    "managePlan": "Gérer le plan",
+    "freePlan": "Gratuit",
+    "deleteAccount": "Supprimer le compte",
+    "buy": "S'abonner via l'App Store",
+    "restore": "Récupérer les achats",
+    "manageIos": "Gérer dans l'App Store",
+    "purchaseTitle": "S'abonner à Bind",
+    "purchaseConfirm": "Cet abonnement sera associé à l'adresse {{email}} et vous permettra de synchroniser vos données partout où vous vous connecterez à ce compte NouTube.",
+    "priceLoading": "Chargement du prix sur l'App Store...",
+    "purchasePending": "Achat en attente de validation. La synchronisation sera activée dès que l'achat aura été validé.",
+    "productUnavailable": "Ce produit n'est pas encore disponible sur l'App Store.",
+    "noPurchaseToRestore": "Aucun achat « NouTube Sync » n'a été détecté à restaurer.",
+    "activeViaIos": "Disponible sur l'App Store",
+    "signOutSwitch": "Se déconnecter et changer de compte",
+    "expiresAt": "Renouvellement ou expiration : {{value}}",
+    "legalNotice": "Les abonnements sont renouvelés automatiquement, sauf en cas de résiliation. En vous abonnant, vous acceptez les conditions d'utilisation (CLUF) et la politique de confidentialité.",
+    "termsOfUse": "Conditions d'utilisation (CLUF)",
+    "privacyPolicy": "Politique de confidentialité"
   },
   "feeds": {
     "updates": "Mises à jour",
@@ -369,7 +470,13 @@
     "emptyTitleWaiting": "En attente de mises à jour du flux",
     "emptyBodyWaiting": "Vos chaînes enregistrées sont prêtes. Laissez l'application ouverte quelques instants ou rouvrez-la plus tard : les dernières vidéos mises en ligne s'afficheront ici.",
     "removeTitle": "Supprimer {{title}} ?",
-    "removeMessage": "Cela supprime la chaîne de la bibliothèque et efface ses vidéos."
+    "removeMessage": "Cela supprime la chaîne de la bibliothèque et efface ses vidéos.",
+    "notificationTitle": "Nouvelles vidéos dans votre fil d'actualité",
+    "notificationSummary_one": "{{count}} nouvelles vidéos provenant de {{channels}} chaînes",
+    "notificationSummary_other": "{{count}} nouvelles vidéos provenant de {{channels}} chaînes",
+    "notificationBody_one": "{{count}} nouvelle vidéo de {{channel}}",
+    "notificationBody_other": "{{count}} nouvelles vidéos de la chaîne {{channel}}",
+    "communityPost": "Publication de la communauté"
   },
   "changelog": {
     "label": "Journal des modifications",
@@ -418,7 +525,18 @@
     "downloading": "Téléchargement de la mise à jour v{{version}}…",
     "error": "Échec de la vérification des mises à jour",
     "downloadedTitle": "Prêt pour la mise à jour",
-    "downloadedHint": "La version {{version}} a été téléchargée. Voulez-vous redémarrer maintenant pour l'installer ?"
+    "downloadedHint": "La version {{version}} a été téléchargée. Voulez-vous redémarrer maintenant pour l'installer ?",
+    "available": "Mise à jour disponible",
+    "fromTo": "Vous avez v{{current}} ; v{{next}} est disponible.",
+    "size": "{{size}} · Paquet Android",
+    "notes": "Nouveautés",
+    "noNotes": "Aucune note n'accompagne cette version.",
+    "later": "Plus tard",
+    "get": "Obtenir la mise à jour",
+    "openPage": "Ouvrir la page de la version",
+    "auto": "Vérifier automatiquement",
+    "autoHint": "Interroge GitHub à l'ouverture de cette page.",
+    "noReleases": "Aucune version n'a été trouvée pour ce dépôt."
   },
   "bookmarks": {
     "removed": "Signet supprimé",
@@ -426,6 +544,7 @@
     "movedToRoot": "Déplacé hors du dossier"
   },
   "folders": {
+    "none": "Aucun dossier",
     "removed": "Le dossier {{name}} a été supprimé"
   },
   "pageLoadError": {
@@ -452,6 +571,53 @@
     "saveCurrentPage": "Enregistrer la page actuelle"
   },
   "history": {
-    "cleared": "Historique effacé"
+    "today": "Aujourd’hui",
+    "yesterday": "Hier",
+    "thisWeek": "Cette semaine",
+    "older": "Plus tôt",
+    "cleared": "Historique effacé",
+    "removed": "Retiré de l'historique"
+  },
+  "a11y": {
+    "dragToReorder": "Faire glisser pour réordonner",
+    "library": "Bibliothèque",
+    "back": "Retour",
+    "forward": "Suivant",
+    "home": "Accueil",
+    "more": "Plus d'actions",
+    "rowActions": "Actions",
+    "selectAll": "Tout sélectionner",
+    "deselectAll": "Tout désélectionner",
+    "reorder": "Réorganiser"
+  },
+  "error": {
+    "title": "Quelque chose a cassé",
+    "body": "NeoTube a rencontré une erreur dont il n'a pas pu se remettre. Vos favoris, votre historique et vos réglages sont intacts.",
+    "copy": "Copier les détails",
+    "copied": "Copié",
+    "retry": "Réessayer",
+    "reload": "Redémarrer"
+  },
+  "empty": {
+    "browse": "Parcourir YouTube",
+    "clearSearch": "Effacer la recherche",
+    "library": "Rien d'enregistré pour l'instant",
+    "libraryHint": "Touchez l'icône de favori sous une vidéo pour la garder ici.",
+    "history": "Pas encore d'historique",
+    "historyHint": "Les vidéos que vous regardez apparaîtront ici.",
+    "queue": "La file d'attente est vide",
+    "queueHint": "Ajoutez des vidéos à la file depuis le lecteur.",
+    "search": "Aucun résultat pour « {{query}} »"
+  },
+  "search": {
+    "placeholder": "Rechercher"
+  },
+  "queue": {
+    "removed": "Retiré de la file",
+    "cleared": "File vidée"
+  },
+  "common": {
+    "on": "Activé",
+    "off": "Désactivé"
   }
 }

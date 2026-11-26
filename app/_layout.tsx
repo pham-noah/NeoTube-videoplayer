@@ -14,7 +14,9 @@ import { nIf } from '@/lib/utils'
 import { applyPalette, getDynamicPalette } from '@/lib/dynamic-palette'
 import { dynamicPalette$ } from '@/lib/theme'
 import { getAccentPalette } from '@/lib/accent'
+import { applyAccentVars } from '@/lib/accent-vars'
 import { syncFeedNotificationTask } from '@/lib/feed-notifications'
+import { ErrorBoundary } from '@/components/error/ErrorBoundary'
 
 function RootLayoutContent() {
   const feedsEnabled = useValue(settings$.feedsEnabled)
@@ -43,6 +45,9 @@ function RootLayoutContent() {
         dynamicPalette$.set(palette)
         applyPalette(palette)
       }
+      // NativeWind's registerCompiled is the native path; the web build reads the
+      // same palette through the --nou-* variables (no-op off the browser).
+      applyAccentVars(accent)
     }
     update()
     // The wallpaper may have changed while the app was in the background.
@@ -80,7 +85,11 @@ function RootLayoutContent() {
 export default function RootLayout() {
   return (
     <SafeAreaProvider>
-      <RootLayoutContent />
+      {/* Outside RootLayoutContent: the theme, i18n and settings reads it owns
+       * are all things that can throw, and the fallback must outlive them. */}
+      <ErrorBoundary>
+        <RootLayoutContent />
+      </ErrorBoundary>
     </SafeAreaProvider>
   )
 }

@@ -20,8 +20,10 @@ import { t } from 'i18next'
 import { hasSleepTimerNativeSupport } from '@/lib/sleep-timer-native'
 import { useSleepTimerStatus } from '@/lib/sleep-timer'
 import { NouText } from '../NouText'
-import { formatPlaybackRate } from '@/lib/playback-rate'
-import { formatPlaybackQuality } from '@/lib/playback-quality'
+import { formatPlaybackRate, playbackRatesWith } from '@/lib/playback-rate'
+import { formatPlaybackQuality, playbackQualities } from '@/lib/playback-quality'
+import { selectPlaybackRate } from '../modal/PlaybackSpeedModal'
+import { selectPlaybackQuality } from '../modal/PlaybackQualityModal'
 import MaterialIcons from '@react-native-vector-icons/material-icons'
 import { Image } from 'expo-image'
 
@@ -91,6 +93,7 @@ export const NouHeader: React.FC<{ getNoutube: () => any }> = ({ getNoutube }) =
   const showPlaybackQualityControl = useValue(settings$.showPlaybackQualityControl)
   const showSleepTimerButtonInHeader = useValue(settings$.showSleepTimerButtonInHeader)
   const showLibraryButtonInHeader = useValue(settings$.showLibraryButtonInHeader)
+  const showHistoryButtonInHeader = useValue(settings$.showHistoryButtonInHeader)
   const showStarButtonInHeader = useValue(settings$.showStarButtonInHeader)
   const { width, height: windowHeight } = useWindowDimensions()
   const headerHeight = useValue(ui$.headerHeight)
@@ -227,7 +230,7 @@ export const NouHeader: React.FC<{ getNoutube: () => any }> = ({ getNoutube }) =
     Number(!isWeb && showBackButtonInHeader) +
     Number(!isWeb && showForwardButtonInHeader) +
     Number(showReloadButtonInHeader) +
-    1 + // History is always in the toolbar
+    Number(showHistoryButtonInHeader) +
     Number(isWeb) * 2
   const trailingToolbarItemCount =
     1 +
@@ -241,6 +244,12 @@ export const NouHeader: React.FC<{ getNoutube: () => any }> = ({ getNoutube }) =
     Number(showStarButton) +
     Number(pinnedScripts.length > 0)
   const compactToolbar = leadingToolbarItemCount + trailingToolbarItemCount > 6
+  // A crowded bar used to answer by deleting the gaps between icons, which left
+  // seventeen unlabelled glyphs shoulder to shoulder. Instead the optional
+  // leading controls move into the menu that already exists at the end of the
+  // bar: History, Library and the page actions stay, the rest is one tap away.
+  // Web keeps its icons, because its bar is a scrolling column with the room.
+  const collapseLeading = !isWeb && compactToolbar
   const hideableHeader = autoHideHeader || hideToolbarWhenScrolled || (isAndroid && doubleTapToToggleHeader)
 
   const runPinnedScript = (script: (typeof pinnedScripts)[number]) => {
@@ -254,6 +263,33 @@ export const NouHeader: React.FC<{ getNoutube: () => any }> = ({ getNoutube }) =
       console.error('[NouTube user script execute] ' + script.name, error)
     }
   }
+
+  // Without onPress the pill is a dropdown trigger: render a plain View so the
+  // Radix trigger stays the only focus target and keyboard activation works.
+  const renderPill = (label: string, onPress?: () => void) => {
+    const pill = (
+      <View className={toolbarPillLabelClass()}>
+        <NouText className="text-xs font-medium">{label}</NouText>
+      </View>
+    )
+    return onPress ? (
+      <Pressable
+        onPress={onPress}
+        className={toolbarPillPressableClass()}
+        accessibilityRole="button"
+        accessibilityLabel={label}
+      >
+        {pill}
+      </Pressable>
+    ) : (
+      <View className={toolbarPillPressableClass()} accessibilityLabel={label}>
+        {pill}
+      </View>
+    )
+  }
+
+  const menuCheck = (checked: boolean) =>
+    checked ? <MaterialIcons name="check" size={16} color={headerControlColor} /> : undefined
 
   return (
     <Root
@@ -281,29 +317,76 @@ export const NouHeader: React.FC<{ getNoutube: () => any }> = ({ getNoutube }) =
           contentContainerClassName={clsx('flex-row', isWeb && 'lg:flex-col', compactToolbar ? 'gap-0' : 'gap-1')}
         >
           {/* Left side: History, then the rest of the leading controls. */}
-          <MaterialButton
-            color={headerControlColor}
-            name="history"
-            accessibilityRole="button"
-            accessibilityLabel={t('modals.history')}
-            onPress={() => ui$.historyModalOpen.set(true)}
-          />
+          {nIf(
+            showHistoryButtonInHeader,
+            <MaterialButton
+              color={headerControlColor}
+              name="history"
+              accessibilityRole="button"
+              accessibilityLabel={t('modals.history')}
+              onPress={() => ui$.historyModalOpen.set(true)}
+            />,
+          )}
           {nIf(
             showLibraryButtonInHeader,
             <MaterialButton
               color={headerControlColor}
               name={isYTMusic ? 'library-music' : 'video-library'}
+              accessibilityRole="button"
+              accessibilityLabel={t('a11y.library')}
               onPress={() => ui$.libraryModalOpen.set(true)}
             />,
           )}
           {nIf(
-            !isYTMusic && feedsEnabled,
-            <MaterialButton color={headerControlColor} name="rss-feed" onPress={() => ui$.feedModalOpen.set(true)} />,
+            !isYTMusic && feedsEnabled && !collapseLeading,
+            <MaterialButton
+              color={headerControlColor}
+              name="rss-feed"
+              accessibilityRole="button"
+              accessibilityLabel={t('modals.feeds')}
+              onPress={() => ui$.feedModalOpen.set(true)}
+            />,
           )}
-          {nIf(!isWeb && showBackButtonInHeader, <MaterialButton color={headerControlColor} name="arrow-back" onPress={goBack} />)}
-          {nIf(!isWeb && showForwardButtonInHeader, <MaterialButton color={headerControlColor} name="arrow-forward" onPress={goForward} />)}
-          {nIf(!isWeb && showReloadButtonInHeader, <MaterialButton color={headerControlColor} name="refresh" onPress={reloadPage} />)}
-          {nIf(showHomeButtonInHeader, <MaterialButton color={headerControlColor} name="home" onPress={onOpenHome} />)}
+          {nIf(
+            !isWeb && showBackButtonInHeader && !collapseLeading,
+            <MaterialButton
+              color={headerControlColor}
+              name="arrow-back"
+              accessibilityRole="button"
+              accessibilityLabel={t('a11y.back')}
+              onPress={goBack}
+            />,
+          )}
+          {nIf(
+            !isWeb && showForwardButtonInHeader && !collapseLeading,
+            <MaterialButton
+              color={headerControlColor}
+              name="arrow-forward"
+              accessibilityRole="button"
+              accessibilityLabel={t('a11y.forward')}
+              onPress={goForward}
+            />,
+          )}
+          {nIf(
+            !isWeb && showReloadButtonInHeader && !collapseLeading,
+            <MaterialButton
+              color={headerControlColor}
+              name="refresh"
+              accessibilityRole="button"
+              accessibilityLabel={t('menus.reload')}
+              onPress={reloadPage}
+            />,
+          )}
+          {nIf(
+            showHomeButtonInHeader && !collapseLeading,
+            <MaterialButton
+              color={headerControlColor}
+              name="home"
+              accessibilityRole="button"
+              accessibilityLabel={t('a11y.home')}
+              onPress={onOpenHome}
+            />,
+          )}
           {nIf(
             isWeb,
             <>
@@ -343,6 +426,7 @@ export const NouHeader: React.FC<{ getNoutube: () => any }> = ({ getNoutube }) =
                   items={[
                     {
                       label: t('menus.duplicateTab', 'Duplicate Tab'),
+                      icon: <MaterialIcons name="content-copy" size={16} color={headerControlColor} />,
                       handler: () => tabs$.duplicateTab(index),
                     },
                     ...(tabs.length > 1
@@ -350,6 +434,7 @@ export const NouHeader: React.FC<{ getNoutube: () => any }> = ({ getNoutube }) =
                           {
                             label: t('menus.close', 'Close'),
                             color: 'red' as const,
+                            icon: <MaterialIcons name="close" size={16} color={isDark ? '#f87171' : '#dc2626'} />,
                             handler: () => tabs$.closeTab(index),
                           },
                         ]
@@ -401,31 +486,43 @@ export const NouHeader: React.FC<{ getNoutube: () => any }> = ({ getNoutube }) =
         {nIf(isWeb, <MaterialButton color={headerControlColor} name="add" onPress={() => tabs$.openTab()} />)}
         {nIf(
           showPlaybackSpeedControl,
-          <Pressable
-            onPress={() => ui$.playbackSpeedModalOpen.set(true)}
-            className={toolbarPillPressableClass()}
-          >
-            <View className={toolbarPillLabelClass()}>
-              <NouText className="text-xs font-medium">{playbackRateLabel}</NouText>
-            </View>
-          </Pressable>,
+          isWeb ? (
+            <NouMenu
+              side={isSidebarLayout ? 'right' : undefined}
+              trigger={renderPill(playbackRateLabel)}
+              items={playbackRatesWith(playbackRate).map((rate) => ({
+                label: formatPlaybackRate(rate),
+                meta: menuCheck(rate === playbackRate),
+                handler: () => selectPlaybackRate(rate),
+              }))}
+            />
+          ) : (
+            renderPill(playbackRateLabel, () => ui$.playbackSpeedModalOpen.set(true))
+          ),
         )}
         {nIf(
           showPlaybackQualityControl,
-          <Pressable
-            onPress={() => ui$.playbackQualityModalOpen.set(true)}
-            className={toolbarPillPressableClass()}
-          >
-            <View className={toolbarPillLabelClass()}>
-              <NouText className="text-xs font-medium">{playbackQualityLabel}</NouText>
-            </View>
-          </Pressable>,
+          isWeb ? (
+            <NouMenu
+              side={isSidebarLayout ? 'right' : undefined}
+              trigger={renderPill(playbackQualityLabel)}
+              items={playbackQualities.map((q) => ({
+                label: q.label,
+                meta: menuCheck(q.value === playbackQuality),
+                handler: () => selectPlaybackQuality(q.value),
+              }))}
+            />
+          ) : (
+            renderPill(playbackQualityLabel, () => ui$.playbackQualityModalOpen.set(true))
+          ),
         )}
         {nIf(
           showSleepTimerButton,
           <MaterialButton
             name="bedtime"
             color={sleepTimerActive ? tw('blue-400') : headerControlColor}
+            accessibilityRole="button"
+            accessibilityLabel={t('sleepTimer.label')}
             onPress={() => ui$.sleepTimerModalOpen.set(true)}
           />,
         )}
@@ -434,6 +531,8 @@ export const NouHeader: React.FC<{ getNoutube: () => any }> = ({ getNoutube }) =
           <MaterialButton
             color={headerControlColor}
             name="playlist-play"
+            accessibilityRole="button"
+            accessibilityLabel={t('modals.queue')}
             onPress={() => ui$.queueModalOpen.set(!ui$.queueModalOpen.get())}
           />,
         )}
@@ -442,6 +541,8 @@ export const NouHeader: React.FC<{ getNoutube: () => any }> = ({ getNoutube }) =
           <MaterialButton
             name="download"
             color={isDownloading ? tw('blue-400') : headerControlColor}
+            accessibilityRole="button"
+            accessibilityLabel={t('buttons.download')}
             onPress={() => {
               if (pageType?.type === 'watch') {
                 ui$.toolsModalUrl.set(activePageUrl)
@@ -466,15 +567,22 @@ export const NouHeader: React.FC<{ getNoutube: () => any }> = ({ getNoutube }) =
           <MaterialButton
             color={starred ? 'gold' : headerControlColor}
             name={starred ? 'star' : 'star-outline'}
+            accessibilityRole="button"
+            accessibilityLabel={starred ? t('menus.unstar') : t('menus.star')}
             onPress={onToggleStar}
           />,
         )}
         {nIf(
           pinnedScripts.length === 1,
+          // nIf() takes a node, so this JSX is built whether or not the guard
+          // passes: reading pinnedScripts[0].name unguarded threw for anyone
+          // with no pinned script -- which is every web build, every launch.
           <MaterialCommunityButton
             color={headerControlColor}
             name="puzzle-outline"
-            onPress={() => runPinnedScript(pinnedScripts[0])}
+            accessibilityRole="button"
+            accessibilityLabel={pinnedScripts[0]?.name ?? t('a11y.pinnedScript')}
+            onPress={() => pinnedScripts[0] && runPinnedScript(pinnedScripts[0])}
           />,
         )}
         {nIf(
@@ -499,9 +607,66 @@ export const NouHeader: React.FC<{ getNoutube: () => any }> = ({ getNoutube }) =
         />
         <NouMenu
           trigger={
-            isWeb ? <MaterialButton color={headerControlColor} name="more-vert" /> : isIos ? 'ellipsis' : 'filled.MoreVert'
+            isWeb ? (
+              <MaterialButton
+                color={headerControlColor}
+                name="more-vert"
+                accessibilityRole="button"
+                accessibilityLabel={t('a11y.more')}
+              />
+            ) : isIos ? (
+              'ellipsis'
+            ) : (
+              'filled.MoreVert'
+            )
           }
           items={[
+            // The controls a crowded bar could not fit, first: same order they
+            // had on the bar, same handlers.
+            ...(collapseLeading
+              ? [
+                  ...(showBackButtonInHeader
+                    ? [
+                        {
+                          label: t('a11y.back'),
+                          icon: <MaterialIcons name="arrow-back" size={18} color={headerControlColor} />,
+                          systemImage: 'arrow.left',
+                          handler: goBack,
+                        },
+                      ]
+                    : []),
+                  ...(showForwardButtonInHeader
+                    ? [
+                        {
+                          label: t('a11y.forward'),
+                          icon: <MaterialIcons name="arrow-forward" size={18} color={headerControlColor} />,
+                          systemImage: 'arrow.right',
+                          handler: goForward,
+                        },
+                      ]
+                    : []),
+                  ...(showHomeButtonInHeader
+                    ? [
+                        {
+                          label: t('a11y.home'),
+                          icon: <MaterialIcons name="home" size={18} color={headerControlColor} />,
+                          systemImage: 'house',
+                          handler: onOpenHome,
+                        },
+                      ]
+                    : []),
+                  ...(!isYTMusic && feedsEnabled
+                    ? [
+                        {
+                          label: t('modals.feeds'),
+                          icon: <MaterialIcons name="rss-feed" size={18} color={headerControlColor} />,
+                          systemImage: 'dot.radiowaves.left.and.right',
+                          handler: () => ui$.feedModalOpen.set(true),
+                        },
+                      ]
+                    : []),
+                ]
+              : []),
             {
               label: t('menus.reload'),
               icon: <MaterialIcons name="refresh" size={18} color={headerControlColor} />,
@@ -563,7 +728,7 @@ export const NouHeader: React.FC<{ getNoutube: () => any }> = ({ getNoutube }) =
                 ]
               : []),
             {
-              label: 'Open URL',
+              label: t('settings.openUrlLabel'),
               icon: <MaterialIcons name="link" size={18} color={headerControlColor} />,
               systemImage: 'link',
               handler: () => ui$.urlModalOpen.set(true),

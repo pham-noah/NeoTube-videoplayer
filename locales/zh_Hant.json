@@ -3,7 +3,20 @@
     "label": "關於",
     "code": "原始碼",
     "donate": "捐贈",
-    "hint": "版本資訊、原始碼與支援連結。"
+    "hint": "版本資訊、原始碼與支援連結。",
+    "upstream": "以 NouTube 為基礎",
+    "license": "授權條款",
+    "licenseHint": "NeoTube 是遵循 GNU AGPL v3 的自由軟體。",
+    "supportUpstream": "支持 NouTube 開發者",
+    "help": "說明",
+    "faq": "常見問題",
+    "faqHint": "常見問題的解答",
+    "updates": "更新",
+    "credit": "致謝",
+    "madeBy": "作者：Noah Pham",
+    "source": "GitHub 上的 NeoTube",
+    "report": "回報問題",
+    "reportHint": "在 GitHub 開啟 issue"
   },
   "changelog": {
     "label": "變更日誌",
@@ -37,11 +50,19 @@
     "ytDlpUpdated": "yt-dlp 已是最新"
   },
   "library": {
+    "removedCount": "已刪除 {{count}} 項",
+    "movedCount": "已移動 {{count}} 項",
+    "sort": "排序",
+    "sortNewest": "最新優先",
+    "sortOldest": "最舊優先",
+    "sortTitle": "標題 A–Z",
+    "selected": "已選 {{count}} 項",
     "videos": "影片",
     "channels": "頻道",
     "playlists": "播放清單",
     "songs": "歌曲",
-    "artists": "藝術家"
+    "artists": "藝術家",
+    "newFolder": "新增資料夾"
   },
   "menus": {
     "edit": "編輯",
@@ -52,7 +73,10 @@
     "tools": "工具",
     "desktop": "桌面版網站",
     "on": "開啟",
-    "off": "關閉"
+    "off": "關閉",
+    "moveUp": "上移",
+    "moveDown": "下移",
+    "playNext": "接著播放"
   },
   "modals": {
     "editBookmark": "編輯書籤",
@@ -70,7 +94,9 @@
     "downloadComplete": "下載完成",
     "downloadFailed": "下載失敗",
     "failedToLoadFormats": "無法載入格式",
-    "playbackSpeed": "播放速度"
+    "playbackSpeed": "播放速度",
+    "clearQueueConfirm": "清空佇列？",
+    "clearQueueBody": "佇列中的所有影片都會被移除。可以復原。"
   },
   "sleepTimer": {
     "label": "睡眠計時器",
@@ -125,6 +151,108 @@
     "emptyTitleWaiting": "等待訂閱源更新",
     "emptyBodyWaiting": "您儲存的頻道已準備就緒。 將應用程式保持開啟狀態一段時間或稍後重新打開，最近上傳的內容將顯示在此。",
     "removeTitle": "刪除 {{title}}？",
-    "removeMessage": "這將從資料庫中刪除該頻道並清除其訂閱源影片。"
+    "removeMessage": "這將從資料庫中刪除該頻道並清除其訂閱源影片。",
+    "communityPost": "社群貼文"
+  },
+  "settings": {
+    "resetAll": "重設設定",
+    "resetAllBody": "將所有選項還原為預設值。已儲存的影片、歷史記錄與下載內容會保留。",
+    "resetAllConfirm": "再次點按以重設",
+    "resetDone": "設定已重設",
+    "accent": {
+      "label": "強調色",
+      "hint": "應用程式與 YouTube 玻璃主題共用的一個強調色。",
+      "aurora": "極光",
+      "crimson": "緋紅",
+      "purple": "紫色",
+      "cappuccino": "卡布奇諾"
+    },
+    "glass": {
+      "label": "液態玻璃主題",
+      "hint": "YouTube 上的霧面玻璃列與圓角卡片。"
+    },
+    "reduceEffects": {
+      "label": "減少特效",
+      "hint": "以不透明列取代模糊效果，在舊手機上明顯更輕快。"
+    },
+    "feedPosts": "動態消息中的社群貼文",
+    "feedPostsDescription": "同時檢查每個已儲存頻道的「貼文」分頁，重新整理動態消息會消耗更多流量。",
+    "searchPlaceholder": "搜尋設定",
+    "searchEmpty": "沒有符合「{{query}}」的設定",
+    "searchHint": "輸入一個詞，例如「玻璃」或「代理」。",
+    "changed": "已修改設定",
+    "changedHint": "與預設值不同的設定。",
+    "changedNone": "全部為預設值",
+    "changedNoneHint": "修改設定後會顯示在這裡。",
+    "resetOne": "重設"
+  },
+  "a11y": {
+    "dragToReorder": "拖曳以重新排序",
+    "library": "媒體庫",
+    "back": "返回",
+    "forward": "前進",
+    "home": "首頁",
+    "more": "更多操作",
+    "rowActions": "操作",
+    "selectAll": "全選",
+    "deselectAll": "取消全選",
+    "reorder": "重新排序"
+  },
+  "error": {
+    "title": "出錯了",
+    "body": "NeoTube 遇到無法復原的錯誤。你的收藏、歷史記錄和設定都還在。",
+    "copy": "複製詳情",
+    "copied": "已複製",
+    "retry": "重試",
+    "reload": "重新啟動"
+  },
+  "empty": {
+    "browse": "瀏覽 YouTube",
+    "clearSearch": "清除搜尋",
+    "library": "尚未儲存任何內容",
+    "libraryHint": "點擊影片下方的收藏圖示，就能把它留在這裡。",
+    "history": "尚無歷史記錄",
+    "historyHint": "你觀看的影片會出現在這裡。",
+    "queue": "佇列是空的",
+    "queueHint": "在播放器中把影片加入佇列。",
+    "search": "沒有與「{{query}}」相符的結果"
+  },
+  "search": {
+    "placeholder": "搜尋"
+  },
+  "history": {
+    "today": "今天",
+    "yesterday": "昨天",
+    "thisWeek": "本週",
+    "older": "更早",
+    "removed": "已從歷史記錄中移除"
+  },
+  "queue": {
+    "removed": "已從佇列中移除",
+    "cleared": "佇列已清空"
+  },
+  "common": {
+    "on": "開",
+    "off": "關"
+  },
+  "update": {
+    "check": "檢查更新",
+    "checkHint": "查看是否有較新的版本",
+    "upToDate": "已是最新版本",
+    "downloading": "正在下載 v{{version}} 更新…",
+    "error": "檢查更新失敗",
+    "downloadedTitle": "更新已就緒",
+    "downloadedHint": "v{{version}} 已下載完成，要立即重新啟動以安裝嗎？",
+    "available": "有可用更新",
+    "fromTo": "目前為 v{{current}}，v{{next}} 已推出。",
+    "size": "{{size}} · Android 安裝檔",
+    "notes": "更新內容",
+    "noNotes": "此版本沒有發行說明。",
+    "later": "稍後",
+    "get": "取得更新",
+    "openPage": "打開發行頁面",
+    "auto": "自動檢查",
+    "autoHint": "開啟此頁面時向 GitHub 查詢。",
+    "noReleases": "此儲存庫中找不到任何發行版本。"
   }
 }

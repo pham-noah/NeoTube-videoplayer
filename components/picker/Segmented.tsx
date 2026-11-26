@@ -9,25 +9,31 @@ export const Segmented: React.FC<{
   onChange: (index: number) => void
 }> = ({ options, selectedIndex, size = 2, onChange }) => {
   return (
-    <View className="flex-row rounded-xl border border-zinc-300 dark:border-zinc-700 bg-zinc-200/80 dark:bg-zinc-800/70 p-1">
+    <View
+      accessibilityRole="tablist"
+      className="flex-row rounded-field border border-black/[0.06] bg-black/[0.04] p-1 dark:border-white/10 dark:bg-white/[0.08]"
+    >
       {options.map((tab, index) => {
         const active = index === selectedIndex
         return (
           <Pressable
             key={tab}
             onPress={() => onChange(index)}
+            accessibilityRole="tab"
+            accessibilityState={{ selected: active }}
+            accessibilityLabel={tab}
             className={clsx(
               size === 1 ? 'px-3 py-1.5' : 'px-4 py-2',
-              active ? 'bg-zinc-50 dark:bg-zinc-700' : 'bg-transparent',
-              !isIos && index === 0 && 'rounded-l-lg',
-              !isIos && index === options.length - 1 && 'rounded-r-lg',
+              active ? 'bg-accent-600 rounded-chip' : 'bg-transparent',
+              !isIos && index === 0 && 'rounded-l-chip',
+              !isIos && index === options.length - 1 && 'rounded-r-chip',
             )}
           >
             <NouText
               className={clsx(
-                'font-medium text-zinc-600 dark:text-zinc-300',
-                size === 1 && 'text-sm',
-                active && 'text-zinc-900 dark:text-zinc-100',
+                'font-medium',
+                size === 1 && 'text-label',
+                active ? 'text-white' : 'text-zinc-600 dark:text-zinc-300',
               )}
             >
               {tab}

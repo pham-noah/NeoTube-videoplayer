@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
-import { Alert, View } from 'react-native'
+import { Alert, useColorScheme, View } from 'react-native'
+import MaterialIcons from '@react-native-vector-icons/material-icons'
 import { NouText } from '../NouText'
 import { Image } from 'expo-image'
 import { useValue } from '@legendapp/state/react'
@@ -18,12 +19,26 @@ import { MaterialButton } from '../button/IconButtons'
 import { NouButton } from '../button/NouButton'
 import { useTwColor } from '@/lib/theme'
 import { surfaceCls } from '@/lib/colors'
+import { accountChoice$ } from '@/lib/supabase/sync/session'
+import type { AccountChoice } from '@/lib/supabase/sync/account'
+import { settingsSyncer } from '@/lib/supabase/sync/settings'
+import { userStylesSyncer } from '@/lib/supabase/sync/user-styles'
+import { chooseAccountData } from '@/lib/hooks/useAccountChoicePrompt'
+import { syncMeta$ } from '@/states/sync-meta'
+import { saveFile } from '@/lib/file'
+import { settingsBackupFilename } from '@/lib/settings-transfer'
 
 const sectionLabelCls = 'mb-2 px-1 text-[11px] uppercase tracking-[0.18em] text-zinc-600 dark:text-zinc-500'
 const TERMS_OF_USE_URL = 'https://www.apple.com/legal/internet-services/itunes/dev/stdeula/'
 const PRIVACY_POLICY_URL = 'https://inks.page/p/privacy'
 
 type BusyAction = 'buy' | 'restore' | 'manage'
+
+// What a merge took the other device's side of, with what this device had kept to put back.
+const mergeBackups = [
+  { key: 'settings', syncer: settingsSyncer, label: () => t('sync.backupSettings') },
+  { key: 'userStyles', syncer: userStylesSyncer, label: () => t('sync.backupUserStyles') },
+] as const
 
 const SettingsBadge: React.FC<{ label: string }> = ({ label }) => {
   return (
@@ -37,6 +52,9 @@ const getErrorMessage = (error: unknown) => (error instanceof Error ? error.mess
 
 export const SettingsModalTabSync = () => {
   const tw = useTwColor()
+  const colorScheme = useColorScheme()
+  const isDark = colorScheme !== 'light'
+  const iconColor = isDark ? tw('zinc-300') : tw('slate-600')
   const { user, userEmail, plan, accessToken } = useValue(auth$)
   const { me } = useMe()
   const planLabel = plan ? capitalize(plan) : t('sync.freePlan')
@@ -48,6 +66,34 @@ export const SettingsModalTabSync = () => {
   const [notice, setNotice] = useState<string>()
   const [busyAction, setBusyAction] = useState<BusyAction | null>(null)
   const restoreConflict = actionError?.startsWith('This App Store subscription is already linked to')
+  const needsAccountChoice = useValue(accountChoice$)
+  const switchBackup = useValue(syncMeta$.switchBackup)
+  const [choosing, setChoosing] = useState<AccountChoice | null>(null)
+  const backupTimes = {
+    settings: useValue(syncMeta$.settings.backup.savedAt),
+    userStyles: useValue(syncMeta$.userStyles.backup.savedAt),
+  }
+  const restorableBackups = mergeBackups.filter(({ key }) => backupTimes[key])
+
+  const onAccountChoice = async (choice: AccountChoice) => {
+    setChoosing(choice)
+    try {
+      await chooseAccountData(choice)
+    } finally {
+      setChoosing(null)
+    }
+  }
+
+  const onExportSwitchBackup = async () => {
+    if (!switchBackup) return
+    try {
+      // A fresh name each time: native saves refuse a file already in the cache.
+      await saveFile(`NouTube_bookmarks_${Date.now()}.csv`, switchBackup.bookmarksCsv)
+      await saveFile(settingsBackupFilename(), switchBackup.settingsJson)
+    } catch (error) {
+      setActionError(getErrorMessage(error))
+    }
+  }
 
   useEffect(() => {
     if (!isIos || !user) {
@@ -153,11 +199,37 @@ export const SettingsModalTabSync = () => {
 
   const accountMenuItems = [
     ...(isIos && viaAppStore && subscribed
-      ? [{ label: t('sync.manageIos'), handler: () => void onManageSubscriptions() }]
+      ? [
+          {
+            label: t('sync.manageIos'),
+            icon: <MaterialIcons name="credit-card" size={18} color={iconColor} />,
+            systemImage: 'creditcard',
+            handler: () => void onManageSubscriptions(),
+          },
+        ]
       : []),
-    ...(isIos ? [{ label: t('sync.restore'), handler: () => void onRestore() }] : []),
-    { label: t('sync.deleteAccount'), handler: () => void onDeleteAccount() },
-    { label: t('buttons.signOut'), handler: signOut },
+    ...(isIos
+      ? [
+          {
+            label: t('sync.restore'),
+            icon: <MaterialIcons name="restore" size={18} color={iconColor} />,
+            systemImage: 'arrow.clockwise',
+            handler: () => void onRestore(),
+          },
+        ]
+      : []),
+    {
+      label: t('sync.deleteAccount'),
+      icon: <MaterialIcons name="delete-outline" size={18} color={iconColor} />,
+      systemImage: 'trash',
+      handler: () => void onDeleteAccount(),
+    },
+    {
+      label: t('buttons.signOut'),
+      icon: <MaterialIcons name="logout" size={18} color={iconColor} />,
+      systemImage: 'rectangle.portrait.and.arrow.right',
+      handler: signOut,
+    },
   ]
 
   if (!user) {
@@ -212,6 +284,40 @@ export const SettingsModalTabSync = () => {
         </View>
       </View>
 
+      {nIf(
+        needsAccountChoice,
+        <View>
+          <NouText className={sectionLabelCls}>{t('sync.accountChoiceTitle')}</NouText>
+          <View className={surfaceCls}>
+            <View className="px-5 py-5">
+              <NouText className="text-sm leading-6 text-zinc-600 dark:text-zinc-400">
+                {t('sync.accountChoiceMessage')}
+              </NouText>
+              <NouText className="mt-2 text-sm leading-6 text-zinc-600 dark:text-zinc-400">
+                {t('sync.accountChoiceHint')}
+              </NouText>
+              <View className="mt-5 gap-3">
+                <NouButton
+                  loading={choosing === 'useAccount'}
+                  disabled={Boolean(choosing)}
+                  onPress={() => void onAccountChoice('useAccount')}
+                >
+                  {t('sync.accountChoiceUseAccount')}
+                </NouButton>
+                <NouButton
+                  variant="outline"
+                  loading={choosing === 'mergeDevice'}
+                  disabled={Boolean(choosing)}
+                  onPress={() => void onAccountChoice('mergeDevice')}
+                >
+                  {t('sync.accountChoiceMerge')}
+                </NouButton>
+              </View>
+            </View>
+          </View>
+        </View>,
+      )}
+
       <View>
         <NouText className={sectionLabelCls}>{t('sync.currentPlan')}</NouText>
         <View className={surfaceCls}>
@@ -227,6 +333,35 @@ export const SettingsModalTabSync = () => {
             )}
             {nIf(notice, <NouText className="mt-3 text-sm text-zinc-600 dark:text-zinc-400">{notice}</NouText>)}
             {nIf(actionError, <NouText className="mt-3 text-sm text-red-500">{actionError}</NouText>)}
+            {nIf(
+              switchBackup && !needsAccountChoice,
+              <View className="mt-3 gap-2">
+                <NouButton variant="outline" onPress={() => void onExportSwitchBackup()}>
+                  {t('sync.exportSwitchBackup')}
+                </NouButton>
+                <NouText className="text-xs text-zinc-600 dark:text-zinc-500">
+                  {t('sync.exportSwitchBackupHint', {
+                    date: new Date(switchBackup?.savedAt ?? 0).toLocaleString(),
+                    interpolation: { escapeValue: false },
+                  })}
+                </NouText>
+              </View>,
+            )}
+            {nIf(
+              restorableBackups.length > 0,
+              <View className="mt-4 gap-2">
+                <NouText className="text-sm leading-6 text-zinc-600 dark:text-zinc-400">{t('sync.mergeBackupHint')}</NouText>
+                {restorableBackups.map(({ key, syncer, label }) => (
+                  <NouButton key={key} variant="outline" onPress={() => syncer.restoreBackup()}>
+                    {t('sync.restoreMergeBackup', {
+                      name: label(),
+                      date: new Date(backupTimes[key]!).toLocaleString(),
+                      interpolation: { escapeValue: false },
+                    })}
+                  </NouButton>
+                ))}
+              </View>,
+            )}
             {nIf(
               restoreConflict,
               <View className="mt-3">

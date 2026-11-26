@@ -15,6 +15,8 @@ interface Store {
   addBookmark: (bookmark: Bookmark) => void
   moveUp: (index: number) => void
   moveDown: (index: number) => void
+  /** Drag-and-drop lands anywhere, not one row at a time. */
+  move: (from: number, to: number) => void
   markPlaying: (url: string) => void
   markEnded: (url: string) => void
 }
@@ -58,6 +60,13 @@ export const queue$ = observable<Store>({
     const temp = bookmarks[index]
     bookmarks[index] = bookmarks[index - 1]
     bookmarks[index - 1] = temp
+    queue$.bookmarks.set(bookmarks)
+  },
+  move: (from, to) => {
+    const bookmarks = [...queue$.bookmarks.get()]
+    if (from === to || from < 0 || to < 0 || from >= bookmarks.length || to >= bookmarks.length) return
+    const [moved] = bookmarks.splice(from, 1)
+    bookmarks.splice(to, 0, moved)
     queue$.bookmarks.set(bookmarks)
   },
   moveDown: (index) => {

@@ -10,14 +10,14 @@ import { t } from 'i18next'
 import { settings$ } from '@/states/settings'
 import { showToast } from '@/lib/toast'
 import { getUserAgent } from '@/lib/useragent'
-import { isWeb } from '@/lib/utils'
+import { desktopPlatform } from '@/lib/utils'
 
 export const UserAgentModal = () => {
   const userAgentModalOpen = useValue(ui$.userAgentModalOpen)
   const userAgent = useValue(settings$.userAgent)
   const [mode, setMode] = useState<'default' | 'custom'>('default')
   const [text, setText] = useState('')
-  const defaultUserAgent = getUserAgent(isWeb ? window.electron.process.platform : 'android')
+  const defaultUserAgent = getUserAgent(desktopPlatform() ?? 'android')
   const onClose = () => ui$.userAgentModalOpen.set(false)
 
   useEffect(() => {

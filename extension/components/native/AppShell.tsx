@@ -9,6 +9,7 @@ import { useSnapshot } from '../useSnapshot'
 import { useProjection } from './useProjection'
 import { useOpenRequestedUrls } from './useOpenRequestedUrls'
 import { applyColorScheme, getSystemColorScheme } from './appearance'
+import { applyAccentVars, radixAccent } from '@/lib/accent-vars'
 import { applyLanguage } from '../../lib/i18n-browser'
 import { clsx, nIf } from '../../lib/ui'
 
@@ -62,10 +63,18 @@ export const AppShell: React.FC<{ children: ReactNode; className?: string }> = (
 
   const theme = useValue(settings$.theme)
   const language = useValue(settings$.language)
+  // Radix used to be told "gray" here, so the extension's own pages had none of
+  // the fork's accent; the accent also has to reach Tailwind, which reads it from
+  // the --nou-* variables (lib/accent-vars.ts).
+  const accent = useValue(settings$.accent)
 
   useEffect(() => {
     applyColorScheme(theme ?? null)
   }, [theme])
+
+  useEffect(() => {
+    applyAccentVars(accent)
+  }, [accent])
 
   useEffect(() => {
     applyLanguage(language ?? null)
@@ -74,7 +83,7 @@ export const AppShell: React.FC<{ children: ReactNode; className?: string }> = (
   return (
     <SnapshotContext.Provider value={state}>
       <SafeAreaProvider>
-        <Theme className="h-screen" appearance={theme ?? getSystemColorScheme()} accentColor="gray" grayColor="slate">
+        <Theme className="h-screen" appearance={theme ?? getSystemColorScheme()} accentColor={radixAccent(accent)} grayColor="slate">
           <View className={clsx('h-full bg-zinc-100 dark:bg-gray-950', className)}>
             {nIf(projectionReady && iconFontsReady, children)}
             {nIf(

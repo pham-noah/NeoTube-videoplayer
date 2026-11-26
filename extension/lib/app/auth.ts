@@ -1,6 +1,6 @@
 import { browser } from 'wxt/browser'
 import { auth$ } from '@/states/auth'
-import { supabase } from '@/lib/supabase/client'
+import { getSupabase } from '@/lib/supabase/client'
 
 /*
  * The app signs in through https://noutube.inks.page/auth/app, which hands the
@@ -38,13 +38,13 @@ export async function applySession(session: { user: { id: string; email?: string
 }
 
 export async function restoreSession() {
-  const { data } = await supabase.auth.getSession()
+  const { data } = await getSupabase().auth.getSession()
   await applySession(data.session as never)
   return data.session
 }
 
 export function watchSession() {
-  supabase.auth.onAuthStateChange((_event, session) => {
+  getSupabase().auth.onAuthStateChange((_event, session) => {
     void applySession(session as never)
   })
 }
@@ -76,7 +76,7 @@ export async function signIn() {
     throw new Error('Sign-in token missing')
   }
 
-  const { error } = await supabase.auth.verifyOtp({ token_hash: token, type: 'email' })
+  const { error } = await getSupabase().auth.verifyOtp({ token_hash: token, type: 'email' })
   if (error) {
     throw error
   }
@@ -85,6 +85,6 @@ export async function signIn() {
 }
 
 export async function signOut() {
-  await supabase.auth.signOut({ scope: 'local' })
+  await getSupabase().auth.signOut({ scope: 'local' })
   await applySession(null)
 }

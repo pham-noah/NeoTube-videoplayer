@@ -5,7 +5,7 @@ import { NouTubeView } from '@/modules/nou-tube-view'
 import { resolveUserAgent } from '@/lib/useragent'
 import { settings$ } from '@/states/settings'
 import { useValue } from '@legendapp/state/react'
-import { isIos, isWeb } from '@/lib/utils'
+import { desktopPlatform, isIos } from '@/lib/utils'
 
 export const EmbedVideoModal: React.FC<{
   videoId: string
@@ -20,7 +20,7 @@ export const EmbedVideoModal: React.FC<{
 }) => {
   const customUserAgent = useValue(settings$.userAgent)
   const userAgent = resolveUserAgent(
-    isIos ? 'ios' : isWeb ? window.electron.process.platform : 'android',
+    isIos ? 'ios' : (desktopPlatform() ?? 'android'),
     customUserAgent,
   )
   const url = `https://www.youtube.com/embed/${videoId}`

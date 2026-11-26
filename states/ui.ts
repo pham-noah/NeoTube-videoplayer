@@ -7,6 +7,11 @@ import { settings$ } from './settings'
 import { mainClient } from '@/lib/main-client'
 import { tabs$ } from './tabs'
 
+// Number of BaseModal sheets currently open. Toasts have to know this: sheets
+// render in their own native window, so the app-level toast host is both
+// invisible and unreachable behind them, and the sheet renders its own copy.
+export const openModalCount$ = observable(0)
+
 interface Store {
   url: string
   pageUrl: string
@@ -123,11 +128,15 @@ export const ui$ = observable<Store>({
   webview: undefined,
 })
 
-export function updateUrl(url: string) {
+export function updateUrl(url: string, options: { newTab?: boolean } = {}) {
   if (isWeb) {
     const webview = ui$.webview.get()
     webview?.executeJavaScript?.('NouTube.pause()')
-    tabs$.updateTabUrl(unnormalizeUrl(url))
+    if (options.newTab) {
+      tabs$.openTab(unnormalizeUrl(url))
+    } else {
+      tabs$.updateTabUrl(unnormalizeUrl(url))
+    }
     return
   }
 

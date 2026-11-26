@@ -27,7 +27,7 @@ export function intercept() {
     set(value) {
       try {
         const blocklist = window.NouTube?.getBlocklist?.()
-        filterListResponse(value, blocklist, { blockAds: adsBlocked() })
+        filterListResponse(value, blocklist, { blockAds: adsBlocked(), hideShorts: window.NouTube?.shortsHidden })
       } catch (error) {
         console.error('NouScript initialData:', error)
       }
@@ -102,6 +102,7 @@ export function intercept() {
     const options = {
       showOriginalVideoTitle: Boolean(settings?.showOriginalVideoTitle),
       blockAds: settings?.blockAds !== false,
+      hideShorts: window.NouTube?.shortsHidden,
     }
     if (res.status > 200 || !match) {
       return res
@@ -119,11 +120,7 @@ export function intercept() {
           get_watch: (text: string) => transformGetWatchResponse(text, options),
           next: (text: string, blocklist?: any) => transformBrowseResponse(text, blocklist, options),
           reel: (text: string, blocklist?: any) => transformReelResponse(text, blocklist, options),
-          search: (text: string, _blocklist?: any) =>
-            transformSearchResponse(text, blocklist, {
-              hideShorts: window.NouTube.shortsHidden,
-              ...options,
-            }),
+          search: (text: string, _blocklist?: any) => transformSearchResponse(text, blocklist, options),
         }[match[1]] || ((text: string, blocklist?: any) => transformPlayerResponse(text, blocklist, options))
       return new Response(fn(text, blocklist), responseInit)
     } catch (error) {
@@ -132,38 +129,32 @@ export function intercept() {
     return new Response(text, responseInit)
   }
 
-  // https://stackoverflow.com/a/78369686
+  // Filter on first read, not in a ready-state listener: the site's listener
+  // may have been registered before open(), and JSON XHRs have no responseText.
+  const responseGetter = Object.getOwnPropertyDescriptor(XMLHttpRequest.prototype, 'response')!.get!
+  const textGetter = Object.getOwnPropertyDescriptor(XMLHttpRequest.prototype, 'responseText')!.get!
   const xhrOpen = XMLHttpRequest.prototype.open
-  XMLHttpRequest.prototype.open = function (method, url) {
-    const target = url.toString()
-    // One listener per open(). YouTube's player reuses its XHR objects, so the
-    // old version stacked a listener on every open() and a reused request had
-    // its response transformed once per past use -- on the /youtubei/v1/player
-    // response, which is the one the video start waits on.
-    const self = this
-    const onDone = function (this: XMLHttpRequest) {
-      if (self.readyState !== 4) {
-        return
+  XMLHttpRequest.prototype.open = function (...args: any[]) {
+    const url = args[1].toString()
+    const match = new URL(url, location.origin).pathname.match(RE_INTERCEPT)
+    let cached = false
+    let filteredText: string
+    let filteredJson: any
+    const read = (asText: boolean) => {
+      const original = () => (asText ? textGetter : responseGetter).call(this)
+      if (!match || this.readyState !== 4 || this.status !== 200 ||
+          (this.responseType !== '' && this.responseType !== 'text' && this.responseType !== 'json')) {
+        return original()
       }
-      self.removeEventListener('readystatechange', onDone)
-
-      // Text only: assigning responseText throws on a buffer, and handing a
-      // string back through `.response` would break a caller that asked for
-      // bytes.
-      if (self.responseType !== '' && self.responseType !== 'text') {
-        return
-      }
-
-      const match = new URL(target, location.origin).pathname.match(RE_INTERCEPT)
-      if (!match) {
-        return
-      }
-
+      // Preserve the native InvalidStateError for responseText on JSON XHRs.
+      if (asText && this.responseType === 'json') return original()
+      if (cached) return this.responseType === 'json' ? filteredJson : filteredText
       const blocklist = window.NouTube?.getBlocklist?.()
       const settings = window.NouTube?.getSettings?.()
       const options = {
         showOriginalVideoTitle: Boolean(settings?.showOriginalVideoTitle),
         blockAds: settings?.blockAds !== false,
+        hideShorts: window.NouTube?.shortsHidden,
       }
       try {
         const fn =
@@ -172,22 +163,28 @@ export function intercept() {
             get_watch: (text: string) => transformGetWatchResponse(text, options),
             next: (text: string, blocklist?: any) => transformBrowseResponse(text, blocklist, options),
             reel: (text: string, blocklist?: any) => transformReelResponse(text, blocklist, options),
-            search: (text: string, _blocklist?: any) =>
-              transformSearchResponse(text, blocklist, {
-                hideShorts: window.NouTube.shortsHidden,
-                ...options,
-              }),
+            search: (text: string, _blocklist?: any) => transformSearchResponse(text, blocklist, options),
           }[match[1]] || ((text: string, blocklist?: any) => transformPlayerResponse(text, blocklist, options))
-        const text = fn(self.responseText, blocklist)
-        Object.defineProperty(self, 'response', { writable: true })
-        Object.defineProperty(self, 'responseText', { writable: true })
-        // @ts-expect-error response / responseText are read-only on the XHR type
-        self.response = self.responseText = text
+        const text = this.responseType === 'json' ? JSON.stringify(responseGetter.call(this)) : textGetter.call(this)
+        filteredText = fn(text, blocklist)
+        if (this.responseType === 'json') filteredJson = JSON.parse(filteredText)
+        cached = true
+        return this.responseType === 'json' ? filteredJson : filteredText
       } catch (error) {
         console.error('NouScript:', error)
+        // A malformed/changed payload should pass through once, not be parsed
+        // and logged again on every property read.
+        if (this.responseType === 'json') filteredJson = responseGetter.call(this)
+        else filteredText = textGetter.call(this)
+        cached = true
       }
+      return this.responseType === 'json' ? filteredJson : filteredText
     }
-    this.addEventListener('readystatechange', onDone)
-    return xhrOpen.apply(this, [method, target])
+    Object.defineProperties(this, {
+      response: { configurable: true, get: () => read(false) },
+      responseText: { configurable: true, get: () => read(true) },
+    })
+    // Preserve async and optional authentication arguments, including sync XHR.
+    return xhrOpen.apply(this, args as Parameters<typeof xhrOpen>)
   }
 }

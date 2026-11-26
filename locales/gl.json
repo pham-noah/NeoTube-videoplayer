@@ -7,7 +7,16 @@
     "code": "Código fonte",
     "donate": "Doar",
     "updates": "Actualizacións",
-    "hint": "Información da versión, actualizacións, código fonte e ligazóns de asistencia."
+    "hint": "Información da versión, actualizacións, código fonte e ligazóns de asistencia.",
+    "upstream": "Baseado en NouTube",
+    "license": "Licenza",
+    "licenseHint": "NeoTube é software libre baixo a GNU AGPL v3.",
+    "supportUpstream": "Apoia o desenvolvedor de NouTube",
+    "credit": "Créditos",
+    "madeBy": "Feito por Noah Pham",
+    "source": "NeoTube en GitHub",
+    "report": "Informar dun problema",
+    "reportHint": "Abrir unha incidencia en GitHub"
   },
   "changelog": {
     "label": "Rexistro de cambios",
@@ -44,11 +53,19 @@
     "retry": "Tentar de novo"
   },
   "library": {
+    "removedCount": "{{count}} eliminados",
+    "movedCount": "{{count}} movidos",
+    "sort": "Ordenar",
+    "sortNewest": "Máis recentes",
+    "sortOldest": "Máis antigos",
+    "sortTitle": "Título A–Z",
+    "selected": "{{count}} seleccionados",
     "videos": "Vídeos",
     "channels": "Canles",
     "playlists": "Lista de reprodución",
     "songs": "Cancións",
-    "artists": "Artistas"
+    "artists": "Artistas",
+    "newFolder": "Novo cartafol"
   },
   "menus": {
     "openInNewTab": "Abrir nunha nova lapela",
@@ -67,7 +84,10 @@
     "tools": "Ferramentas",
     "desktop": "Sitio de Escritorio",
     "on": "Acendido",
-    "off": "Apagado"
+    "off": "Apagado",
+    "moveUp": "Subir",
+    "moveDown": "Baixar",
+    "playNext": "Reproducir a continuación"
   },
   "bookmarks": {
     "removed": "Marcador eliminado",
@@ -75,10 +95,16 @@
     "movedToRoot": "Desprazado fóra do cartafol"
   },
   "folders": {
+    "none": "Sen cartafol",
     "removed": "Cartafol {{name}} eliminado"
   },
   "history": {
-    "cleared": "Historial eliminado"
+    "today": "Hoxe",
+    "yesterday": "Onte",
+    "thisWeek": "Esta semana",
+    "older": "Anteriores",
+    "cleared": "Historial eliminado",
+    "removed": "Retirado do historial"
   },
   "modals": {
     "editBookmark": "Editar marcador",
@@ -112,7 +138,9 @@
     "playbackQuality": "Calidade de reprodución",
     "sharePageUrl": "URL da páxina",
     "shareVideoUrl": "URL do vídeo",
-    "shareIncludePosition": "Incluír a posición actual"
+    "shareIncludePosition": "Incluír a posición actual",
+    "clearQueueConfirm": "Baleirar a cola?",
+    "clearQueueBody": "Retiraranse todos os vídeos da cola. Pódese desfacer."
   },
   "update": {
     "check": "Comprobe se hai actualizacións",
@@ -121,7 +149,18 @@
     "downloading": "Descargando a actualización v{{version}}…",
     "error": "Non se puido comprobar se hai actualizacións",
     "downloadedTitle": "Actualización lista",
-    "downloadedHint": "A versión {{version}} descargouse. Reiniciar agora para instalar?"
+    "downloadedHint": "A versión {{version}} descargouse. Reiniciar agora para instalar?",
+    "available": "Actualización dispoñible",
+    "fromTo": "Tes v{{current}}; xa saíu v{{next}}.",
+    "size": "{{size}} · Paquete de Android",
+    "notes": "Novidades",
+    "noNotes": "Esta versión non trae notas.",
+    "later": "Máis tarde",
+    "get": "Obter a actualización",
+    "openPage": "Abrir a páxina da versión",
+    "auto": "Comprobar automaticamente",
+    "autoHint": "Consúltase GitHub ao abrir esta páxina.",
+    "noReleases": "Non se atopou ningunha versión neste repositorio."
   },
   "sleepTimer": {
     "label": "Temporizador de sono",
@@ -181,9 +220,14 @@
     "emptyTitleWaiting": "Agardando as actualizacións do feed",
     "emptyBodyWaiting": "As túas canles gardadas están listas. Mantén a aplicación aberta un anaco ou volve abrila máis tarde, e as subidas recentes aparecerán aquí.",
     "removeTitle": "Eliminar {{title}}?",
-    "removeMessage": "Isto elimina a canle da Biblioteca e borra os vídeos do seu feed."
+    "removeMessage": "Isto elimina a canle da Biblioteca e borra os vídeos do seu feed.",
+    "communityPost": "Publicación da comunidade"
   },
   "settings": {
+    "resetAll": "Restablecer axustes",
+    "resetAllBody": "Devolve todas as opcións ao valor predeterminado. Os vídeos, o historial e as descargas consérvanse.",
+    "resetAllConfirm": "Toca de novo para restablecer",
+    "resetDone": "Axustes restablecidos",
     "label": "Configuración",
     "hubHint": "Ferramentas de reprodución, sincronización, importación e visualización web, todo nun mesmo lugar.",
     "preferences": "Preferencias",
@@ -424,7 +468,33 @@
     "preferencesComments": "Comentarios",
     "sidebar": "Barra lateral",
     "preferencesYouTubeHint": "Preferencias de YouTube",
-    "preferencesNouTubeHint": "Preferencias de Noutube"
+    "preferencesNouTubeHint": "Preferencias de Noutube",
+    "accent": {
+      "label": "Cor de acento",
+      "hint": "Unha soa cor de acento para a app e o tema de vidro de YouTube.",
+      "aurora": "Aurora",
+      "crimson": "Carmesí",
+      "purple": "Morado",
+      "cappuccino": "Cappuccino"
+    },
+    "glass": {
+      "label": "Tema Liquid Glass",
+      "hint": "Barras de vidro esmerilado e tarxetas redondeadas en YouTube."
+    },
+    "reduceEffects": {
+      "label": "Reducir efectos",
+      "hint": "Barras opacas en vez de desenfocadas. Notarase máis lixeiro en móbiles antigos."
+    },
+    "feedPosts": "Publicacións da comunidade no feed",
+    "feedPostsDescription": "Tamén revisa a pestana Publicacións de cada canle gardada. Actualizar os feeds consome máis datos.",
+    "searchPlaceholder": "Buscar nos axustes",
+    "searchEmpty": "Ningún axuste coincide con «{{query}}»",
+    "searchHint": "Escribe unha palabra como «cristal» ou «proxy».",
+    "changed": "Cambiado respecto aos valores predeterminados",
+    "changedHint": "Axustes que difiren dos predeterminados.",
+    "changedNone": "Todo está no seu valor predeterminado",
+    "changedNoneHint": "Cambia un axuste e aparecerá aquí.",
+    "resetOne": "Restablecer"
   },
   "native": {
     "format_bestQuality": "Mellor calidade",
@@ -483,5 +553,47 @@
     "openYouTube": "Abrir YouTube",
     "openYouTubeMusic": "Abrir YouTube Music",
     "saveCurrentPage": "Gardar a páxina actual"
+  },
+  "a11y": {
+    "dragToReorder": "Arrastra para reordenar",
+    "library": "Biblioteca",
+    "back": "Atrás",
+    "forward": "Adiante",
+    "home": "Inicio",
+    "more": "Máis accións",
+    "rowActions": "Accións",
+    "selectAll": "Seleccionar todo",
+    "deselectAll": "Anular selección",
+    "reorder": "Reordenar"
+  },
+  "error": {
+    "title": "Algo rompeu",
+    "body": "NeoTube atopou un erro do que non puido recuperarse. Os teus marcadores, o historial e os axustes están a salvo.",
+    "copy": "Copiar detalles",
+    "copied": "Copiado",
+    "retry": "Tentar de novo",
+    "reload": "Reiniciar"
+  },
+  "empty": {
+    "browse": "Explorar YouTube",
+    "clearSearch": "Borrar busca",
+    "library": "Aínda non hai nada gardado",
+    "libraryHint": "Toca a icona de marcador nun vídeo para gardalo aquí.",
+    "history": "Aínda non hai historial",
+    "historyHint": "Os vídeos que vexas aparecerán aquí.",
+    "queue": "A cola está baleira",
+    "queueHint": "Engade vídeos á cola desde o reprodutor.",
+    "search": "Sen resultados para «{{query}}»"
+  },
+  "search": {
+    "placeholder": "Buscar"
+  },
+  "queue": {
+    "removed": "Retirado da cola",
+    "cleared": "Cola baleirada"
+  },
+  "common": {
+    "on": "Activado",
+    "off": "Desactivado"
   }
 }

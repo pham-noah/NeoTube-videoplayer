@@ -9,6 +9,8 @@ import type { ReactNode } from 'react'
 export const isWeb = true
 export const isIos = false
 export const isAndroid = false
+// No Electron here either; see lib/utils.ts.
+export const desktopPlatform = (): string | undefined => undefined
 
 export const clsx = (...classes: Array<string | boolean | undefined>) => classes.filter(Boolean).join(' ')
 

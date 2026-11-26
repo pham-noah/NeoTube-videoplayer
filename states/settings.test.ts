@@ -1,9 +1,30 @@
 import { describe, expect, it } from 'bun:test'
-import { getSettingsSnapshot, normalizeSettings, type SettingsSnapshot } from './settings'
+import {
+  getSettingsSnapshot,
+  migrateSettings,
+  normalizeSettings,
+  SETTINGS_VERSION,
+  type PersistedSettings,
+  type SettingsSnapshot,
+} from './settings'
 
 const normalizePartialSettings = () => normalizeSettings<Partial<SettingsSnapshot>>({})
 
 describe('settings', () => {
+  it('defaults landscape forcing off and accepts only boolean preferences', () => {
+    expect(getSettingsSnapshot({}).forceLandscape).toBe(false)
+    expect(normalizePartialSettings()?.forceLandscape).toBe(false)
+    for (const forceLandscape of [true, false]) {
+      expect(getSettingsSnapshot({ forceLandscape }).forceLandscape).toBe(forceLandscape)
+      expect(normalizeSettings({ forceLandscape }).forceLandscape).toBe(forceLandscape)
+    }
+    for (const forceLandscape of ['true', 'false', 1, null]) {
+      const data = { forceLandscape } as unknown as Partial<SettingsSnapshot>
+      expect(getSettingsSnapshot(data).forceLandscape).toBe(false)
+      expect(normalizeSettings(data)?.forceLandscape).toBe(false)
+    }
+  })
+
   it('keeps proxy credentials out of backup and sync snapshots', () => {
     const snapshot = getSettingsSnapshot({ proxyUsername: 'device user', proxyPassword: 'device password' })
     expect(snapshot).not.toHaveProperty('proxyUsername')
@@ -95,5 +116,22 @@ describe('settings', () => {
   it('clamps an out-of-range mini player position', () => {
     const settings = normalizeSettings<Partial<SettingsSnapshot>>({ miniPlayerPosition: { x: 2, y: -1 } })
     expect(settings?.miniPlayerPosition).toEqual({ x: 1, y: 0 })
+  })
+
+  it('defaults the History toolbar button on, because it is the only entry point', () => {
+    expect(normalizePartialSettings()?.showHistoryButtonInHeader).toBe(true)
+  })
+
+  it('turns the History button back on once for installs that stored the dead toggle as false', () => {
+    const stored: PersistedSettings = { showHistoryButtonInHeader: false }
+    const settings = migrateSettings(stored)
+    expect(settings?.showHistoryButtonInHeader).toBe(true)
+    expect(settings?.settingsVersion).toBe(SETTINGS_VERSION)
+  })
+
+  it('leaves a History button turned off after the migration has run', () => {
+    const stored: PersistedSettings = { showHistoryButtonInHeader: false, settingsVersion: SETTINGS_VERSION }
+    const settings = migrateSettings(stored)
+    expect(settings?.showHistoryButtonInHeader).toBe(false)
   })
 })

@@ -1,0 +1,1231 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>NeoTube — UI/UX refresh mockups</title>
+<style>
+  /* ============================================================
+     NeoTube design sheet. Tokens below are the ones in 01-tokens.md,
+     written as CSS so the mockups and the spec cannot drift.
+     ============================================================ */
+  :root {
+    --accent: #4f9dff;
+    --accent-300: #9ec9ff;
+    --accent-600: #2f79d1;
+    --accent-700: #1f5fae;
+    --danger: #f87171;
+    --success: #86efac;
+
+    --ink: #f4f4f5;          /* zinc-100 */
+    --ink-2: #a1a1aa;        /* zinc-400 */
+    --ink-3: #8b8b94;
+    --page: #08090c;
+    --sheet: #12141a;
+
+    --radius-chip: 12px;
+    --radius-field: 14px;
+    --radius-card: 24px;
+    --radius-sheet: 28px;
+    --radius-bar: 32px;
+
+    --dur-tap: 120ms;
+    --dur-state: 180ms;
+    --dur-sheet: 260ms;
+    --ease: cubic-bezier(.32,.72,0,1);
+
+    --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    padding: 56px 40px 96px;
+    background:
+      radial-gradient(1200px 700px at 12% -10%, #10233d 0%, transparent 60%),
+      radial-gradient(900px 600px at 100% 0%, #1a1230 0%, transparent 55%),
+      #06070a;
+    color: var(--ink);
+    font-family: var(--font);
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 1160px; margin: 0 auto; }
+
+  /* ---------- document chrome ---------- */
+  .doc-head { display: flex; gap: 20px; align-items: flex-start; margin-bottom: 44px; }
+  .doc-head .mark {
+    width: 44px; height: 44px; border-radius: 14px; flex: none;
+    background: linear-gradient(150deg, #6fb2ff, #2f6fd0 55%, #1b3f79);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.45), 0 8px 24px rgba(47,111,208,.35);
+  }
+  h1 { font-size: 27px; line-height: 34px; font-weight: 650; margin: 0 0 6px; letter-spacing: -.01em; }
+  .sub { color: var(--ink-2); font-size: 14px; line-height: 21px; max-width: 720px; margin: 0; }
+  .kicker {
+    font-size: 11px; line-height: 14px; letter-spacing: .08em; text-transform: uppercase;
+    color: var(--ink-3); font-weight: 600; margin: 0 0 10px;
+  }
+
+  section.block { margin: 0 0 72px; }
+  .block-head { display: flex; align-items: baseline; gap: 12px; margin-bottom: 6px; }
+  .block-head h2 { font-size: 20px; line-height: 26px; font-weight: 620; margin: 0; letter-spacing: -.005em; }
+  .block-head .num {
+    font-size: 11px; letter-spacing: .08em; color: var(--accent-300); font-weight: 700;
+  }
+  .block-note { color: var(--ink-2); font-size: 13px; line-height: 20px; max-width: 760px; margin: 0 0 26px; }
+  .block-note b { color: var(--ink); font-weight: 600; }
+
+  /* ---------- frames ---------- */
+  .pair { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: start; }
+  .pair-label {
+    display: flex; align-items: center; gap: 8px; margin: 0 0 12px;
+    font-size: 12px; line-height: 16px; font-weight: 650; letter-spacing: .04em; text-transform: uppercase;
+  }
+  .pair-label .dot { width: 7px; height: 7px; border-radius: 99px; background: #52525b; }
+  .pair-label.after .dot { background: var(--accent); box-shadow: 0 0 0 3px rgba(79,157,255,.18); }
+  .pair-label .tag { color: var(--ink-3); font-weight: 500; letter-spacing: 0; text-transform: none; }
+
+  .phone {
+    width: 390px; height: 844px; border-radius: 44px; position: relative;
+    background: #000; overflow: hidden;
+    box-shadow: 0 0 0 9px #16181d, 0 0 0 10px #2b2e36, 0 34px 70px -20px rgba(0,0,0,.85);
+    isolation: isolate;
+  }
+  .phone.tight { box-shadow: 0 0 0 7px #16181d, 0 0 0 8px #2b2e36, 0 24px 50px -18px rgba(0,0,0,.8); }
+  .statusbar {
+    position: absolute; top: 0; left: 0; right: 0; height: 46px; z-index: 40;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 26px; font-size: 13px; font-weight: 600; letter-spacing: .01em;
+  }
+  .statusbar .right { display: flex; align-items: center; gap: 6px; }
+  .sig { display: flex; gap: 2px; align-items: flex-end; }
+  .sig i { width: 3px; background: currentColor; border-radius: 1px; display: block; }
+  .sig i:nth-child(1) { height: 4px; } .sig i:nth-child(2) { height: 6px; }
+  .sig i:nth-child(3) { height: 8px; } .sig i:nth-child(4) { height: 10px; }
+  .batt { width: 22px; height: 11px; border: 1.4px solid currentColor; border-radius: 3px; position: relative; opacity: .9; }
+  .batt::after { content: ""; position: absolute; inset: 1.5px; right: 6px; background: var(--success); border-radius: 1px; }
+  .notch {
+    position: absolute; top: 10px; left: 50%; transform: translateX(-50%);
+    width: 108px; height: 26px; border-radius: 99px; background: #000; z-index: 45;
+  }
+
+  /* ---------- simulated YouTube page (the layer we do not control) ---------- */
+  .yt { position: absolute; inset: 0; background: #fff; color: #0f0f0f; overflow: hidden; }
+  .yt.dark { background: #0f0f0f; color: #f1f1f1; }
+  .yt-head { height: 52px; display: flex; align-items: center; gap: 10px; padding: 0 14px; }
+  .yt-logo { display: flex; align-items: center; gap: 5px; font-weight: 700; font-size: 17px; letter-spacing: -.02em; }
+  .yt-logo .play {
+    width: 24px; height: 16px; border-radius: 4px; background: #ff0033; position: relative;
+  }
+  .yt-logo .play::after {
+    content: ""; position: absolute; inset: 0; margin: auto; width: 0; height: 0;
+    border-left: 6px solid #fff; border-top: 4px solid transparent; border-bottom: 4px solid transparent;
+  }
+  .yt-actions { margin-left: auto; display: flex; align-items: center; gap: 12px; }
+  .yt-openapp {
+    border: 1px solid #d9d9d9; border-radius: 99px; padding: 5px 12px; font-size: 12px; font-weight: 600;
+    display: flex; align-items: center; gap: 6px; color: #0f0f0f;
+  }
+  .yt-openapp .av { width: 15px; height: 15px; border-radius: 99px; border: 1.4px solid #606060; }
+  .video {
+    height: 219px; position: relative; overflow: hidden;
+    background:
+      radial-gradient(circle at 62% 74%, rgba(0,0,0,.55) 0 12%, rgba(0,0,0,0) 27%),
+      radial-gradient(circle at 61% 72%, #d3c9b7 0 8%, #ab9d87 13%, #6f6555 20%, rgba(0,0,0,0) 32%),
+      radial-gradient(circle at 29% 24%, rgba(240,234,219,.5) 0 6%, rgba(240,234,219,0) 19%),
+      radial-gradient(circle at 85% 16%, rgba(255,255,255,.14) 0 4%, rgba(255,255,255,0) 15%),
+      radial-gradient(150px 95px at 16% 84%, rgba(0,0,0,.5), rgba(0,0,0,0) 72%),
+      linear-gradient(158deg, #5b564c 0%, #3c3932 44%, #201e1a 80%, #131211 100%);
+  }
+  .video .cap {
+    position: absolute; left: 50%; bottom: 26px; transform: translateX(-50%);
+    background: rgba(8,8,8,.78); color: #fff; font-size: 12.5px; line-height: 1.35;
+    padding: 4px 8px; border-radius: 3px; text-align: center; max-width: 74%;
+  }
+  .video .src { position: absolute; right: 10px; bottom: 44px; color: rgba(255,255,255,.75); font-size: 8.5px; text-align: right; }
+
+  /* ---------- app chrome: the material we own ---------- */
+  .bar {
+    position: absolute; z-index: 30; display: flex; align-items: center;
+    backdrop-filter: blur(22px) saturate(1.4); -webkit-backdrop-filter: blur(22px) saturate(1.4);
+  }
+  /* today's bar: three ungrouped zones, no surface, icon colour picked for a dark page */
+  .bar-before {
+    top: 46px; left: 0; right: 0; height: 52px; padding: 0 18px; gap: 16px;
+    color: #5b6472; background: transparent;
+    /* today's bar draws no material of its own — no backdrop either */
+    backdrop-filter: none; -webkit-backdrop-filter: none;
+  }
+  .bar-before .spacer { flex: 1; }
+  /* the refresh: one capsule, its own material, always legible */
+  .bar-after {
+    top: 54px; left: 12px; right: 12px; height: 54px; padding: 0 8px 0 8px; gap: 6px;
+    border-radius: 27px;
+    background: linear-gradient(180deg, rgba(48,74,116,.92), rgba(20,30,50,.90));
+    border: 1px solid rgba(255,255,255,.14);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.30), 0 8px 24px rgba(0,0,0,.42);
+    color: #fff;
+  }
+  .bar-after .ctx {
+    flex: 1; min-width: 0; display: flex; align-items: center; gap: 7px;
+    padding: 0 6px; font-size: 13px; font-weight: 550; color: rgba(255,255,255,.92);
+  }
+  .bar-after .ctx .t { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .bar-after .ctx .play-mini {
+    width: 17px; height: 12px; border-radius: 3px; background: #ff0033; position: relative; flex: none;
+  }
+  .bar-after .ctx .play-mini::after {
+    content: ""; position: absolute; inset: 0; margin: auto; width: 0; height: 0;
+    border-left: 4px solid #fff; border-top: 3px solid transparent; border-bottom: 3px solid transparent;
+  }
+  .icb {
+    width: 40px; height: 40px; border-radius: 99px; display: flex; align-items: center;
+    justify-content: center; flex: none;
+  }
+  .icb.sm { width: 34px; height: 34px; }
+  .icb.acc { background: rgba(79,157,255,.20); color: var(--accent-300); }
+  .icb.solid { background: var(--accent); color: #fff; }
+  .icb.ghost { color: rgba(255,255,255,.88); }
+  .pill {
+    display: inline-flex; align-items: center; gap: 4px; height: 26px; padding: 0 9px;
+    border-radius: 99px; font-size: 12px; font-weight: 620; white-space: nowrap;
+  }
+  .pill-before {
+    border: 1px solid #d4d4d8; background: rgba(228,228,231,.85); color: #6b7280;
+  }
+  .pill-after {
+    background: rgba(255,255,255,.14); color: #fff;
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,.08);
+  }
+  .pill-after.on { background: var(--accent); color: #fff; }
+
+  /* ---------- sheets ---------- */
+  .sheet {
+    position: absolute; left: 0; right: 0; bottom: 0; z-index: 32;
+    border-radius: var(--radius-sheet) var(--radius-sheet) 0 0; overflow: hidden;
+  }
+  .sheet-before {
+    background: #fff; color: #0f0f0f; padding: 10px 20px 0; height: 475px;
+    box-shadow: 0 -1px 0 rgba(0,0,0,.06), 0 -20px 40px rgba(0,0,0,.10);
+  }
+  .sheet-after {
+    height: 472px; padding: 10px 20px 0; color: var(--ink);
+    background: linear-gradient(180deg, rgba(34,44,66,.94), rgba(14,17,26,.97));
+    backdrop-filter: blur(30px) saturate(1.4); -webkit-backdrop-filter: blur(30px) saturate(1.4);
+    border-top: 1px solid rgba(255,255,255,.16);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.22), 0 -18px 48px rgba(0,0,0,.55);
+  }
+  .grab { width: 36px; height: 4px; border-radius: 99px; background: rgba(0,0,0,.20); margin: 0 auto 16px; }
+  .sheet-after .grab { background: rgba(255,255,255,.28); }
+  .t-title { font-size: 20px; line-height: 26px; font-weight: 640; letter-spacing: -.01em; margin: 0; }
+  .t-headline { font-size: 17px; line-height: 22px; font-weight: 600; }
+  .t-body { font-size: 15px; line-height: 20px; }
+  .t-label { font-size: 13px; line-height: 18px; font-weight: 500; }
+  .t-caption { font-size: 11px; line-height: 14px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; }
+
+  /* ---------- feeds ---------- */
+  .feed-head { position: absolute; top: 46px; left: 0; right: 0; padding: 12px 16px 8px; z-index: 20; }
+  .feed-title-row { display: flex; align-items: center; gap: 10px; }
+  .feed-title-row h3 { margin: 0; font-size: 20px; line-height: 26px; font-weight: 640; letter-spacing: -.01em; }
+  .chips { display: flex; gap: 8px; padding: 12px 16px 6px; }
+  .chip {
+    display: inline-flex; align-items: center; gap: 6px; height: 32px; padding: 0 12px;
+    border-radius: 99px; font-size: 13px; font-weight: 600;
+    background: rgba(255,255,255,.07); color: var(--ink-2);
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,.08);
+  }
+  .chip.on { background: rgba(79,157,255,.18); color: var(--accent-300); box-shadow: inset 0 0 0 1px rgba(79,157,255,.45); }
+  .chip .av { width: 18px; height: 18px; border-radius: 99px; background: #2a3b5c; box-shadow: inset 0 0 0 1px rgba(255,255,255,.2); }
+  .chip .av.moon { background: radial-gradient(circle at 34% 32%, #dfe6f2, #7f8ea8 62%, #4a5568); }
+
+  .row { display: flex; gap: 12px; padding: 10px 0; align-items: flex-start; }
+  .thumb {
+    width: 152px; height: 85px; border-radius: 10px; flex: none; position: relative; overflow: hidden;
+  }
+  .thumb.new { width: 128px; height: 72px; border-radius: 12px; box-shadow: inset 0 0 0 1px rgba(255,255,255,.10); }
+  .thumb .dur {
+    position: absolute; right: 5px; bottom: 5px; background: rgba(0,0,0,.82); color: #fff;
+    font-size: 10px; font-weight: 620; padding: 1px 4px; border-radius: 4px;
+  }
+  .space-moon { background: radial-gradient(circle at 46% 42%, #d9d2c4 0 16%, #9c9382 22%, #4c473d 48%, #171614 78%); }
+  .space-sun { background: radial-gradient(circle at 50% 50%, #fff6c9 0 10%, #ffbe3d 22%, #e0551f 46%, #3a1408 78%); }
+  .space-crater { background: radial-gradient(circle at 50% 55%, #e8c9a2 0 14%, #b9a98d 20%, #6b5c4c 42%, #241d19 74%), linear-gradient(#cbc2b4, #6d6455); }
+  .row-body { flex: 1; min-width: 0; }
+  .row-meta { display: flex; align-items: center; gap: 6px; color: var(--ink-3); }
+  .dotsep { width: 3px; height: 3px; border-radius: 99px; background: currentColor; opacity: .8; }
+  .unseen { width: 6px; height: 6px; border-radius: 99px; background: var(--accent); flex: none; box-shadow: 0 0 0 3px rgba(79,157,255,.14); }
+  .group-label { color: var(--ink-3); padding: 14px 0 4px; }
+
+  /* before-feeds identity strip */
+  .feed-id { display: flex; align-items: center; gap: 8px; padding: 2px 0 6px; }
+  .feed-id .av { width: 28px; height: 28px; border-radius: 99px; background: #1b3a6b; color: #cfe3ff; font-size: 10px; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+  .feed-id .nm { font-size: 14px; font-weight: 600; }
+  .feed-id .age { margin-left: auto; font-size: 12px; color: var(--ink-3); }
+  .feed-body-before { font-size: 14px; line-height: 24px; }
+
+  /* ---------- drawer ---------- */
+  .scrim-before { position: absolute; inset: 0; background: rgba(212,212,216,.5); z-index: 10; }
+  .scrim-after { position: absolute; inset: 0; z-index: 10; background: rgba(3,6,16,.62); backdrop-filter: blur(2px); }
+  .drawer {
+    position: absolute; top: 0; bottom: 0; left: 0; width: 312px; z-index: 12;
+    border-radius: 0 var(--radius-sheet) var(--radius-sheet) 0; overflow: hidden;
+  }
+  .drawer-before { background: #f7f7f8; color: #0f0f0f; padding: 52px 14px 0; }
+  .drawer-after {
+    width: 328px; padding: 54px 16px 0; color: var(--ink);
+    background: linear-gradient(180deg, rgba(36,47,70,.95), rgba(13,16,24,.97));
+    backdrop-filter: blur(30px) saturate(1.4); -webkit-backdrop-filter: blur(30px) saturate(1.4);
+    box-shadow: inset -1px 0 0 rgba(255,255,255,.12), 18px 0 48px rgba(0,0,0,.5);
+  }
+  .seg {
+    display: flex; padding: 4px; border-radius: 16px; gap: 2px;
+  }
+  .seg-before { background: rgba(228,228,231,.9); box-shadow: inset 0 0 0 1px #d4d4d8; }
+  .seg-after { background: rgba(255,255,255,.06); box-shadow: inset 0 0 0 1px rgba(255,255,255,.09); }
+  .seg button {
+    flex: 1; border: 0; background: transparent; font: inherit; font-size: 13px; font-weight: 600;
+    height: 30px; border-radius: 12px; color: var(--ink-2); cursor: default;
+  }
+  .seg-before button { color: #52525b; }
+  .seg-before button.on { background: #fafafa; color: #0f0f0f; box-shadow: 0 1px 2px rgba(0,0,0,.10); }
+  .seg-after button.on { background: var(--accent); color: #fff; box-shadow: 0 2px 8px rgba(47,121,209,.45); }
+  .lib-row { display: flex; gap: 12px; padding: 10px 0; align-items: flex-start; }
+  .lib-thumb { width: 96px; height: 54px; border-radius: 10px; flex: none; overflow: hidden; }
+  .folder-row {
+    display: flex; align-items: center; gap: 10px; padding: 10px 0;
+    border-bottom: 1px solid rgba(255,255,255,.07);
+  }
+
+  /* ---------- settings ---------- */
+  .st-page { position: absolute; inset: 0; background: #07080b; }
+  .st-head { display: flex; align-items: center; gap: 10px; padding: 56px 16px 12px; }
+  .st-body { padding: 0 16px; }
+  .card { border-radius: var(--radius-card); overflow: hidden; }
+  .card-before { background: rgba(18,18,20,.9); box-shadow: inset 0 0 0 1px rgba(255,255,255,.06); }
+  .card-after {
+    background: linear-gradient(180deg, rgba(255,255,255,.075), rgba(255,255,255,.045));
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,.10), inset 0 1px 0 rgba(255,255,255,.10);
+  }
+  .s-row { display: flex; align-items: center; gap: 12px; padding: 13px 16px; }
+  .s-row.small { padding: 11px 16px; }
+  .s-row + .s-row { border-top: 2px solid #050507; }
+  .card-after .s-row + .s-row { border-top: 1px solid rgba(255,255,255,.075); }
+  .chip-ico {
+    width: 40px; height: 40px; border-radius: 16px; flex: none; display: flex;
+    align-items: center; justify-content: center; background: #050507; color: #d4d4d8;
+  }
+  .chip-ico.new { width: 36px; height: 36px; border-radius: 12px; background: rgba(255,255,255,.07); color: rgba(255,255,255,.78); }
+  .chip-ico.new.acc { background: rgba(79,157,255,.16); color: var(--accent-300); }
+  .lbl { font-size: 15px; line-height: 20px; font-weight: 500; }
+  .lbl-before { font-size: 14px; line-height: 18px; font-weight: 500; color: #f4f4f5; }
+  .desc { font-size: 13px; line-height: 18px; color: var(--ink-2); margin-top: 2px; }
+
+  /* switches */
+  .sw-before {
+    width: 51px; height: 31px; border-radius: 99px; background: #3b6fd8; position: relative; flex: none;
+    box-shadow: inset 0 0 0 1px rgba(0,0,0,.08);
+  }
+  .sw-before::after {
+    content: ""; position: absolute; top: 2px; right: 2px; width: 27px; height: 27px; border-radius: 99px;
+    background: #fff; box-shadow: 0 2px 5px rgba(0,0,0,.28);
+  }
+  .sw-before.off { background: #3f3f46; }
+  .sw-before.off::after { right: auto; left: 2px; }
+  .sw {
+    width: 46px; height: 28px; border-radius: 99px; position: relative; flex: none;
+    background: rgba(255,255,255,.14); box-shadow: inset 0 0 0 1px rgba(255,255,255,.10);
+  }
+  .sw::after {
+    content: ""; position: absolute; top: 3px; left: 3px; width: 22px; height: 22px; border-radius: 99px;
+    background: #e4e4e7; box-shadow: 0 1px 3px rgba(0,0,0,.4); transition: all var(--dur-state) var(--ease);
+  }
+  .sw.on { background: var(--accent); box-shadow: inset 0 0 0 1px rgba(255,255,255,.16), 0 0 0 3px rgba(79,157,255,.14); }
+  .sw.on::after { left: 21px; background: #fff; }
+
+  /* after-appearance: live bar preview inside the card */
+  .rel { position: relative; }
+  .bar-preview {
+    position: relative;
+    margin: 0 0 10px; border-radius: 22px; padding: 6px 8px; display: flex; align-items: center; gap: 4px;
+    background: linear-gradient(180deg, rgba(48,74,116,.85), rgba(20,30,50,.9));
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.26), 0 6px 18px rgba(0,0,0,.35);
+    color: #fff;
+  }
+  .bar-preview .ghost-slot {
+    width: 34px; height: 34px; border-radius: 99px; display: flex; align-items: center; justify-content: center;
+    color: rgba(255,255,255,.22); border: 1px dashed rgba(255,255,255,.20);
+  }
+  .accents { display: flex; gap: 10px; padding: 4px 16px 14px; }
+  .swatch {
+    width: 34px; height: 34px; border-radius: 99px; display: flex; align-items: center; justify-content: center;
+    position: relative;
+  }
+  .swatch i { width: 30px; height: 30px; border-radius: 99px; display: block; }
+  .swatch.on { box-shadow: 0 0 0 2px #fff, 0 0 0 4px rgba(255,255,255,.18); }
+  .theme-cards { display: flex; gap: 10px; padding: 4px 16px 14px; }
+  .theme-card {
+    flex: 1; height: 74px; border-radius: 16px; position: relative; overflow: hidden;
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,.10);
+  }
+  .theme-card.sel { box-shadow: inset 0 0 0 2px var(--accent), 0 0 0 3px rgba(79,157,255,.16); }
+  .theme-card .mini { position: absolute; inset: 10px 12px auto; height: 8px; border-radius: 4px; }
+  .theme-card .mini + .mini { top: 24px; width: 60%; }
+  .theme-card .name { position: absolute; left: 12px; bottom: 8px; font-size: 11px; font-weight: 650; letter-spacing: .04em; }
+
+  /* ---------- tokens ---------- */
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 32px 40px; }
+  .toks { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+  .tok { border-radius: 16px; overflow: hidden; box-shadow: inset 0 0 0 1px rgba(255,255,255,.14); }
+  .tok .swch { height: 62px; }
+  .tok .meta { padding: 9px 10px; background: rgba(255,255,255,.04); }
+  .tok .nm { font-size: 12px; font-weight: 620; }
+  .tok .hex { font-size: 11px; color: var(--ink-3); font-variant-numeric: tabular-nums; }
+  table.tbl { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+  table.tbl th {
+    text-align: left; font-size: 10.5px; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-3);
+    font-weight: 650; padding: 0 10px 8px 0; border-bottom: 1px solid rgba(255,255,255,.10);
+  }
+  table.tbl td { padding: 9px 10px 9px 0; border-bottom: 1px solid rgba(255,255,255,.06); color: var(--ink-2); vertical-align: middle; }
+  table.tbl td:first-child { color: var(--ink); font-weight: 550; }
+  .num { font-variant-numeric: tabular-nums; }
+  .pass { color: var(--success); font-weight: 620; }
+  .fail { color: var(--danger); font-weight: 620; }
+  .type-ramp > div { display: flex; align-items: baseline; gap: 14px; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,.06); }
+  .type-ramp .tok-nm { width: 132px; color: var(--ink-3); font-size: 11px; letter-spacing: .06em; text-transform: uppercase; font-weight: 600; }
+  .radius-demo { display: flex; gap: 12px; }
+  .radius-demo > div {
+    flex: 1; height: 56px; background: rgba(255,255,255,.06); box-shadow: inset 0 0 0 1px rgba(255,255,255,.10);
+    display: flex; align-items: flex-end; justify-content: center; padding-bottom: 6px; font-size: 10px; color: var(--ink-3);
+  }
+
+  /* notes under a frame */
+  .notes { margin: 14px 0 0; padding: 0 20px 0 0; list-style: none; }
+  .notes li {
+    position: relative; display: block; padding-left: 26px; max-width: 100%; overflow-wrap: anywhere;
+    font-size: 12.5px; line-height: 18px; color: var(--ink-2); padding-top: 4px; padding-bottom: 4px;
+  }
+  .notes li code { color: var(--ink); font-size: 12px; overflow-wrap: anywhere; }
+  .notes .n {
+    position: absolute; left: 0; top: 5px;
+    width: 17px; height: 17px; border-radius: 99px; flex: none; background: var(--accent); color: #04121f;
+    font-size: 10px; font-weight: 800; display: flex; align-items: center; justify-content: center;
+  }
+  /* annotation badge pinned to a frame element */
+  .anno {
+    position: absolute; z-index: 60; width: 18px; height: 18px; border-radius: 99px;
+    background: var(--accent); color: #04121f; font-size: 10px; font-weight: 800;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 0 0 2px rgba(6,7,10,.65), 0 2px 6px rgba(0,0,0,.5);
+  }
+  .states { display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px; }
+  .state-card {
+    border-radius: var(--radius-sheet); padding: 22px 20px; min-height: 300px;
+    background: linear-gradient(180deg, rgba(255,255,255,.07), rgba(255,255,255,.035));
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,.10), inset 0 1px 0 rgba(255,255,255,.10);
+    display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center;
+  }
+  .state-card h4 { margin: 14px 0 4px; font-size: 17px; line-height: 22px; font-weight: 620; }
+  .state-card p { margin: 0 0 16px; font-size: 13px; line-height: 19px; color: var(--ink-2); max-width: 250px; }
+  .state-ico {
+    width: 52px; height: 52px; border-radius: 18px; display: flex; align-items: center; justify-content: center;
+    background: rgba(79,157,255,.14); color: var(--accent-300); box-shadow: inset 0 0 0 1px rgba(79,157,255,.28);
+  }
+  .btn {
+    height: 36px; padding: 0 16px; border-radius: 99px; display: inline-flex; align-items: center; gap: 6px;
+    font-size: 13px; font-weight: 620; background: var(--accent); color: #041220;
+    box-shadow: 0 6px 16px rgba(47,111,208,.35);
+  }
+  .btn.ghost { background: rgba(255,255,255,.08); color: var(--ink); box-shadow: inset 0 0 0 1px rgba(255,255,255,.10); }
+  .skeleton { width: 100%; display: flex; flex-direction: column; gap: 14px; }
+  .sk-row { display: flex; gap: 12px; align-items: center; }
+  .sk { border-radius: 8px; background: rgba(255,255,255,.09); position: relative; overflow: hidden; }
+  .sk::after {
+    content: ""; position: absolute; inset: 0;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,.10), transparent);
+    animation: shimmer 1.4s linear infinite;
+  }
+  @keyframes shimmer { from { transform: translateX(-100%); } to { transform: translateX(100%); } }
+
+  .foot { margin-top: 20px; color: var(--ink-3); font-size: 12px; line-height: 19px; }
+  .foot code { color: var(--ink-2); }
+  @media print { body { background: #06070a; } .phone { break-inside: avoid; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="doc-head">
+    <div class="mark"></div>
+    <div>
+      <p class="kicker">NeoTube · design sheet · v1</p>
+      <h1>UI/UX refresh — four screens, before and after</h1>
+      <p class="sub">
+        Every frame is drawn in the tokens from <code>01-tokens.md</code>: the same glass recipe as
+        <code>lib/glass-tokens.ts</code>, the same 24/28/32 radius family, Aurora as the accent.
+        The before frames reproduce the current build; the real device screenshots they were
+        traced from are in <code>current-ui/</code>. Numbers in the notes map to the per-screen
+        implementation notes in <code>02-spec.md</code>.
+      </p>
+    </div>
+  </div>
+
+  <!-- ============================================================ TOKENS -->
+  <section class="block" id="tokens">
+    <div class="block-head"><span class="num">00</span><h2>Tokens at a glance</h2></div>
+    <p class="block-note">
+      Two additions, no new system: <b>a bar material that survives a white page</b> and
+      <b>text roles with measured contrast</b>. Everything else already ships.
+    </p>
+
+    <div class="grid2">
+      <div>
+        <p class="kicker">Colour — chrome</p>
+        <div class="toks" style="grid-template-columns: repeat(3, 1fr); margin-bottom: 26px;">
+          <div class="tok"><div class="swch" style="background: linear-gradient(180deg,#304a74,#141e32)"></div>
+            <div class="meta"><div class="nm">bar / dark</div><div class="hex">rgba(22,33,55,.86)</div></div></div>
+          <div class="tok"><div class="swch" style="background: linear-gradient(180deg,#fdfdfe,#eef3fb)"></div>
+            <div class="meta"><div class="nm">bar / light</div><div class="hex">rgba(255,255,255,.84)</div></div></div>
+          <div class="tok"><div class="swch" style="background:#05070c"></div>
+            <div class="meta"><div class="nm">page</div><div class="hex">#08090c</div></div></div>
+          <div class="tok"><div class="swch" style="background:#1e202c"></div>
+            <div class="meta"><div class="nm">card</div><div class="hex">rgba(255,255,255,.07)</div></div></div>
+          <div class="tok"><div class="swch" style="background:rgba(3,6,16,.62)"></div>
+            <div class="meta"><div class="nm">scrim</div><div class="hex">rgba(3,6,16,.62)</div></div></div>
+          <div class="tok"><div class="swch" style="background:#4f9dff"></div>
+            <div class="meta"><div class="nm">accent</div><div class="hex">#4f9dff</div></div></div>
+          <div class="tok"><div class="swch" style="background:#f4f4f5"></div>
+            <div class="meta"><div class="nm">text / primary</div><div class="hex">zinc-100</div></div></div>
+          <div class="tok"><div class="swch" style="background:#a1a1aa"></div>
+            <div class="meta"><div class="nm">text / secondary</div><div class="hex">zinc-400</div></div></div>
+          <div class="tok"><div class="swch" style="background:#71717a"></div>
+            <div class="meta"><div class="nm">text / tertiary</div><div class="hex">zinc-500 → 400</div></div></div>
+        </div>
+
+        <p class="kicker">Measured contrast (composited over the page)</p>
+        <table class="tbl">
+          <tr><th>Surface</th><th>Over white page</th><th>Icon / text</th></tr>
+          <tr><td>glass fill 0.56</td><td class="num">rgb(128,139,155)</td><td class="fail num">3.45:1</td></tr>
+          <tr><td>bar material 0.86</td><td class="num">rgb(56,65,84)</td><td class="pass num">10.2:1</td></tr>
+          <tr><td>bar material over dark page</td><td class="num">rgb(21,30,49)</td><td class="pass num">16.6:1</td></tr>
+          <tr><td>section label zinc-500 on card</td><td class="num">rgb(30,32,44)</td><td class="fail num">3.35:1</td></tr>
+          <tr><td>section label zinc-400 on card</td><td class="num">rgb(30,32,44)</td><td class="pass num">6.31:1</td></tr>
+        </table>
+      </div>
+
+      <div>
+        <p class="kicker">Type scale — six steps</p>
+        <div class="type-ramp">
+          <div><span class="tok-nm">display 28/34</span><span style="font-size:28px;line-height:34px;font-weight:600;letter-spacing:-.02em">Tour of the Moon</span></div>
+          <div><span class="tok-nm">title 20/26</span><span style="font-size:20px;line-height:26px;font-weight:600;letter-spacing:-.01em">Tour of the Moon in 4K</span></div>
+          <div><span class="tok-nm">headline 17/22</span><span style="font-size:17px;line-height:22px;font-weight:600">Artemis Acceleration (Oct. 23, 2026)</span></div>
+          <div><span class="tok-nm">body 15/20</span><span style="font-size:15px;line-height:20px">Take a virtual tour of the Moon in all-new 4K resolution.</span></div>
+          <div><span class="tok-nm">label 13/18</span><span style="font-size:13px;line-height:18px;font-weight:500;color:#a1a1aa">NASA Goddard · 11 hours ago</span></div>
+          <div><span class="tok-nm">caption 11/14</span><span class="t-caption" style="color:#a1a1aa">Chapters</span></div>
+        </div>
+
+        <p class="kicker" style="margin-top: 24px;">Radius family</p>
+        <div class="radius-demo">
+          <div style="border-radius:12px">chip 12</div>
+          <div style="border-radius:24px">card 24</div>
+          <div style="border-radius:28px">sheet 28</div>
+          <div style="border-radius:32px">bar 32</div>
+        </div>
+
+        <p class="kicker" style="margin-top: 24px;">Motion — one easing, three durations</p>
+        <table class="tbl">
+          <tr><th>Pattern</th><th>Spec</th></tr>
+          <tr><td>Sheet in / out</td><td class="num">translate 24 → 0, 260 ms · scrim 180 ms</td></tr>
+          <tr><td>Bar hide on scroll</td><td class="num">height 52 → 0, 180 ms</td></tr>
+          <tr><td>Row press</td><td class="num">wash + scale .995, 120 ms</td></tr>
+          <tr><td>Selection</td><td class="num">accent pill crossfade, 180 ms</td></tr>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================ 1 WATCH -->
+  <section class="block" id="watch">
+    <div class="block-head"><span class="num">01</span><h2>Watch + toolbar — the instrument panel</h2></div>
+    <p class="block-note">
+      The bar is the app's primary navigation and it has no surface of its own, so its icon
+      contrast is whatever the page happens to be: <b>10.35:1</b> over a white page,
+      <b>1.55:1</b> over the video frame behind it, <b>1.10:1</b> in dark scheme on a light
+      page. The refresh gives the bar its own material so the number is fixed at 10:1 by the
+      token. The page here is drawn without the injected glass CSS — that is the case the bar
+      has to survive.
+    </p>
+
+    <div class="pair">
+      <div>
+        <p class="pair-label"><span class="dot"></span>Before <span class="tag">· build 0.1.0</span></p>
+        <div class="phone">
+          <div class="yt">
+            <div class="statusbar" style="color:#0f0f0f">
+              <span>9:41</span>
+              <span class="right"><span class="sig"><i></i><i></i><i></i><i></i></span><span class="batt" style="color:#0f0f0f"></span></span>
+            </div>
+            <div class="notch"></div>
+            <div class="yt-head" style="margin-top: 98px;">
+              <div class="yt-logo"><span class="play"></span>YouTube</div>
+              <div class="yt-actions">
+                <span style="font-size:19px;color:#0f0f0f">⌕</span>
+                <span style="color:#0f0f0f;letter-spacing:1px">⋮</span>
+                <span class="yt-openapp"><span class="av"></span>Open App</span>
+              </div>
+            </div>
+            <div class="video">
+              <div class="cap">impact crater in the Earth-Moon system — the South Pole-Aitken</div>
+              <div class="src">13.9° S · 176.5° E<br>50 KM</div>
+            </div>
+          </div>
+
+          <!-- today: ungrouped, unsurfaced icons -->
+          <div class="bar bar-before">
+            <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="12" height="16" rx="2.5"/><path d="M19 6.5v11"/></svg>
+            <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M5 19a14 14 0 0114-14"/><path d="M5 13a8 8 0 018-8"/><circle cx="6" cy="18" r="1.6" fill="currentColor" stroke="none"/></svg>
+            <span class="spacer"></span>
+            <span class="pill pill-before">1×</span>
+            <span class="pill pill-before">Auto</span>
+            <svg width="19" height="19" viewBox="0 0 24 24" fill="#c9a227" style="opacity:.85"><path d="M12 3.6l2.6 5.4 5.9.8-4.3 4.1 1.1 5.8L12 16.9 6.7 19.7l1.1-5.8L3.5 9.8l5.9-.8z"/></svg>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="1.7"/><circle cx="12" cy="12" r="1.7"/><circle cx="12" cy="19" r="1.7"/></svg>
+          </div>
+
+          <!-- today: YouTube-styled info sheet -->
+          <div class="sheet sheet-before">
+            <div class="grab"></div>
+            <div style="display:flex;align-items:flex-start;gap:10px;">
+              <h3 class="t-title" style="flex:1">Tour of the Moon in 4K</h3>
+              <span style="font-size:20px;color:#606060;margin-top:-2px">✕</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;margin:12px 0 14px;">
+              <span style="width:26px;height:26px;border-radius:99px;background:#0f1f3d"></span>
+              <span style="font-size:13px;font-weight:600">NASA Goddard</span>
+            </div>
+            <div style="display:flex;border-top:1px solid #e5e5e5;border-bottom:1px solid #e5e5e5;padding:12px 0;">
+              <div style="flex:1;text-align:center"><div style="font-size:20px;font-weight:600">27K</div><div style="font-size:12px;color:#606060">Likes</div></div>
+              <div style="flex:1;text-align:center"><div style="font-size:20px;font-weight:600">3.9M</div><div style="font-size:12px;color:#606060">Views</div></div>
+              <div style="flex:1;text-align:center"><div style="font-size:20px;font-weight:600">2018</div><div style="font-size:12px;color:#606060">Apr 9</div></div>
+            </div>
+            <div style="background:#fdecec;border-radius:12px;padding:12px;margin:14px 0 0;font-size:12.5px;line-height:18px;color:#1f1f1f">
+              Take a virtual tour of the Moon in all-new 4K resolution, thanks to data provided by NASA's Lunar Reconnaissance Orbiter spacecraft. As the visualization moves around the near side, far side, north and south poles, we highlight interesting features, sites, and information gathered on the lunar terrain.
+              <div style="text-align:right;font-weight:600">…more</div>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;margin:14px 0 8px;">
+              <span style="font-size:17px;font-weight:600">Chapters</span>
+              <span style="font-size:13px;font-weight:600;color:#065fd4">View all</span>
+            </div>
+            <div style="display:flex;gap:10px;">
+              <div class="thumb space-crater" style="width:150px;height:84px"></div>
+              <div class="thumb space-moon" style="width:150px;height:84px"></div>
+            </div>
+          </div>
+        </div>
+        <ul class="notes">
+          <li><span class="n">·</span>Icons take their colour from the scheme and their contrast from the page: <code>slate-700</code> is 10.35:1 on the white strip and <b>1.55:1</b> over the video.</li>
+          <li><span class="n">·</span>Pills are <code>zinc-200/80</code> boxes with <code>zinc-500</code> labels — 3.88:1 on their own fill.</li>
+          <li><span class="n">·</span>The panel under the video is YouTube's own description sheet, not native — the app adds no material of its own anywhere above it.</li>
+        </ul>
+      </div>
+
+      <div>
+        <p class="pair-label after"><span class="dot"></span>After</p>
+        <div class="phone">
+          <div class="yt">
+            <div class="statusbar" style="color:#0f0f0f">
+              <span>9:41</span>
+              <span class="right"><span class="sig"><i></i><i></i><i></i><i></i></span><span class="batt" style="color:#0f0f0f"></span></span>
+            </div>
+            <div class="notch"></div>
+            <div class="yt-head" style="margin-top: 110px;">
+              <div class="yt-logo"><span class="play"></span>YouTube</div>
+              <div class="yt-actions">
+                <span style="font-size:19px;color:#0f0f0f">⌕</span>
+                <span style="color:#0f0f0f;letter-spacing:1px">⋮</span>
+                <span class="yt-openapp"><span class="av"></span>Open App</span>
+              </div>
+            </div>
+            <div class="video">
+              <div class="cap">impact crater in the Earth-Moon system — the South Pole-Aitken</div>
+              <div class="src">13.9° S · 176.5° E<br>50 KM</div>
+            </div>
+          </div>
+
+          <!-- after: one capsule, its own material -->
+          <div class="bar bar-after">
+            <span class="icb ghost">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg>
+            </span>
+            <span class="ctx">
+              <span class="play-mini"></span>
+              <span class="t">Tour of the Moon in 4K</span>
+            </span>
+            <span class="pill pill-after">1×</span>
+            <span class="pill pill-after on">4K</span>
+            <span class="icb sm ghost" style="color:#ffd166">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 3.6l2.6 5.4 5.9.8-4.3 4.1 1.1 5.8L12 16.9 6.7 19.7l1.1-5.8L3.5 9.8l5.9-.8z"/></svg>
+            </span>
+            <span class="icb sm ghost">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="1.7"/><circle cx="12" cy="12" r="1.7"/><circle cx="12" cy="19" r="1.7"/></svg>
+            </span>
+            <span class="anno" style="left: -9px; top: 17px;">1</span>
+          </div>
+
+          <!-- after: NeoTube's own sheet, in glass -->
+          <div class="sheet sheet-after">
+            <div class="grab"></div>
+            <div style="display:flex;align-items:flex-start;gap:10px;">
+              <span style="width:3px;height:22px;border-radius:99px;background:var(--accent);margin-top:2px;flex:none"></span>
+              <h3 class="t-title" style="flex:1">Tour of the Moon in 4K</h3>
+              <span class="icb sm ghost" style="margin:-6px -6px 0 0;color:rgba(255,255,255,.6)">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+              </span>
+            </div>
+            <div style="display:flex;align-items:center;gap:9px;margin:12px 0 16px;">
+              <span style="width:28px;height:28px;border-radius:99px;background:linear-gradient(140deg,#2b4f86,#101d33);box-shadow:inset 0 0 0 1px rgba(255,255,255,.18)"></span>
+              <span class="t-label" style="color:var(--ink)">NASA Goddard</span>
+              <span class="t-label" style="color:var(--ink-3)">· 4K</span>
+            </div>
+
+            <div style="display:flex;gap:8px;margin-bottom:16px;">
+              <span class="chip" style="height:30px">27K likes</span>
+              <span class="chip" style="height:30px">3.9M views</span>
+              <span class="chip" style="height:30px">Apr 2018</span>
+            </div>
+
+            <div style="border-radius:16px;padding:12px 13px;background:rgba(255,255,255,.055);box-shadow:inset 0 0 0 1px rgba(255,255,255,.09)">
+              <p class="t-body" style="margin:0;color:rgba(244,244,245,.86);display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden">
+                Take a virtual tour of the Moon in all-new 4K resolution, thanks to data provided by NASA's Lunar Reconnaissance Orbiter spacecraft. As the visualization moves around the near side, far side, north and south poles, we highlight interesting features.
+              </p>
+              <div style="display:flex;justify-content:flex-end;margin-top:6px;">
+                <span class="t-label" style="color:var(--accent-300);font-weight:600">Read more</span>
+              </div>
+            </div>
+
+            <div style="display:flex;justify-content:space-between;align-items:center;margin:18px 0 10px;">
+              <span class="t-caption" style="color:var(--ink-3)">Chapters · 12</span>
+              <span class="t-label" style="color:var(--accent-300);font-weight:600">View all</span>
+            </div>
+            <div style="display:flex;gap:10px;">
+              <div style="width:150px;flex:none">
+                <div class="thumb space-crater" style="width:150px;height:84px;border-radius:12px;box-shadow:inset 0 0 0 1px rgba(255,255,255,.12)">
+                  <span class="dur">00:00</span>
+                </div>
+                <div class="t-label" style="margin-top:6px;color:rgba(244,244,245,.9)">Orientale Basin</div>
+              </div>
+              <div style="width:150px;flex:none">
+                <div class="thumb space-moon" style="width:150px;height:84px;border-radius:12px;box-shadow:inset 0 0 0 1px rgba(255,255,255,.12)">
+                  <span class="dur">08:12</span>
+                </div>
+                <div class="t-label" style="margin-top:6px;color:rgba(244,244,245,.9)">Tycho Crater</div>
+              </div>
+            </div>
+            <span class="anno" style="left: 8px; top: 486px;">2</span>
+            <span class="anno" style="left: 236px; top: 486px;">3</span>
+          </div>
+        </div>
+        <ul class="notes">
+          <li><span class="n">1</span>One capsule, 12 px inset, bar material at 0.86 alpha: 10.2:1 whatever page is behind. Groups: back · context · actions, all 40 px targets.</li>
+          <li><span class="n">2</span>Optional: the description panel is page content, so skinning it is a <code>lib/glass-css.ts</code> job (shown here). The bar is the part that must change; this can wait for a second PR.</li>
+          <li><span class="n">3</span>If the panel is skinned: stats as chips, description in a rimmed card, "read more" in accent — replacing the bordered three-column row.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================ 2 FEEDS -->
+  <section class="block" id="feeds">
+    <div class="block-head"><span class="num">02</span><h2>Feeds — stop repeating the channel</h2></div>
+    <p class="block-note">
+      Today every row carries avatar + channel + age + overflow even when the list is already
+      filtered to one channel, and nothing marks what is new. Move identity to a filter row, group
+      by day, and give the row one job: the video.
+    </p>
+
+    <div class="pair">
+      <div>
+        <p class="pair-label"><span class="dot"></span>Before <span class="tag">· one channel selected</span></p>
+        <div class="phone">
+          <div class="yt dark">
+            <div class="statusbar" style="color:#f1f1f1">
+              <span>9:41</span>
+              <span class="right"><span class="sig"><i></i><i></i><i></i><i></i></span><span class="batt" style="color:#f1f1f1"></span></span>
+            </div>
+            <div class="notch"></div>
+          </div>
+          <div class="drawer drawer-before" style="width: 100%; border-radius: 0; background: #0b0b0d; color: #f4f4f5; padding: 56px 16px 0;">
+            <div style="display:flex;align-items:center;gap:10px;">
+              <span class="icb" style="width:34px;height:34px;background:#1c1c1f;color:#e4e4e7;font-size:16px">✕</span>
+              <span style="font-size:17px;font-weight:600;flex:1">Feeds</span>
+              <span style="display:flex;align-items:center;gap:6px;height:34px;padding:0 10px;border-radius:99px;background:#1c1c1f;">
+                <span style="width:20px;height:20px;border-radius:99px;background:#1b3a6b"></span>
+                <span style="font-size:13px">NASA</span>
+                <span style="font-size:10px;color:#8b8b94">▾</span>
+              </span>
+              <span style="color:#a1a1aa;font-size:17px">⚙</span>
+            </div>
+
+            <div style="margin-top: 10px;">
+              <div class="feed-id"><span class="av">N</span><span class="nm">NASA</span><span class="age">11 hours ago</span><span style="color:#71717a">⋯</span></div>
+              <div style="display:flex;gap:12px">
+                <div class="thumb space-crater"><span class="dur">1:12:04</span></div>
+                <div class="feed-body-before" style="flex:1">Artemis Acceleration (Oct. 23, 2026)</div>
+              </div>
+            </div>
+            <div style="margin-top: 6px;">
+              <div class="feed-id"><span class="av">N</span><span class="nm">NASA</span><span class="age">2 days ago</span><span style="color:#71717a">⋯</span></div>
+              <div style="display:flex;gap:12px">
+                <div class="thumb" style="background:linear-gradient(160deg,#3b4a63,#111823)"><span class="dur">LIVE</span></div>
+                <div class="feed-body-before" style="flex:1">Live High-Definition Views from the International Space Station (Official NASA Stream)</div>
+              </div>
+            </div>
+            <div style="margin-top: 6px;">
+              <div class="feed-id"><span class="av">N</span><span class="nm">NASA</span><span class="age">4 days ago</span><span style="color:#71717a">⋯</span></div>
+              <div style="display:flex;gap:12px">
+                <div class="thumb space-moon"><span class="dur">28:41</span></div>
+                <div class="feed-body-before" style="flex:1">U.S. Spacewalk Preview News Conference</div>
+              </div>
+            </div>
+            <div style="margin-top: 6px;">
+              <div class="feed-id"><span class="av">N</span><span class="nm">NASA</span><span class="age">4 days ago</span><span style="color:#71717a">⋯</span></div>
+              <div style="display:flex;gap:12px">
+                <div class="thumb space-sun"><span class="dur">04:22</span></div>
+                <div class="feed-body-before" style="flex:1">U.S. Spacewalk 100</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <ul class="notes">
+          <li><span class="n">·</span>Channel row repeats four times in 380 px of list.</li>
+          <li><span class="n">·</span>14 px title at <code>leading-6</code> next to an 85 px thumbnail.</li>
+          <li><span class="n">·</span>No marker for unseen items; age is the only time structure.</li>
+        </ul>
+      </div>
+
+      <div>
+        <p class="pair-label after"><span class="dot"></span>After</p>
+        <div class="phone">
+          <div class="yt dark">
+            <div class="statusbar" style="color:#f1f1f1">
+              <span>9:41</span>
+              <span class="right"><span class="sig"><i></i><i></i><i></i><i></i></span><span class="batt" style="color:#f1f1f1"></span></span>
+            </div>
+            <div class="notch"></div>
+          </div>
+          <div class="drawer drawer-after" style="width: 100%; border-radius: 0; padding: 54px 0 0;">
+            <div style="padding: 0 16px;">
+              <div class="feed-title-row">
+                <span class="icb sm" style="background:rgba(255,255,255,.07);color:rgba(255,255,255,.8);margin-left:-8px">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+                </span>
+                <h3 style="flex:1">Feeds</h3>
+                <span class="icb sm" style="background:rgba(255,255,255,.07);color:rgba(255,255,255,.8)">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h10M4 12h16M4 17h7"/><circle cx="18" cy="7" r="2"/><circle cx="14" cy="17" r="2"/></svg>
+                </span>
+              </div>
+              <p class="t-label" style="margin:4px 0 0;color:var(--ink-3)">12 new from 6 channels · refreshed 6m ago</p>
+            </div>
+
+            <div class="chips" style="padding: 12px 16px 4px;">
+              <span class="chip on"><span class="av moon"></span>NASA</span>
+              <span class="chip">All</span>
+              <span class="chip">Veritasium</span>
+              <span class="chip">+3</span>
+            </div>
+
+            <div style="padding: 0 16px;">
+              <div class="group-label t-caption">Today</div>
+
+              <div class="row" style="position:relative">
+                <div class="thumb new space-crater"><span class="dur">1:12:04</span></div>
+                <div class="row-body">
+                  <div style="display:flex;gap:8px">
+                    <span class="t-headline" style="flex:1;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">Artemis Acceleration (Oct. 23, 2026)</span>
+                    <span class="unseen" style="margin-top:8px"></span>
+                  </div>
+                  <div class="row-meta t-label" style="margin-top:6px;">
+                    <span>11 hours ago</span><span class="dotsep"></span><span>1:12:04</span>
+                  </div>
+                </div>
+                <span class="anno" style="left:4px; top:4px;">1</span>
+              </div>
+
+              <div class="row">
+                <div class="thumb new" style="background:linear-gradient(160deg,#3b4a63,#111823)"><span class="dur" style="background:#c4302b">LIVE</span></div>
+                <div class="row-body">
+                  <span class="t-headline" style="display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">Live High-Definition Views from the International Space Station</span>
+                  <div class="row-meta t-label" style="margin-top:6px;">
+                    <span>2 days ago</span><span class="dotsep"></span><span>NASA</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="group-label t-caption">Earlier this week</div>
+
+              <div class="row">
+                <div class="thumb new space-moon"><span class="dur">28:41</span></div>
+                <div class="row-body">
+                  <span class="t-headline" style="display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">U.S. Spacewalk Preview News Conference</span>
+                  <div class="row-meta t-label" style="margin-top:6px;"><span>4 days ago</span><span class="dotsep"></span><span>1.2K views</span></div>
+                </div>
+              </div>
+
+              <!-- swipe action, shown mid-gesture -->
+              <div class="row" style="position:relative;overflow:hidden;border-radius:12px">
+                <div style="position:absolute;inset:0;background:rgba(79,157,255,.18);border-radius:12px"></div>
+                <div style="position:absolute;right:14px;top:0;bottom:0;display:flex;align-items:center;gap:8px;color:var(--accent-300);font-size:13px;font-weight:650">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 3.6l2.6 5.4 5.9.8-4.3 4.1 1.1 5.8L12 16.9 6.7 19.7l1.1-5.8L3.5 9.8l5.9-.8z"/></svg>Save
+                </div>
+                <div class="thumb new space-sun" style="transform:translateX(-26px)"><span class="dur">04:22</span></div>
+                <div class="row-body" style="transform:translateX(-26px)">
+                  <span class="t-headline" style="display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">U.S. Spacewalk 100</span>
+                  <div class="row-meta t-label" style="margin-top:6px;"><span>4 days ago</span><span class="dotsep"></span><span>NASA</span></div>
+                </div>
+                <span class="anno" style="left:4px; top:4px;">2</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <ul class="notes">
+          <li><span class="n">1</span>Row = 128×72 thumb (radius 12) + 17/22 two-line title + one 13 px meta line. 88 px tall instead of 140.</li>
+          <li><span class="n">2</span>Long-press opens the menu; swipe right saves. The overflow dots leave the row.</li>
+          <li><span class="n">·</span>Channel identity moves to the filter chips, day grouping gives time structure, a 6 px accent dot marks unseen.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================ 3 LIBRARY -->
+  <section class="block" id="library">
+    <div class="block-head"><span class="num">03</span><h2>Library drawer — a glass panel, and a first run</h2></div>
+    <p class="block-note">
+      Both frames are drawn in <b>dark scheme</b> (the shipping default); the captured
+      light-scheme drawer is in <code>current-ui/before-library-drawer.png</code>. The drawer's
+      Android fallback is deliberately near-opaque (frost, 0.95, no blur), so it can only read
+      as a layer if the scrim does its job — and the scrim is the problem:
+      <code>dark:bg-gray-600/50</code> raises a dark page from <code>#0f0f0f</code> to
+      <code>#2d3239</code> instead of dimming it, while <code>bg-zinc-300/50</code> dims a
+      light page by only 11 %. The proposed scrim dims by 26 % dark-on-light and keeps a dark
+      page dark. With nothing saved the panel is also simply blank:
+      <code>LibraryModal</code> passes no <code>ListEmptyComponent</code>.
+    </p>
+
+    <div class="pair">
+      <div>
+        <p class="pair-label"><span class="dot"></span>Before <span class="tag">· dark scheme, populated</span></p>
+        <div class="phone">
+          <div class="yt dark">
+            <div class="statusbar" style="color:#f1f1f1">
+              <span>9:41</span><span class="right"><span class="sig"><i></i><i></i><i></i><i></i></span><span class="batt" style="color:#f1f1f1"></span></span>
+            </div>
+            <div class="notch"></div>
+            <div class="yt-head" style="margin-top:46px">
+              <div class="yt-logo"><span class="play"></span>YouTube</div>
+              <div class="yt-actions"><span style="font-size:19px">⌕</span><span style="letter-spacing:1px">⋮</span><span class="yt-openapp" style="border-color:#3f3f46;color:#f1f1f1"><span class="av" style="border-color:#9a9a9a"></span>Open App</span></div>
+            </div>
+            <div class="video" style="height: 260px"></div>
+          </div>
+          <div class="scrim-before" style="background: rgba(75,85,99,.5)"></div>
+          <div class="drawer drawer-before" style="padding: 54px 14px 0; background:#151826; color:#e4e4e7;">
+            <div class="seg seg-before" style="margin-bottom: 14px; background:rgba(255,255,255,.08); box-shadow: inset 0 0 0 1px rgba(255,255,255,.10);">
+              <button class="on" style="background:#3f3f46; color:#f4f4f5;">Videos</button><button style="color:#a1a1aa;">Channels</button><button style="color:#a1a1aa;">Playlists</button>
+            </div>
+            <div style="display:flex;justify-content:flex-end;margin-bottom:6px;color:#a1a1aa;font-size:16px">+</div>
+            <div class="lib-row">
+              <div class="lib-thumb space-sun"></div>
+              <div style="flex:1;font-size:14px;line-height:20px">NASA | Thermonuclear Art – The Sun In Ultra-HD</div>
+              <span style="color:#71717a">⋯</span>
+            </div>
+            <div style="height:1px;background:rgba(255,255,255,.07)"></div>
+            <div class="lib-row">
+              <div class="lib-thumb space-crater"></div>
+              <div style="flex:1;font-size:14px;line-height:20px">Tour of the Moon in 4K</div>
+              <span style="color:#71717a">⋯</span>
+            </div>
+            <div style="height:1px;background:rgba(255,255,255,.07)"></div>
+          </div>
+        </div>
+        <ul class="notes">
+          <li><span class="n">·</span>Scrim lightens the page (<code>#0f0f0f → #2d3239</code>): the panel has no edge, only a grey fog around it.</li>
+          <li><span class="n">·</span>Segmented track <code>zinc-800/70</code>, thumb <code>zinc-700</code> — one step apart, no accent, no depth.</li>
+          <li><span class="n">·</span>Rows carry no channel, no duration, no folder count.</li>
+        </ul>
+      </div>
+
+      <div>
+        <p class="pair-label after"><span class="dot"></span>After <span class="tag">· populated</span></p>
+        <div class="phone">
+          <div class="yt dark">
+            <div class="statusbar" style="color:#f1f1f1">
+              <span>9:41</span><span class="right"><span class="sig"><i></i><i></i><i></i><i></i></span><span class="batt" style="color:#f1f1f1"></span></span>
+            </div>
+            <div class="notch"></div>
+            <div class="yt-head" style="margin-top:46px">
+              <div class="yt-logo"><span class="play"></span>YouTube</div>
+              <div class="yt-actions"><span style="font-size:19px">⌕</span><span style="letter-spacing:1px">⋮</span><span class="yt-openapp" style="border-color:#3f3f46;color:#f1f1f1"><span class="av" style="border-color:#9a9a9a"></span>Open App</span></div>
+            </div>
+            <div class="video" style="height: 260px"></div>
+          </div>
+          <div class="scrim-after"></div>
+          <div class="drawer drawer-after" style="padding: 54px 16px 0;">
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;position:relative;">
+              <h3 class="t-title" style="flex:1">Library</h3>
+              <span class="icb sm" style="background:rgba(79,157,255,.16);color:var(--accent-300)">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M3 6.5A1.5 1.5 0 014.5 5h4l2 2.5h8A1.5 1.5 0 0120 9v9a1.5 1.5 0 01-1.5 1.5h-14A1.5 1.5 0 013 18z"/></svg>
+              </span>
+              <span class="anno" style="right:-8px; top:-8px;">2</span>
+            </div>
+            <p class="t-label" style="margin:-8px 0 12px;color:var(--ink-3)">14 saved · 3 folders</p>
+
+            <div class="seg seg-after" style="margin-bottom:14px">
+              <button class="on">Videos</button><button>Channels</button><button>Playlists</button>
+            </div>
+            <span class="anno" style="left: 16px; top: 150px;">3</span>
+
+            <div class="folder-row">
+              <span class="icb sm" style="background:rgba(79,157,255,.16);color:var(--accent-300);width:30px;height:30px">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M3 6.5A1.5 1.5 0 014.5 5h4l2 2.5h8A1.5 1.5 0 0120 9v9a1.5 1.5 0 01-1.5 1.5h-14A1.5 1.5 0 013 18z"/></svg>
+              </span>
+              <span class="t-headline" style="flex:1">Space documentaries</span>
+              <span class="t-label" style="color:var(--ink-3)">6</span>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.4)" stroke-width="2.2" stroke-linecap="round"><path d="M9 6l6 6-6 6"/></svg>
+            </div>
+
+            <div class="lib-row" style="border-bottom:1px solid rgba(255,255,255,.07)">
+              <div class="lib-thumb space-sun" style="box-shadow:inset 0 0 0 1px rgba(255,255,255,.12)"></div>
+              <div style="flex:1;min-width:0">
+                <div class="t-headline" style="font-size:15px;line-height:20px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">NASA | Thermonuclear Art – The Sun In Ultra-HD</div>
+                <div class="row-meta t-label" style="margin-top:5px"><span>1:00:32</span><span class="dotsep"></span><span>NASA Goddard</span></div>
+              </div>
+              <span class="unseen" style="margin-top:8px"></span>
+            </div>
+
+            <div class="lib-row" style="border-bottom:1px solid rgba(255,255,255,.07)">
+              <div class="lib-thumb space-crater" style="box-shadow:inset 0 0 0 1px rgba(255,255,255,.12)"></div>
+              <div style="flex:1;min-width:0">
+                <div class="t-headline" style="font-size:15px;line-height:20px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">Tour of the Moon in 4K</div>
+                <div class="row-meta t-label" style="margin-top:5px"><span>8:04</span><span class="dotsep"></span><span>NASA Goddard</span></div>
+              </div>
+            </div>
+
+            <div class="lib-row">
+              <div class="lib-thumb space-moon" style="box-shadow:inset 0 0 0 1px rgba(255,255,255,.12)"></div>
+              <div style="flex:1;min-width:0">
+                <div class="t-headline" style="font-size:15px;line-height:20px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">A Decade of Sun</div>
+                <div class="row-meta t-label" style="margin-top:5px"><span>6:16</span><span class="dotsep"></span><span>NASA Goddard</span></div>
+              </div>
+            </div>
+            <span class="anno" style="left: 16px; top: 404px;">1</span>
+          </div>
+        </div>
+        <ul class="notes">
+          <li><span class="n">1</span>Panel is the sheet material at 0.95+ alpha with the scheme's scrim behind it (0.62), so it reads as a layer regardless of platform blur.</li>
+          <li><span class="n">2</span>"New folder" becomes an accent glyph button in the header instead of a bare "+" under the tabs.</li>
+          <li><span class="n">3</span>Segmented: glass track, accent pill, 12 px radius — same component, three class changes.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================ 4 APPEARANCE -->
+  <section class="block" id="appearance">
+    <div class="block-head"><span class="num">04</span><h2>Appearance — show the theme, don't describe it</h2></div>
+    <p class="block-note">
+      The accent is the product's headline feature and it sits below twenty unrelated toggles, with
+      no swatch on the row that leads to it. The refresh opens the page with a live bar preview and
+      the accent, so every toggle below can be judged against the result.
+    </p>
+
+    <div class="pair">
+      <div>
+        <p class="pair-label"><span class="dot"></span>Before</p>
+        <div class="phone">
+          <div class="st-page">
+            <div class="statusbar" style="color:#f4f4f5">
+              <span>9:41</span><span class="right"><span class="sig"><i></i><i></i><i></i><i></i></span><span class="batt" style="color:#f4f4f5"></span></span>
+            </div>
+            <div class="notch"></div>
+            <div class="st-head">
+              <span class="icb sm" style="background:#17171b;color:#e4e4e7">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg>
+              </span>
+              <span class="t-headline" style="font-size:17px">Appearance</span>
+            </div>
+            <div class="st-body">
+              <div class="card card-before">
+                <div class="s-row"><span class="chip-ico">←</span><span class="lbl-before" style="flex:1">Show Back button in toolbar</span><span class="sw-before off"></span></div>
+                <div class="s-row"><span class="chip-ico">→</span><span class="lbl-before" style="flex:1">Show Forward button in toolbar</span><span class="sw-before off"></span></div>
+                <div class="s-row"><span class="chip-ico">↻</span><span class="lbl-before" style="flex:1">Show Reload button in toolbar</span><span class="sw-before off"></span></div>
+                <div class="s-row"><span class="chip-ico">◷</span><span class="lbl-before" style="flex:1">Show History button in toolbar</span><span class="sw-before"></span></div>
+                <div class="s-row"><span class="chip-ico">◎</span><span class="lbl-before" style="flex:1">Show playback speed control</span><span class="sw-before"></span></div>
+                <div class="s-row"><span class="chip-ico">▣</span><span class="lbl-before" style="flex:1">Show video quality control</span><span class="sw-before"></span></div>
+              </div>
+
+              <p class="t-caption" style="color:#71717a;margin:26px 0 8px;padding-left:4px">Language</p>
+              <div class="card card-before">
+                <div class="s-row"><span class="chip-ico">文</span><span style="flex:1"><span class="lbl-before">Language</span><div class="desc" style="color:#a1a1aa">System (English)</div></span><span style="color:#71717a">⋯</span></div>
+              </div>
+
+              <p class="t-caption" style="color:#71717a;margin:26px 0 8px;padding-left:4px">Theme</p>
+              <div class="card card-before">
+                <div class="s-row" style="align-items:flex-start"><span class="chip-ico">◐</span><span style="flex:1"><span class="lbl-before">Theme</span><div class="desc" style="color:#a1a1aa">Applies to the app and YouTube. Restart manually if change not reflected in webview.</div></span></div>
+                <div class="s-row" style="justify-content:flex-end;padding-top:0">
+                  <div class="seg seg-after" style="width:186px;background:rgba(255,255,255,.06)">
+                    <button>System</button><button class="on" style="background:#3f3f46">Dark</button><button>Light</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <ul class="notes">
+          <li><span class="n">·</span>Six toggles in one card on 2 px near-black dividers.</li>
+          <li><span class="n">·</span>No accent anywhere; the native switch is the only colour on the page.</li>
+          <li><span class="n">·</span>Every row asks the user to imagine a toolbar. Accent picker is further down.</li>
+        </ul>
+      </div>
+
+      <div>
+        <p class="pair-label after"><span class="dot"></span>After</p>
+        <div class="phone">
+          <div class="st-page">
+            <div class="statusbar" style="color:#f4f4f5">
+              <span>9:41</span><span class="right"><span class="sig"><i></i><i></i><i></i><i></i></span><span class="batt" style="color:#f4f4f5"></span></span>
+            </div>
+            <div class="notch"></div>
+            <div class="st-head">
+              <span class="icb sm" style="background:rgba(255,255,255,.07);color:rgba(255,255,255,.8)">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg>
+              </span>
+              <span class="t-title" style="font-size:20px">Appearance</span>
+              <span style="margin-left:10px;width:3px;height:20px;border-radius:99px;background:var(--accent)"></span>
+            </div>
+            <div class="st-body">
+
+              <p class="t-caption" style="color:var(--ink-2);margin:6px 0 8px;padding-left:4px">Toolbar</p>
+              <div class="card card-after" style="padding:12px 12px 14px">
+                <div class="bar-preview">
+                  <span class="ghost-slot">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M15 5l-7 7 7 7"/></svg>
+                  </span>
+                  <span style="flex:1;font-size:12px;color:rgba(255,255,255,.55);padding-left:4px">NeoTube</span>
+                  <span class="pill pill-after" style="height:24px">1×</span>
+                  <span class="pill pill-after on" style="height:24px">4K</span>
+                  <span class="ghost-slot" style="color:rgba(255,209,102,.85);border-style:solid;border-color:rgba(255,209,102,.35)">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M12 3.6l2.6 5.4 5.9.8-4.3 4.1 1.1 5.8L12 16.9 6.7 19.7l1.1-5.8L3.5 9.8l5.9-.8z"/></svg>
+                  </span>
+                  <span class="ghost-slot">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="1.8"/><circle cx="12" cy="12" r="1.8"/><circle cx="12" cy="19" r="1.8"/></svg>
+                  </span>
+                  <span class="anno" style="right:-7px; top:-9px;">1</span>
+                </div>
+                <p class="t-label" style="margin:2px 2px 8px;color:var(--ink-3)">Tap a control to show or hide it. Dashed slots are off.</p>
+                <div class="s-row small" style="padding:8px 4px 0;gap:8px;flex-wrap:wrap">
+                  <span class="chip on" style="height:30px;font-size:12px">Back</span>
+                  <span class="chip" style="height:30px;font-size:12px">Forward</span>
+                  <span class="chip" style="height:30px;font-size:12px">Reload</span>
+                  <span class="chip" style="height:30px;font-size:12px">History</span>
+                </div>
+              </div>
+
+              <p class="t-caption" style="color:var(--ink-2);margin:22px 0 8px;padding-left:4px">Accent</p>
+              <div class="card card-after rel" style="padding:12px 0 4px">
+                <div class="accents">
+                  <span class="swatch on"><i style="background:#4f9dff"></i></span>
+                  <span class="swatch"><i style="background:#e0314b"></i></span>
+                  <span class="swatch"><i style="background:#8b5cf6"></i></span>
+                  <span class="swatch"><i style="background:#a67c5b"></i></span>
+                  <span class="t-label" style="align-self:center;margin-left:4px;color:var(--ink-2)">Aurora</span>
+                </div>
+                <div style="margin:0 16px 12px;height:40px;border-radius:14px;background:linear-gradient(90deg,rgba(79,157,255,.28),rgba(79,157,255,.06));box-shadow:inset 0 0 0 1px rgba(79,157,255,.28);display:flex;align-items:center;gap:10px;padding:0 12px">
+                  <span style="width:8px;height:8px;border-radius:99px;background:var(--accent)"></span>
+                  <span class="t-label" style="color:var(--ink-2)">Glass, switches and links follow this colour</span>
+                </div>
+              </div>
+
+              <p class="t-caption" style="color:var(--ink-2);margin:22px 0 8px;padding-left:4px">Theme</p>
+              <div class="card card-after" style="padding:12px 0 6px">
+                <div class="theme-cards">
+                  <div class="theme-card" style="background:#0a0c12">
+                    <span class="mini" style="background:rgba(255,255,255,.16)"></span>
+                    <span class="mini" style="background:rgba(255,255,255,.07)"></span>
+                    <span class="name" style="color:#a1a1aa">System</span>
+                  </div>
+                  <div class="theme-card sel" style="background:linear-gradient(160deg,#1a2233,#0b0e16)">
+                    <span class="mini" style="background:rgba(79,157,255,.55)"></span>
+                    <span class="mini" style="background:rgba(255,255,255,.10)"></span>
+                    <span class="name" style="color:#f4f4f5">Dark</span>
+                  </div>
+                  <div class="theme-card" style="background:linear-gradient(160deg,#f4f7fd,#e6ecf7)">
+                    <span class="mini" style="background:rgba(47,121,209,.45)"></span>
+                    <span class="mini" style="background:rgba(15,23,42,.10)"></span>
+                    <span class="name" style="color:#0f172a">Light</span>
+                  </div>
+                </div>
+                <div class="s-row" style="padding:10px 16px 12px">
+                  <span class="t-label" style="flex:1;color:var(--ink-2)">Apply to the YouTube page as well</span>
+                  <span class="sw on"></span>
+                </div>
+              </div>
+              <span class="anno" style="right:-7px; top:-9px;">2</span>
+            </div>
+          </div>
+        </div>
+        <ul class="notes">
+          <li><span class="n">1</span>Toolbar preview is live: the same controls, tappable in place of six description rows. The chips below are the fallback for screen readers and long lists.</li>
+          <li><span class="n">2</span>Accent sits directly under the preview it changes, with a 34 px swatch, a selected ring and one strip showing what it affects.</li>
+          <li><span class="n">·</span>Toggles use one <code>GlassSwitch</code> (46×28, accent on) on 1 px hairlines, not RN's native switch.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================ STATES -->
+  <section class="block" id="states">
+    <div class="block-head"><span class="num">05</span><h2>States — one primitive, five surfaces</h2></div>
+    <p class="block-note">
+      Feeds already has the right empty state (icon, title, body, one or two actions). Promote it to
+      <code>components/EmptyState.tsx</code> with a matching skeleton, and use it in Library, History,
+      Blocklist and Tools. Every list gets exactly one primary action.
+    </p>
+    <div class="states">
+      <div class="state-card">
+        <div class="state-ico">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="14" height="14" rx="3"/><path d="M21 8v9a3 3 0 01-3 3H7"/></svg>
+        </div>
+        <h4>Nothing saved yet</h4>
+        <p>Star a video while you watch it and it lands here, ready for later.</p>
+        <span class="btn">How to save</span>
+      </div>
+      <div class="state-card">
+        <div class="state-ico">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 8v4.5l3 2"/></svg>
+        </div>
+        <h4>No feed yet</h4>
+        <p>Add a channel or import your subscriptions, and new uploads collect here.</p>
+        <div style="display:flex;gap:8px"><span class="btn">Add channel</span><span class="btn ghost">Import</span></div>
+      </div>
+      <div class="state-card" style="justify-content:flex-start">
+        <div class="skeleton" style="margin-top:6px">
+          <div class="sk-row"><div class="sk" style="width:128px;height:72px;border-radius:12px"></div>
+            <div style="flex:1"><div class="sk" style="height:14px;width:86%;margin-bottom:8px"></div><div class="sk" style="height:14px;width:58%"></div></div></div>
+          <div class="sk-row"><div class="sk" style="width:128px;height:72px;border-radius:12px"></div>
+            <div style="flex:1"><div class="sk" style="height:14px;width:70%;margin-bottom:8px"></div><div class="sk" style="height:14px;width:44%"></div></div></div>
+          <div class="sk-row"><div class="sk" style="width:128px;height:72px;border-radius:12px"></div>
+            <div style="flex:1"><div class="sk" style="height:14px;width:92%;margin-bottom:8px"></div><div class="sk" style="height:14px;width:52%"></div></div></div>
+          <div class="sk-row"><div class="sk" style="width:128px;height:72px;border-radius:12px"></div>
+            <div style="flex:1"><div class="sk" style="height:14px;width:64%;margin-bottom:8px"></div><div class="sk" style="height:14px;width:38%"></div></div></div>
+        </div>
+      </div>
+    </div>
+    <ul class="notes" style="margin-top:18px">
+      <li><span class="n">·</span>Loading = the same row rhythm as the list it replaces, 1.4 s shimmer, no spinner on a blank panel.</li>
+      <li><span class="n">·</span>Error reuses the same card with the danger role on the glyph and a "Try again" primary.</li>
+    </ul>
+  </section>
+
+  <p class="foot">
+    Before frames traced from device captures in <code>current-ui/</code> (store preview recordings,
+    1206×2622). After frames drawn at 390×844 in the tokens from <code>01-tokens.md</code>.
+    Per-screen implementation notes: <code>02-spec.md</code>.
+  </p>
+</div>
+</body>
+</html>

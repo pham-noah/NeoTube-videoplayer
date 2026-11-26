@@ -7,7 +7,16 @@
     "hint": "Sürüm bilgisi, güncellemeler, kaynak kodu ve destek bağlantıları.",
     "help": "Yardım",
     "faq": "SSS",
-    "faqHint": "Sık sorulan soruların yanıtları"
+    "faqHint": "Sık sorulan soruların yanıtları",
+    "upstream": "NouTube tabanlı",
+    "license": "Lisans",
+    "licenseHint": "NeoTube, GNU AGPL v3 altında özgür yazılımdır.",
+    "supportUpstream": "NouTube geliştiricisini destekle",
+    "credit": "Künye",
+    "madeBy": "Yapan: Noah Pham",
+    "source": "GitHub'da NeoTube",
+    "report": "Sorun bildir",
+    "reportHint": "GitHub'da bir issue aç"
   },
   "changelog": {
     "label": "Değişiklik Günlüğü",
@@ -44,11 +53,19 @@
     "confirm": "Onayla"
   },
   "library": {
+    "removedCount": "{{count}} kaldırıldı",
+    "movedCount": "{{count}} taşındı",
+    "sort": "Sırala",
+    "sortNewest": "En yeni",
+    "sortOldest": "En eski",
+    "sortTitle": "Başlık A–Z",
+    "selected": "{{count}} seçildi",
     "videos": "Videolar",
     "channels": "Kanallar",
     "playlists": "Oynatma listeleri",
     "songs": "Şarkılar",
-    "artists": "Sanatçılar"
+    "artists": "Sanatçılar",
+    "newFolder": "Yeni klasör"
   },
   "menus": {
     "openInNewTab": "Yeni sekmede aç",
@@ -67,7 +84,10 @@
     "moveTo": "Şuraya taşı…",
     "star": "Yıldızla",
     "unstar": "Yıldızı kaldır",
-    "download": "İndir"
+    "download": "İndir",
+    "moveUp": "Yukarı taşı",
+    "moveDown": "Aşağı taşı",
+    "playNext": "Sonra oynat"
   },
   "modals": {
     "editBookmark": "Yer işaretini düzenle",
@@ -102,7 +122,9 @@
     "showFewerFormats": "Daha az biçim göster",
     "pinnedFormat": "Sabitlendi",
     "pinFormat": "Varsayılan biçim olarak sabitle",
-    "unpinFormat": "Varsayılan biçim sabitlemesini kaldır"
+    "unpinFormat": "Varsayılan biçim sabitlemesini kaldır",
+    "clearQueueConfirm": "Sıra temizlensin mi?",
+    "clearQueueBody": "Sıradaki tüm videolar kaldırılacak. Bu geri alınabilir."
   },
   "update": {
     "check": "Güncellemeleri denetle",
@@ -111,7 +133,18 @@
     "downloading": "v{{version}} güncellemesi indiriliyor…",
     "error": "Güncellemeler denetlenemedi",
     "downloadedTitle": "Güncelleme hazır",
-    "downloadedHint": "Sürüm {{version}} indirildi. Yüklemek için şimdi yeniden başlatılsın mı?"
+    "downloadedHint": "Sürüm {{version}} indirildi. Yüklemek için şimdi yeniden başlatılsın mı?",
+    "available": "Güncelleme var",
+    "fromTo": "Sürümün v{{current}}; v{{next}} yayında.",
+    "size": "{{size}} · Android paketi",
+    "notes": "Yenilikler",
+    "noNotes": "Bu sürüm için not yazılmamış.",
+    "later": "Sonra",
+    "get": "Güncellemeyi al",
+    "openPage": "Sürüm sayfasını aç",
+    "auto": "Otomatik denetle",
+    "autoHint": "Bu sayfayı açtığında GitHub'a sorar.",
+    "noReleases": "Bu depoda yayınlanmış sürüm bulunamadı."
   },
   "sleepTimer": {
     "label": "Uyku zamanlayıcısı",
@@ -171,9 +204,14 @@
     "notificationSummary_one": "{{channels}} kanaldan {{count}} yeni video",
     "notificationSummary_other": "{{channels}} kanaldan {{count}} yeni video",
     "notificationBody_one": "{{channel}} kanalından {{count}} yeni video",
-    "notificationBody_other": "{{channel}} kanalından {{count}} yeni video"
+    "notificationBody_other": "{{channel}} kanalından {{count}} yeni video",
+    "communityPost": "Topluluk gönderisi"
   },
   "settings": {
+    "resetAll": "Ayarları sıfırla",
+    "resetAllBody": "Tüm seçenekleri varsayılana döndürür. Kaydedilen videolar, geçmiş ve indirmeler kalır.",
+    "resetAllConfirm": "Sıfırlamak için tekrar dokun",
+    "resetDone": "Ayarlar sıfırlandı",
     "label": "Ayarlar",
     "hubHint": "Oynatma, eşzamanlama, içe aktarmalar ve web görünümü (webview) araçları tek bir yerde.",
     "general": "Genel",
@@ -427,7 +465,33 @@
     },
     "googleLoginCookieHint": "Google ile oturum açma işlemi, web görünümünde genellikle çalışmaz. Oturum açtığınız bir tarayıcıdan çerezleri enjekte etmeniz gerekebilir.",
     "cookieFaq": "Çerezler nasıl enjekte edilir",
-    "injectCookieAction": "Çerez enjekte et"
+    "injectCookieAction": "Çerez enjekte et",
+    "accent": {
+      "label": "Vurgu rengi",
+      "hint": "Uygulama ve YouTube cam teması için tek vurgu rengi.",
+      "aurora": "Aurora",
+      "crimson": "Karmen",
+      "purple": "Mor",
+      "cappuccino": "Cappuccino"
+    },
+    "glass": {
+      "label": "Liquid Glass teması",
+      "hint": "YouTube’da buzlu cam çubuklar ve yuvarlatılmış kartlar."
+    },
+    "reduceEffects": {
+      "label": "Efektleri azalt",
+      "hint": "Bulanık yerine opak çubuklar. Eski telefonlarda belirgin şekilde daha hafif."
+    },
+    "feedPosts": "Akışta topluluk gönderileri",
+    "feedPostsDescription": "Kayıtlı her kanalın Gönderiler sekmesini de denetler. Akışları yenilemek daha fazla veri kullanır.",
+    "searchPlaceholder": "Ayarlarda ara",
+    "searchEmpty": "“{{query}}” ile eşleşen ayar yok",
+    "searchHint": "“cam” ya da “proxy” gibi bir kelime yaz.",
+    "changed": "Varsayılandan değişti",
+    "changedHint": "Varsayılandan farklı ayarlar.",
+    "changedNone": "Her şey varsayılanda",
+    "changedNoneHint": "Bir ayarı değiştirin, burada görünür.",
+    "resetOne": "Sıfırla"
   },
   "native": {
     "format_bestQuality": "En iyi kalite",
@@ -470,6 +534,7 @@
     "movedToRoot": "Klasörden taşındı"
   },
   "folders": {
+    "none": "Klasör yok",
     "removed": "{{name}} klasörü kaldırıldı"
   },
   "pageLoadError": {
@@ -496,6 +561,53 @@
     "saveCurrentPage": "Geçerli sayfayı kaydet"
   },
   "history": {
-    "cleared": "Geçmiş temizlendi"
+    "today": "Bugün",
+    "yesterday": "Dün",
+    "thisWeek": "Bu hafta",
+    "older": "Daha önce",
+    "cleared": "Geçmiş temizlendi",
+    "removed": "Geçmişten kaldırıldı"
+  },
+  "a11y": {
+    "dragToReorder": "Sıralamak için sürükleyin",
+    "library": "Kitaplık",
+    "back": "Geri",
+    "forward": "İleri",
+    "home": "Ana sayfa",
+    "more": "Diğer işlemler",
+    "rowActions": "İşlemler",
+    "selectAll": "Tümünü seç",
+    "deselectAll": "Seçimi kaldır",
+    "reorder": "Yeniden sırala"
+  },
+  "error": {
+    "title": "Bir şeyler ters gitti",
+    "body": "NeoTube, toparlanamadığı bir hatayla karşılaştı. Yer imlerin, geçmişin ve ayarların güvende.",
+    "copy": "Ayrıntıları kopyala",
+    "copied": "Kopyalandı",
+    "retry": "Yeniden dene",
+    "reload": "Yeniden başlat"
+  },
+  "empty": {
+    "browse": "YouTube'da gezin",
+    "clearSearch": "Aramayı temizle",
+    "library": "Henüz hiçbir şey kaydedilmedi",
+    "libraryHint": "Burada tutmak için bir videonun altındaki yer imi simgesine dokun.",
+    "history": "Henüz geçmiş yok",
+    "historyHint": "İzlediğin videolar burada görünecek.",
+    "queue": "Sıra boş",
+    "queueHint": "Oynatıcıdan sıraya video ekle.",
+    "search": "“{{query}}” için sonuç yok"
+  },
+  "search": {
+    "placeholder": "Ara"
+  },
+  "queue": {
+    "removed": "Sıradan kaldırıldı",
+    "cleared": "Sıra temizlendi"
+  },
+  "common": {
+    "on": "Açık",
+    "off": "Kapalı"
   }
 }

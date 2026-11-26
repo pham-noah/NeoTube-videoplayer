@@ -1,0 +1,88 @@
+name: Upstream sync
+
+# Weekly: merge nonbili/NouTube into a branch and open a pull request, or open an
+# issue listing the conflicts. Needs Settings > Actions > General > "Allow GitHub
+# Actions to create and approve pull requests".
+on:
+  schedule:
+    - cron: '0 6 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Merge upstream
+        id: merge
+        env:
+          KEEP_CONFLICTS: '0'
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          set +e
+          bash scripts/sync-upstream.sh merge
+          code=$?
+          set -e
+          echo "code=$code" >> "$GITHUB_OUTPUT"
+          branch="upstream-sync-$(date +%Y%m%d)"
+          echo "branch=$branch" >> "$GITHUB_OUTPUT"
+          summary="$GITHUB_STEP_SUMMARY"
+          case "$code" in
+            0)
+              # The branch is machine-generated, so a re-run on the same day replaces it.
+              git push --force origin "$branch"
+              compare="https://github.com/${GITHUB_REPOSITORY}/compare/${branch}?expand=1"
+              # REST rather than `gh pr create`: same token, but the response body says
+              # exactly why a write was refused instead of a bare GraphQL error.
+              pr=$(gh api -X POST "repos/${GITHUB_REPOSITORY}/pulls" \
+                -f title="Merge upstream NouTube" -f head="$branch" -f base="${{ github.event.repository.default_branch }}" \
+                -f body="Automatic merge of nonbili/NouTube. Build it and try it before merging." 2>&1) || true
+              echo "pull request: $(echo "$pr" | head -c 400)"
+              if echo "$pr" | grep -q '"number"'; then
+                echo "### Merge upstream NouTube: pull request opened" >> "$summary"
+              elif echo "$pr" | grep -qi 'already exists'; then
+                # A re-run on the same day updates the branch, so the PR already exists.
+                existing=$(gh api "repos/${GITHUB_REPOSITORY}/pulls?head=${GITHUB_REPOSITORY%%/*}:${branch}&state=open" \
+                  --jq '.[0].html_url' 2>/dev/null || true)
+                echo "### Merge upstream NouTube: branch updated, pull request already open" >> "$summary"
+                echo >> "$summary"
+                echo "${existing:-$compare}" >> "$summary"
+              else
+                # A token without PR rights still gets the merge made and reachable.
+                {
+                  echo "### Merge upstream NouTube: branch ready, PR not created"
+                  echo
+                  echo "The bot token was refused: \`$(echo "$pr" | head -c 200)\`"
+                  echo
+                  echo "Open the pull request: $compare"
+                } >> "$summary"
+                echo "::notice title=Merge upstream::Branch $branch pushed. Open: $compare"
+              fi
+              ;;
+            1)
+              {
+                echo "### Upstream NouTube has conflicting changes"
+                echo
+                echo '```'
+                cat .sync-report.txt
+                echo '```'
+                echo
+                echo "Resolve locally: \`KEEP_CONFLICTS=1 bash scripts/sync-upstream.sh merge\`"
+              } >> "$summary"
+              gh api -X POST "repos/${GITHUB_REPOSITORY}/issues" \
+                -f title="Upstream NouTube has conflicting changes" \
+                -F body=@.sync-report.txt >/dev/null 2>&1 || true
+              exit 1
+              ;;
+            10) echo "Already up to date with upstream." ;;
+            *) exit "$code" ;;
+          esac

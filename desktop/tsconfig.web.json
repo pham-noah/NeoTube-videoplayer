@@ -1,6 +1,6 @@
 {
   "extends": "../tsconfig.json",
-  "include": ["src/types.ts", "src/renderer/**/*", "src/preload/*.d.ts", "../nativewind-env.d.ts"],
+  "include": ["src/types.ts", "src/renderer/**/*", "src/preload/*.d.ts", "../nativewind-env.d.ts", "../lib/accent-vars.ts", "../lib/accent.ts", "../lib/tw-colors.ts"],
   "exclude": [],
   "compilerOptions": {
     "composite": true,

@@ -1,7 +1,7 @@
 import MaterialIcons from '@react-native-vector-icons/material-icons'
 import { Image, type ImageProps, type ImageSource } from 'expo-image'
-import { memo, useEffect, useMemo, useState } from 'react'
-import { Pressable, View } from 'react-native'
+import { memo, useEffect, useMemo, useRef, useState } from 'react'
+import { Animated, Pressable, View } from 'react-native'
 
 function isUriImageSource(source: ImageProps['source']): source is ImageSource & { uri: string } {
   return Boolean(source && typeof source === 'object' && !Array.isArray(source) && 'uri' in source && source.uri)
@@ -60,12 +60,30 @@ export const RetryImage: React.FC<ImageProps> = memo(({ cachePolicy, onError, on
   const [retryKey, setRetryKey] = useState(0)
   const [failed, setFailed] = useState(false)
   const [autoRetried, setAutoRetried] = useState(false)
+  const [loaded, setLoaded] = useState(false)
   const retryable = canRetrySource(source)
+
+  // Most thumbnails arrive with no blurhash, so without this the row has a hole
+  // where the picture goes and the picture then pops in. A slow pulse reads as
+  // "coming" rather than "broken".
+  const pulse = useRef(new Animated.Value(0.55)).current
+  useEffect(() => {
+    if (loaded) return
+    const loop = Animated.loop(
+      Animated.sequence([
+        Animated.timing(pulse, { toValue: 1, duration: 700, useNativeDriver: true }),
+        Animated.timing(pulse, { toValue: 0.55, duration: 700, useNativeDriver: true }),
+      ]),
+    )
+    loop.start()
+    return () => loop.stop()
+  }, [loaded, pulse])
 
   useEffect(() => {
     setRetryKey(0)
     setFailed(false)
     setAutoRetried(false)
+    setLoaded(false)
   }, [source])
 
   const resolvedSource = useMemo(() => withRetryToken(source, retryKey), [source, retryKey])
@@ -80,6 +98,18 @@ export const RetryImage: React.FC<ImageProps> = memo(({ cachePolicy, onError, on
 
   return (
     <View>
+      {/* Absolutely positioned: the image still decides the box, so every
+          caller keeps the size it asked for. */}
+      {!loaded ? (
+        <Animated.View
+          pointerEvents="none"
+          style={[
+            { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, opacity: pulse },
+            props.style as never,
+          ]}
+          className="bg-zinc-200 dark:bg-zinc-800"
+        />
+      ) : null}
       <Image
         {...props}
         source={resolvedSource}
@@ -95,6 +125,7 @@ export const RetryImage: React.FC<ImageProps> = memo(({ cachePolicy, onError, on
           setFailed(true)
         }}
         onLoad={(event) => {
+          setLoaded(true)
           setFailed(false)
           onLoad?.(event)
         }}

@@ -11,7 +11,12 @@
     "upstream": "Based on NouTube",
     "license": "License",
     "licenseHint": "NeoTube is free software under the GNU AGPL v3.",
-    "supportUpstream": "Support NouTube's developer"
+    "supportUpstream": "Support NouTube's developer",
+    "credit": "Credits",
+    "madeBy": "Made by Noah Pham",
+    "source": "NeoTube on GitHub",
+    "report": "Report a problem",
+    "reportHint": "Open an issue on GitHub"
   },
   "changelog": {
     "label": "Changelog",
@@ -48,11 +53,19 @@
     "retry": "Retry"
   },
   "library": {
+    "removedCount": "{{count}} removed",
+    "movedCount": "{{count}} moved",
+    "sort": "Sort",
+    "sortNewest": "Newest first",
+    "sortOldest": "Oldest first",
+    "sortTitle": "Title A–Z",
+    "selected": "{{count}} selected",
     "videos": "Videos",
     "channels": "Channels",
     "playlists": "Playlists",
     "songs": "Songs",
-    "artists": "Artists"
+    "artists": "Artists",
+    "newFolder": "New folder"
   },
   "menus": {
     "openInNewTab": "Open in New Tab",
@@ -71,7 +84,10 @@
     "tools": "Tools",
     "desktop": "Desktop site",
     "on": "On",
-    "off": "Off"
+    "off": "Off",
+    "moveUp": "Move up",
+    "moveDown": "Move down",
+    "playNext": "Play next"
   },
   "bookmarks": {
     "removed": "Bookmark removed",
@@ -79,10 +95,16 @@
     "movedToRoot": "Moved out of folder"
   },
   "folders": {
+    "none": "No folder",
     "removed": "Folder {{name}} removed"
   },
   "history": {
-    "cleared": "History cleared"
+    "today": "Today",
+    "yesterday": "Yesterday",
+    "thisWeek": "This week",
+    "older": "Earlier",
+    "cleared": "History cleared",
+    "removed": "Removed from history"
   },
   "modals": {
     "editBookmark": "Edit bookmark",
@@ -116,7 +138,9 @@
     "playbackQuality": "Playback quality",
     "sharePageUrl": "Page URL",
     "shareVideoUrl": "Video URL",
-    "shareIncludePosition": "Include current position"
+    "shareIncludePosition": "Include current position",
+    "clearQueueConfirm": "Clear the queue?",
+    "clearQueueBody": "Every video in the queue will be removed. You can undo this."
   },
   "update": {
     "check": "Check for updates",
@@ -125,7 +149,18 @@
     "downloading": "Downloading update v{{version}}…",
     "error": "Failed to check for updates",
     "downloadedTitle": "Update ready",
-    "downloadedHint": "Version {{version}} has been downloaded. Restart now to install?"
+    "downloadedHint": "Version {{version}} has been downloaded. Restart now to install?",
+    "available": "Update available",
+    "fromTo": "You have v{{current}}; v{{next}} is out.",
+    "size": "{{size}} · Android package",
+    "notes": "What's new",
+    "noNotes": "No release notes were written for this version.",
+    "later": "Later",
+    "get": "Get the update",
+    "openPage": "Open the release page",
+    "auto": "Check automatically",
+    "autoHint": "Ask GitHub when you open this page.",
+    "noReleases": "No release was found for this repository."
   },
   "sleepTimer": {
     "label": "Sleep timer",
@@ -147,6 +182,7 @@
   },
   "feeds": {
     "notificationTitle": "New videos in your feed",
+    "communityPost": "Community post",
     "notificationSummary_one": "{{count}} new video from {{channels}} channels",
     "notificationSummary_other": "{{count}} new videos from {{channels}} channels",
     "notificationBody_one": "{{count}} new video from {{channel}}",
@@ -188,6 +224,10 @@
     "removeMessage": "This removes the channel from Library and clears its feed videos."
   },
   "settings": {
+    "resetAll": "Reset settings",
+    "resetAllBody": "Puts every option back to its default. Saved videos, history and downloads stay.",
+    "resetAllConfirm": "Tap again to reset",
+    "resetDone": "Settings reset",
     "label": "Settings",
     "hubHint": "Playback, sync, imports, and webview tools in one place.",
     "preferences": "Preferences",
@@ -220,7 +260,9 @@
       "username": "Username",
       "password": "Password",
       "credentialsHint": "Optional. Changes apply shortly after you stop typing. Credentials stay on this device and are excluded from backups and sync. While authentication is enabled, other apps on this device can use the local proxy relay.",
-      "applyFailed": "Could not apply proxy settings."
+      "applyFailed": "Could not apply proxy settings.",
+      "credentialsHintIos": "Optional. Changes apply shortly after you stop typing. Credentials stay on this device and are excluded from backups and sync.",
+      "iosRequires17": "On iOS 16, an HTTP proxy can be used for feeds only. Proxying browsing, SOCKS and authentication require iOS 17 or later."
     },
     "discord": {
       "label": "Discord",
@@ -379,12 +421,16 @@
       }
     },
     "channelsFeed": "Channels feed",
+    "feedPosts": "Community posts in feed",
+    "feedPostsDescription": "Also check each saved channel's Posts tab. Refreshing feeds uses more data.",
     "feedNotifications": "New feed video notifications",
     "feedNotificationsDescription": "Check saved channels in the background. Delivery may be delayed by the system. Force-quitting stops checks until you reopen the app.",
     "feedNotificationsUnavailable": "Allow notifications and background activity in system settings to enable feed alerts.",
     "feedNotificationsError": "Could not enable feed notifications. Please try again.",
     "watchHistory": "Watch history",
     "replaceWatchNavigation": "Back skips watched videos",
+    "forceLandscape": "Force landscape orientation",
+    "forceLandscapeDescription": "Keep the app in landscape on phones, even when auto-rotate is off. Android may ignore this on tablets and unfolded foldables.",
     "theme": {
       "label": "Theme",
       "system": "System",
@@ -450,7 +496,15 @@
     "reduceEffects": {
       "label": "Reduce effects",
       "hint": "Opaque bars instead of blurred ones. Noticeably lighter on older phones."
-    }
+    },
+    "searchPlaceholder": "Search settings",
+    "searchEmpty": "No setting matches “{{query}}”",
+    "searchHint": "Type a word like “glass” or “proxy”.",
+    "changed": "Changed from defaults",
+    "changedHint": "Settings that differ from the defaults.",
+    "changedNone": "Everything is at its default",
+    "changedNoneHint": "Change a setting and it will show up here.",
+    "resetOne": "Reset"
   },
   "native": {
     "format_bestQuality": "Best quality",
@@ -485,7 +539,21 @@
     "expiresAt": "Renews or expires: {{value}}",
     "legalNotice": "Subscriptions renew automatically unless canceled. By subscribing, you agree to the Terms of Use (EULA) and Privacy Policy.",
     "termsOfUse": "Terms of Use (EULA)",
-    "privacyPolicy": "Privacy Policy"
+    "privacyPolicy": "Privacy Policy",
+    "accountChoiceTitle": "Data from another account",
+    "accountChoiceMessage": "The bookmarks, folders, settings and styles on this device were synced with another NouTube account. Sync is paused until you choose what to do with them.",
+    "accountChoiceUseAccount": "Use this account's data",
+    "accountChoiceMerge": "Merge this device into account",
+    "accountChoiceLater": "Later",
+    "accountChoiceHint": "Using this account's data replaces what is on this device. Merging adds what only this device has to this account. Either way, a backup of this device is kept first.",
+    "accountChoiceToast": "Sync is paused: this device has data from another account. Choose what to do in Settings › Sync.",
+    "accountChoiceFailed": "Could not switch the data to this account: {{message}}",
+    "exportSwitchBackup": "Export data from before the switch",
+    "exportSwitchBackupHint": "Saved {{date}}. Saves the bookmarks as CSV and the settings as a backup file, to import in Settings.",
+    "mergeBackupHint": "Another device changed some of the same things as this device, and its changes were kept. You can put back what this device had.",
+    "restoreMergeBackup": "Restore {{name}} from {{date}}",
+    "backupSettings": "settings",
+    "backupUserStyles": "styles and scripts"
   },
   "pageLoadError": {
     "title": "Can't load this page",
@@ -509,5 +577,47 @@
     "openYouTube": "Open YouTube",
     "openYouTubeMusic": "Open YouTube Music",
     "saveCurrentPage": "Save current page"
+  },
+  "a11y": {
+    "dragToReorder": "Drag to reorder",
+    "library": "Library",
+    "back": "Back",
+    "forward": "Forward",
+    "home": "Home",
+    "more": "More actions",
+    "rowActions": "Actions",
+    "selectAll": "Select all",
+    "deselectAll": "Deselect all",
+    "reorder": "Reorder"
+  },
+  "error": {
+    "title": "Something broke",
+    "body": "NeoTube hit an error it could not recover from. Your bookmarks, history and settings are safe.",
+    "copy": "Copy details",
+    "copied": "Copied",
+    "retry": "Try again",
+    "reload": "Restart"
+  },
+  "empty": {
+    "browse": "Browse YouTube",
+    "clearSearch": "Clear search",
+    "library": "Nothing saved yet",
+    "libraryHint": "Tap the bookmark icon on a video to keep it here.",
+    "history": "No history yet",
+    "historyHint": "Videos you watch show up here.",
+    "queue": "The queue is empty",
+    "queueHint": "Add videos to the queue from the player.",
+    "search": "Nothing matches “{{query}}”"
+  },
+  "search": {
+    "placeholder": "Search"
+  },
+  "queue": {
+    "removed": "Removed from the queue",
+    "cleared": "Queue cleared"
+  },
+  "common": {
+    "on": "On",
+    "off": "Off"
   }
 }

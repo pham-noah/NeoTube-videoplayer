@@ -1,15 +1,17 @@
 import { Pressable, ScrollView, View, useColorScheme } from 'react-native'
-import { forwardRef, useCallback, useEffect, useImperativeHandle, useState } from 'react'
+import { forwardRef, useCallback, useEffect, useImperativeHandle, useRef, useState } from 'react'
 import { clsx, isWeb, nIf } from '@/lib/utils'
 import { useValue } from '@legendapp/state/react'
 import { auth$ } from '@/states/auth'
-import { settings$ } from '@/states/settings'
+import { settings$, type SettingsSnapshot } from '@/states/settings'
 import { t } from 'i18next'
 import { capitalize } from 'es-toolkit'
 import MaterialIcons, { type MaterialIconsIconName } from '@react-native-vector-icons/material-icons'
 import { queryClient } from '@/lib/query/client'
 import { FORK } from '@/lib/fork'
 import { surfaceCls } from '@/lib/colors'
+import { canCheckForUpdates, checkForAppUpdate, type AppRelease } from '@/lib/app-update'
+import { UpdateSheet } from '@/components/modal/settings/UpdateSheet'
 import { getReleaseFeedQuery } from '@/lib/query/changelog'
 import { mainClient } from '@/lib/main-client'
 import { showToast } from '@/lib/toast'
@@ -27,15 +29,24 @@ import {
 import { SettingsChangelogContent } from './SettingsModalTabChangelog'
 import { SettingsUserStylesContent } from './SettingsUserStylesContent'
 import { SettingsBlocklistContent } from './SettingsBlocklistContent'
+import { ResetSettingsRow } from './settings/ResetSettingsRow'
+import { SettingsToggleRow } from './settings/primitives'
+import { SettingsChangedContent } from './settings/SettingsChanged'
+import { changedSettings } from '@/lib/settings-defaults'
 import { useTwColor } from '@/lib/theme'
 import { FAQ_URL } from '@/lib/help'
+import { SearchField } from '../row/SearchField'
+import { EmptyState } from '../row/EmptyState'
+import { searchSettings } from '@/lib/settings-index'
+import { hapticTick } from '@/lib/haptics'
 
 const repo = FORK.repoUrl
 // Upstream's developer, shown as credit, not NeoTube's.
 const donateLinks = [
   { label: 'GitHub Sponsors', detail: 'github.com/sponsors/rnons', url: 'https://github.com/sponsors/rnons' },
   { label: 'Liberapay', detail: 'liberapay.com/rnons', url: 'https://liberapay.com/rnons' },
-  { label: 'PayPal', detail: 'paypal.me/rnons', url: 'https://paypal.me/rnons' },
+  { label: 'PayPal', detail: 'paypal.me/nonbili', url: 'https://paypal.me/nonbili' },
+  { label: 'Stripe', detail: 'donate.stripe.com', url: 'https://donate.stripe.com/cNiaEXbunbcS0oTa9P48000' },
 ]
 // Imported above for this file's own use, and re-exported so the extension
 // (which imports it from here) keeps working while only one copy of the string
@@ -56,6 +67,7 @@ export type SettingsPage =
   | 'sync'
   | 'about'
   | 'changelog'
+  | 'changed'
 
 export const SettingsSection: React.FC<React.PropsWithChildren<{ label?: string }>> = ({ label, children }) => {
   return (
@@ -172,7 +184,12 @@ export const SettingsTree = forwardRef<
   const [importingList, setImportingList] = useState(false)
   const [importingTakeout, setImportingTakeout] = useState(false)
   const [updateSupported, setUpdateSupported] = useState(false)
+  const [availableRelease, setAvailableRelease] = useState<AppRelease | null>(null)
   const [checkingUpdate, setCheckingUpdate] = useState(false)
+  // Search is a page of its own rather than a filter on the current one: the
+  // point is to find a row you cannot see, which may live three pages away.
+  const [searchOpen, setSearchOpen] = useState(false)
+  const [query, setQuery] = useState('')
 
   const currentPage = pageStack[pageStack.length - 1]
   const canGoBack = pageStack.length > 1
@@ -224,9 +241,27 @@ export const SettingsTree = forwardRef<
     [pageStack.length, popPage],
   )
 
+  // Android and iOS have no updater behind mainClient: the desktop build owns
+  // that one. The native build reads the fork's own GitHub releases instead,
+  // which is the same thing Kairn does, and needs nothing but the repository.
+  const nativeUpdate = canCheckForUpdates(FORK.repoUrl)
+
   const handleCheckForUpdate = useCallback(async () => {
     setCheckingUpdate(true)
     try {
+      if (nativeUpdate) {
+        const result = await checkForAppUpdate({ currentVersion: version, repo: FORK.repoUrl })
+        if (result.status === 'available') {
+          setAvailableRelease(result.release)
+        } else if (result.status === 'current') {
+          showToast(t('update.upToDate'))
+        } else if (result.status === 'no-release') {
+          showToast(t('update.noReleases'))
+        } else {
+          showToast(result.message ? `${t('update.error')} (${result.message})` : t('update.error'))
+        }
+        return
+      }
       const result = await mainClient.checkForUpdate()
       if (result.status === 'available') {
         showToast(t('update.downloading', { version: result.version }))
@@ -241,7 +276,23 @@ export const SettingsTree = forwardRef<
     } finally {
       setCheckingUpdate(false)
     }
-  }, [])
+  }, [nativeUpdate, version])
+
+  // Opt-in and once per visit: an update check that runs on every launch is a
+  // request to GitHub that the user did not ask for, and the About page is where
+  // they go when they want to know.
+  const autoCheckUpdates = useValue(settings$.checkUpdates)
+  const autoChecked = useRef(false)
+  useEffect(() => {
+    if (currentPage !== 'about' || !nativeUpdate || !autoCheckUpdates || autoChecked.current) {
+      return
+    }
+    autoChecked.current = true
+    void handleCheckForUpdate()
+  }, [currentPage, nativeUpdate, autoCheckUpdates, handleCheckForUpdate])
+
+  const settingsSnapshot = useValue(settings$) as unknown as SettingsSnapshot
+  const changedCount = changedSettings(settingsSnapshot).length
 
   const pageMeta = {
     home: { title: t('settings.label') },
@@ -255,7 +306,54 @@ export const SettingsTree = forwardRef<
     sync: { title: t('sync.label') },
     about: { title: t('about.label') },
     changelog: { title: t('changelog.label') },
+    changed: { title: t('settings.changed') },
   } satisfies Record<SettingsPage, { title: string }>
+
+  const renderSearchResults = () => {
+    if (!query.trim()) {
+      return (
+        <View className="pt-6">
+          <NouText className="text-center text-sm leading-6 text-zinc-500">{t('settings.searchHint')}</NouText>
+        </View>
+      )
+    }
+
+    const results = searchSettings(query, (key) => t(key))
+
+    if (!results.length) {
+      return <EmptyState icon="search-off" title={t('settings.searchEmpty', { query: query.trim() })} />
+    }
+
+    return (
+      <View className="gap-2">
+        {results.map((entry, index) => (
+          <Pressable
+            key={`${entry.page}-${entry.labelKey}-${index}`}
+            onPress={() => {
+              hapticTick()
+              pushPage(entry.page)
+              setQuery('')
+              setSearchOpen(false)
+            }}
+            accessibilityRole="button"
+            accessibilityLabel={t(entry.labelKey)}
+            accessibilityHint={pageMeta[entry.page].title}
+            className="flex-row items-center gap-3 rounded-2xl bg-white px-4 py-3.5 active:bg-zinc-100 dark:bg-zinc-900 dark:active:bg-zinc-800"
+          >
+            <View className="flex-1">
+              <NouText className="font-medium">{t(entry.labelKey)}</NouText>
+              <NouText className="mt-0.5 text-xs uppercase tracking-[0.14em] text-zinc-500" numberOfLines={1}>
+                {entry.sectionKey && entry.sectionKey !== entry.labelKey
+                  ? `${pageMeta[entry.page].title} · ${t(entry.sectionKey)}`
+                  : pageMeta[entry.page].title}
+              </NouText>
+            </View>
+            <MaterialIcons name="chevron-right" color={isDark ? tw('zinc-500') : tw('zinc-600')} size={20} />
+          </Pressable>
+        ))}
+      </View>
+    )
+  }
 
   const renderPage = () => {
     switch (currentPage) {
@@ -337,6 +435,19 @@ export const SettingsTree = forwardRef<
               </View>
             </SettingsSection>
 
+            <SettingsSection>
+              <View className={surfaceCls}>
+                <SettingsNavRow
+                  title={t('settings.changed')}
+                  description={changedCount ? t('settings.changedHint', { count: changedCount }) : t('settings.changedNone')}
+                  icon="published-with-changes"
+                  meta={changedCount > 0 ? String(changedCount) : undefined}
+                  onPress={() => pushPage('changed')}
+                />
+                <ResetSettingsRow />
+              </View>
+            </SettingsSection>
+
             <SettingsSection label={t('about.label')}>
               <View className={surfaceCls}>
                 <SettingsNavRow
@@ -395,6 +506,9 @@ export const SettingsTree = forwardRef<
       case 'changelog':
         return <SettingsChangelogContent />
 
+      case 'changed':
+        return <SettingsChangedContent />
+
       case 'about':
         return (
           <View className="gap-6">
@@ -405,9 +519,19 @@ export const SettingsTree = forwardRef<
               <NouText className="mt-2 text-xl font-semibold tracking-tight">v{version}</NouText>
             </View>
 
-            {updateSupported ? (
+            {updateSupported || nativeUpdate ? (
               <SettingsSection label={t('about.updates')}>
                 <View className={surfaceCls}>
+                  {nIf(
+                    nativeUpdate,
+                    <SettingsToggleRow
+                      label={t('update.auto')}
+                      description={t('update.autoHint')}
+                      icon="autorenew"
+                      value={autoCheckUpdates}
+                      onPress={() => settings$.checkUpdates.set(!autoCheckUpdates)}
+                    />,
+                  )}
                   <SettingsActionRow
                     label={t('update.check')}
                     description={t('update.checkHint')}
@@ -419,6 +543,18 @@ export const SettingsTree = forwardRef<
                 </View>
               </SettingsSection>
             ) : null}
+
+            <SettingsSection label={t('about.credit')}>
+              <View className={surfaceCls}>
+                <SettingsExternalRow
+                  title={t('about.madeBy')}
+                  detail={FORK.ownerUrl.replace('https://', '')}
+                  href={FORK.ownerUrl}
+                  icon="person"
+                  isLast
+                />
+              </View>
+            </SettingsSection>
 
             <SettingsSection label={t('about.help')}>
               <View className={surfaceCls}>
@@ -434,15 +570,18 @@ export const SettingsTree = forwardRef<
 
             <SettingsSection label={t('about.code')}>
               <View className={surfaceCls}>
-                {nIf(
-                  !!FORK.repoUrl,
-                  <SettingsExternalRow
-                    title="GitHub"
-                    detail={FORK.repoUrl.replace('https://', '')}
-                    href={FORK.repoUrl}
-                    icon="code"
-                  />,
-                )}
+                <SettingsExternalRow
+                  title={t('about.source')}
+                  detail={FORK.repoUrl.replace('https://', '')}
+                  href={FORK.repoUrl}
+                  icon="code"
+                />
+                <SettingsExternalRow
+                  title={t('about.report')}
+                  detail={t('about.reportHint')}
+                  href={`${FORK.repoUrl}/issues`}
+                  icon="bug-report"
+                />
                 <SettingsExternalRow
                   title={t('about.upstream')}
                   detail="github.com/nonbili/NouTube"
@@ -478,6 +617,15 @@ export const SettingsTree = forwardRef<
                 ))}
               </View>
             </SettingsSection>
+
+            {nIf(
+              !!availableRelease,
+              <UpdateSheet
+                release={availableRelease!}
+                currentVersion={version}
+                onClose={() => setAvailableRelease(null)}
+              />,
+            )}
           </View>
         )
 
@@ -504,6 +652,8 @@ export const SettingsTree = forwardRef<
                 }
                 onExit?.()
               }}
+              accessibilityRole="button"
+              accessibilityLabel={canGoBack ? t('a11y.back') : t('menus.close')}
               className="h-11 w-11 items-center justify-center rounded-full bg-zinc-200 dark:bg-zinc-900"
             >
               <MaterialIcons
@@ -514,14 +664,32 @@ export const SettingsTree = forwardRef<
             </Pressable>
           ) : null}
           <View className="flex-1">
-            <NouText className="text-lg font-semibold">{pageMeta[currentPage].title}</NouText>
+            <NouText className="text-lg font-semibold">
+              {searchOpen ? t('settings.searchPlaceholder') : pageMeta[currentPage].title}
+            </NouText>
           </View>
+          <Pressable
+            onPress={() => {
+              hapticTick()
+              setQuery('')
+              setSearchOpen((open) => !open)
+            }}
+            accessibilityRole="button"
+            accessibilityLabel={searchOpen ? t('menus.close') : t('settings.searchPlaceholder')}
+            accessibilityState={{ expanded: searchOpen }}
+            className="h-11 w-11 items-center justify-center rounded-full bg-zinc-200 dark:bg-zinc-900"
+          >
+            <MaterialIcons name={searchOpen ? 'close' : 'search'} color={isDark ? 'white' : tw('gray-900')} size={22} />
+          </Pressable>
         </View>
+        {nIf(searchOpen, <View className="mt-2">
+          <SearchField value={query} onChangeText={setQuery} placeholder={t('settings.searchPlaceholder')} className="mx-0 mb-0" />
+        </View>)}
       </View>
 
       <ScrollView className="flex-1">
         <View className={clsx('px-4 py-5', isWeb && 'mx-auto w-full max-w-3xl')}>
-          {renderPage()}
+          {searchOpen ? renderSearchResults() : renderPage()}
           <View className="h-16" />
         </View>
       </ScrollView>

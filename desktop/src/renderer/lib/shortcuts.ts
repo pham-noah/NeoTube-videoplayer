@@ -1,7 +1,11 @@
 import { ui$ } from '@/states/ui'
 import { tabs$ } from '@/states/tabs'
 
-const platform = window.electron.process.platform
+// Read lazily: this module is also imported by the Expo web bundle, which is
+// rendered on the server (static rendering) where `window` does not exist. The
+// Electron preload sets `window.electron` before any renderer code runs, so the
+// value is the real platform whenever a shortcut can actually fire.
+const platform = globalThis.window?.electron?.process?.platform
 
 type ShortcutEvent = KeyboardEvent | (Electron.Input & { preventDefault?: () => void })
 

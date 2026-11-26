@@ -55,7 +55,10 @@ export const GlassBackdrop: React.FC<{
 }> = ({ intensity = 45, variant = 'sheet', style }) => {
   const { tokens, reduce } = useGlass()
   const blurred = Platform.OS !== 'android' && !reduce
-  const material = blurred ? tokens : variant === 'bar' ? tokens.frostBar : tokens.frost
+  // A bar always draws the dense material, blur or not: it floats over a page we
+  // do not control, and at the sheet's alpha white icons composite to ~3.4:1 on a
+  // light page. frostBar lands at ~10:1 and is what the toolbar must use.
+  const material = variant === 'bar' ? tokens.frostBar : blurred ? tokens : tokens.frost
   return (
     <View pointerEvents="none" style={[StyleSheet.absoluteFill, style, { overflow: 'hidden' }]}>
       {blurred ? <BlurView intensity={intensity} tint={tokens.blurTint} style={StyleSheet.absoluteFill} /> : null}
@@ -66,7 +69,9 @@ export const GlassBackdrop: React.FC<{
           {
             backgroundColor: reduce ? tokens.solid : material.fill,
             experimental_backgroundImage: reduce ? undefined : material.gloss,
-            boxShadow: material.rim,
+            // The rim and the bar's drop shadow are both boxShadow entries, so
+            // they are concatenated: a later boxShadow would replace the rim.
+            boxShadow: variant === 'bar' ? [...material.rim, ...tokens.shadowBar] : material.rim,
           },
         ]}
       />

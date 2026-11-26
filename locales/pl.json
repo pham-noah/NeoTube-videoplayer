@@ -7,7 +7,16 @@
     "donate": "Darowizna",
     "help": "Pomoc",
     "faq": "FAQ",
-    "faqHint": "Odpowiedzi na często zadawane pytania"
+    "faqHint": "Odpowiedzi na często zadawane pytania",
+    "upstream": "Na bazie NouTube",
+    "license": "Licencja",
+    "licenseHint": "NeoTube to wolne oprogramowanie na licencji GNU AGPL v3.",
+    "supportUpstream": "Wesprzyj autora NouTube",
+    "credit": "Autorzy",
+    "madeBy": "Autor: Noah Pham",
+    "source": "NeoTube na GitHubie",
+    "report": "Zgłoś problem",
+    "reportHint": "Otwórz zgłoszenie na GitHubie"
   },
   "changelog": {
     "label": "Dziennik zmian",
@@ -44,11 +53,19 @@
     "confirm": "Potwierdź"
   },
   "library": {
+    "removedCount": "Usunięto: {{count}}",
+    "movedCount": "Przeniesiono: {{count}}",
+    "sort": "Sortuj",
+    "sortNewest": "Najnowsze",
+    "sortOldest": "Najstarsze",
+    "sortTitle": "Tytuł A–Z",
+    "selected": "Wybrano {{count}}",
     "videos": "Filmy",
     "channels": "Kanały",
     "playlists": "Listy odtwarzania",
     "songs": "Piosenki",
-    "artists": "Artyści"
+    "artists": "Artyści",
+    "newFolder": "Nowy folder"
   },
   "menus": {
     "openInNewTab": "Otwórz w nowej karcie",
@@ -67,7 +84,10 @@
     "moveTo": "Przenieś do…",
     "download": "Pobieranie",
     "unstar": "Usuń z ulubionych",
-    "star": "Dodaj do ulubionych"
+    "star": "Dodaj do ulubionych",
+    "moveUp": "W górę",
+    "moveDown": "W dół",
+    "playNext": "Odtwórz następny"
   },
   "modals": {
     "editBookmark": "Edytuj zakładkę",
@@ -102,7 +122,9 @@
     "showFewerFormats": "Pokaż mniej formatów",
     "pinnedFormat": "Przypięte",
     "pinFormat": "Przypnij jako format domyślny",
-    "unpinFormat": "Odepnij domyślny format"
+    "unpinFormat": "Odepnij domyślny format",
+    "clearQueueConfirm": "Wyczyścić kolejkę?",
+    "clearQueueBody": "Wszystkie filmy z kolejki zostaną usunięte. Można to cofnąć."
   },
   "update": {
     "check": "Sprawdź aktualizacje",
@@ -111,7 +133,18 @@
     "downloading": "Pobieranie aktualizacji v{{version}}…",
     "error": "Nie udało się sprawdzić dostępności aktualizacji",
     "downloadedTitle": "Aktualizacja gotowa",
-    "downloadedHint": "Wersja {{version}} została pobrana. Uruchomić ponownie, aby zainstalować?"
+    "downloadedHint": "Wersja {{version}} została pobrana. Uruchomić ponownie, aby zainstalować?",
+    "available": "Dostępna aktualizacja",
+    "fromTo": "Masz v{{current}}; dostępna jest v{{next}}.",
+    "size": "{{size}} · Pakiet Androida",
+    "notes": "Co nowego",
+    "noNotes": "Ta wersja nie ma opisu zmian.",
+    "later": "Później",
+    "get": "Pobierz aktualizację",
+    "openPage": "Otwórz stronę wydania",
+    "auto": "Sprawdzaj automatycznie",
+    "autoHint": "Pyta GitHuba po otwarciu tej strony.",
+    "noReleases": "Nie znaleziono wydania w tym repozytorium."
   },
   "sleepTimer": {
     "label": "Wyłącznik czasowy",
@@ -171,9 +204,14 @@
     "notificationSummary_one": "{{count}} nowy film z {{channels}} kanałów",
     "notificationSummary_other": "{{count}} nowych filmów z {{channels}} kanałów",
     "notificationBody_one": "{{count}} nowy film z {{channel}}",
-    "notificationBody_other": "{{count}} nowy film z {{channel}}"
+    "notificationBody_other": "{{count}} nowy film z {{channel}}",
+    "communityPost": "Post społeczności"
   },
   "settings": {
+    "resetAll": "Przywróć ustawienia domyślne",
+    "resetAllBody": "Przywraca wszystkie opcje do wartości domyślnych. Zapisane filmy, historia i pobrane pliki zostają.",
+    "resetAllConfirm": "Dotknij ponownie, aby przywrócić",
+    "resetDone": "Przywrócono ustawienia",
     "label": "Ustawienia",
     "hubHint": "Narzędzia do odtwarzania, synchronizacji, importowania i przeglądania w jednym miejscu.",
     "general": "Ogólne",
@@ -204,7 +242,13 @@
       "host": "Host proxy",
       "port": "Port proxy",
       "hostPlaceholder": "np. 127.0.0.1 lub proxy.example.com",
-      "portPlaceholder": "np. 1080"
+      "portPlaceholder": "np. 1080",
+      "username": "Nazwa użytkownika",
+      "password": "Hasło",
+      "credentialsHint": "Opcjonalne. Zmiany zostaną wprowadzone krótko po zakończeniu pisania. Dane logowania pozostają na tym urządzeniu oraz są wyłączone z kopii zapasowych i synchronizacji. Gdy uwierzytelnianie jest włączone, inne aplikacje na tym urządzeniu mogą korzystać z lokalnego serwera przekazującego proxy.",
+      "applyFailed": "Nie udało się zastosować ustawień serwera proxy.",
+      "credentialsHintIos": "Opcjonalne. Zmiany wejdą w życie chwilę po zakończeniu wpisywania tekstu. Dane logowania pozostają na tym urządzeniu oraz są wyłączone z kopii zapasowych i synchronizacji.",
+      "iosRequires17": "W systemie iOS 16 proxy HTTP może być używane wyłącznie do pobierania kanałów. Przekierowanie ruchu przeglądarki, SOCKS oraz uwierzytelnianie wymagają systemu iOS 17 lub nowszego."
     },
     "autoHideHeader": "Ukryj i pokaż pasek narzędzi w zależności od kierunku przewijania",
     "autoHideSidebar": "Automatyczne ukrywanie paska bocznego i wyświetlanie po najechaniu kursorem",
@@ -378,7 +422,7 @@
     "importSettingsConfirm": "To zastępuje Twoje obecne ustawienia, listę blokowanych, style użytkownika i niestandardowe skrypty. Kontynuować?",
     "importSettingsWithScriptsConfirm": "Ten plik zawiera {{count}} włączony(ch) skrypt(ów) użytkownika, które mogą uruchamiać kod w serwisie YouTube. Kontynuuj tylko wtedy, gdy ufasz temu plikowi. Twoje obecne ustawienia, lista blokowanych, style użytkownika i niestandardowe skrypty zostaną zastąpione.",
     "importSettingsDone": "Zaimportowano: {{sections}}",
-    "exportSettings": "Ustawienia eksportu",
+    "exportSettings": "Eksportuj ustawienia",
     "exportSettingsDescription": "Zapisz ustawienia, listę blokowanych, style użytkownika i niestandardowe skrypty jako plik JSON",
     "preferencesDistractionFree": "Tryb skupienia",
     "groupYouTube": "YouTube",
@@ -427,7 +471,37 @@
     },
     "googleLoginCookieHint": "Logowanie przez Google często nie działa w widoku webview. Może być konieczne wstrzyknięcie plików cookie z przeglądarki, w której jesteś zalogowany(-a).",
     "cookieFaq": "Jak wstrzykiwać pliki cookie",
-    "injectCookieAction": "Wstrzyknij pliki cookie"
+    "injectCookieAction": "Wstrzyknij pliki cookie",
+    "disableAutoplay": "Wyłącz automatyczne odtwarzanie",
+    "disableAutoplayHint": "Pozostaw funkcję automatycznego odtwarzania w YouTube wyłączoną, aby zatrzymać odtwarzanie kolejnych polecanych filmów. Kolejki i playlisty będą nadal odtwarzane.",
+    "forceLandscape": "Wymuś tryb poziomy",
+    "forceLandscapeDescription": "Utrzymuj aplikację w orientacji poziomej na telefonach, nawet gdy automatyczne obracanie jest wyłączone. System Android może zignorować to ustawienie na tabletach i rozłożonych urządzeniach składanych.",
+    "accent": {
+      "label": "Kolor akcentu",
+      "hint": "Jeden akcent dla aplikacji i szklanego motywu YouTube.",
+      "aurora": "Zorza",
+      "crimson": "Karmazyn",
+      "purple": "Fioletowy",
+      "cappuccino": "Cappuccino"
+    },
+    "glass": {
+      "label": "Motyw Liquid Glass",
+      "hint": "Szkło matowe na paskach i zaokrąglone karty w YouTube."
+    },
+    "reduceEffects": {
+      "label": "Ogranicz efekty",
+      "hint": "Nieprzezroczyste paski zamiast rozmycia. Wyraźnie lżej na starszych telefonach."
+    },
+    "feedPosts": "Posty społeczności w kanale",
+    "feedPostsDescription": "Sprawdza też kartę Posty każdego zapisanego kanału. Odświeżanie kanałów zużywa więcej danych.",
+    "searchPlaceholder": "Szukaj w ustawieniach",
+    "searchEmpty": "Żadne ustawienie nie pasuje do „{{query}}”",
+    "searchHint": "Wpisz słowo, np. „szkło” lub „proxy”.",
+    "changed": "Zmienione względem domyślnych",
+    "changedHint": "Ustawienia różniące się od domyślnych.",
+    "changedNone": "Wszystko jest domyślne",
+    "changedNoneHint": "Zmień ustawienie, a pojawi się tutaj.",
+    "resetOne": "Przywróć"
   },
   "native": {
     "format_bestQuality": "Najlepsza jakość",
@@ -470,6 +544,7 @@
     "movedToRoot": "Przeniesiono z folderu"
   },
   "folders": {
+    "none": "Bez folderu",
     "removed": "Folder {{name}} został usunięty"
   },
   "pageLoadError": {
@@ -496,6 +571,53 @@
     "saveCurrentPage": "Zapisz bieżącą stronę"
   },
   "history": {
-    "cleared": "Historia wyczyszczona"
+    "today": "Dziś",
+    "yesterday": "Wczoraj",
+    "thisWeek": "W tym tygodniu",
+    "older": "Wcześniej",
+    "cleared": "Historia wyczyszczona",
+    "removed": "Usunięto z historii"
+  },
+  "a11y": {
+    "dragToReorder": "Przeciągnij, aby zmienić kolejność",
+    "library": "Biblioteka",
+    "back": "Wstecz",
+    "forward": "Dalej",
+    "home": "Strona główna",
+    "more": "Więcej akcji",
+    "rowActions": "Akcje",
+    "selectAll": "Zaznacz wszystko",
+    "deselectAll": "Odznacz wszystko",
+    "reorder": "Zmień kolejność"
+  },
+  "error": {
+    "title": "Coś się zepsuło",
+    "body": "NeoTube napotkał błąd, z którego nie mógł się podnieść. Zakładki, historia i ustawienia są bezpieczne.",
+    "copy": "Kopiuj szczegóły",
+    "copied": "Skopiowano",
+    "retry": "Spróbuj ponownie",
+    "reload": "Uruchom ponownie"
+  },
+  "empty": {
+    "browse": "Przeglądaj YouTube",
+    "clearSearch": "Wyczyść wyszukiwanie",
+    "library": "Nic jeszcze nie zapisano",
+    "libraryHint": "Dotknij ikony zakładki pod filmem, aby go tu zachować.",
+    "history": "Brak historii",
+    "historyHint": "Obejrzane filmy pojawią się tutaj.",
+    "queue": "Kolejka jest pusta",
+    "queueHint": "Dodaj filmy do kolejki z odtwarzacza.",
+    "search": "Brak wyników dla „{{query}}”"
+  },
+  "search": {
+    "placeholder": "Szukaj"
+  },
+  "queue": {
+    "removed": "Usunięto z kolejki",
+    "cleared": "Kolejka wyczyszczona"
+  },
+  "common": {
+    "on": "Wł.",
+    "off": "Wył."
   }
 }

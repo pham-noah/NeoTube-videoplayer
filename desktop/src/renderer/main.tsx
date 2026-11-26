@@ -13,6 +13,7 @@ import { settings$ } from '@/states/settings'
 import { Appearance } from 'react-native'
 import { initializeDesktopTabsForStartup } from '@/states/tabs'
 import { setDynamicLoadingEnabled } from '@react-native-vector-icons/common'
+import { applyAccentVars, radixAccent } from '@/lib/accent-vars'
 
 // Vite emits font imports as URLs rather than React Native asset registry IDs.
 // The icon font is loaded by global.css for the desktop renderer.
@@ -53,9 +54,16 @@ if (typeof originalAppearance.setColorScheme !== 'function') {
 
 export function Root(): ReactElement {
   const theme = useValue(settings$.theme)
+  // The accent used to be hard-coded to Radix's grey here, so two of the four
+  // platforms showed none of what makes the fork the fork.
+  const accent = useValue(settings$.accent)
   const [systemAppearance, setSystemAppearance] = useState<'dark' | 'light'>(() =>
     window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light',
   )
+
+  useEffect(() => {
+    applyAccentVars(accent)
+  }, [accent])
 
   useEffect(() => {
     const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
@@ -87,7 +95,7 @@ export function Root(): ReactElement {
 
   return (
     <SafeAreaProvider>
-      <Theme className="h-screen" appearance={theme ?? systemAppearance} accentColor="gray" grayColor="slate">
+      <Theme className="h-screen" appearance={theme ?? systemAppearance} accentColor={radixAccent(accent)} grayColor="slate">
         <App />
       </Theme>
     </SafeAreaProvider>

@@ -1,6 +1,7 @@
 import { auth$ } from '@/states/auth'
 import { MainPageContent } from './MainPageContent'
-import { supabase } from '@/lib/supabase/client'
+import { getSupabase } from '@/lib/supabase/client'
+import { FORK } from '@/lib/fork'
 import { listenIosTransactions, reconcileIosTransactions } from '@/lib/ios-billing'
 import { useEffect, useState } from 'react'
 import { ui$ } from '@/states/ui'
@@ -32,8 +33,7 @@ import { resolveI18nLanguageFromExpoLocale } from '@/lib/i18n'
 import { settings$ } from '@/states/settings'
 import { TranslationCard } from '../translation/TranslationCard'
 import { MoveBookmarkModal } from '../modal/MoveBookmarkModal'
-import { UndoToast } from '../UndoToast'
-import { Toast } from '../Toast'
+import { ToastHost } from '../ToastHost'
 import { AppState } from 'react-native'
 
 export const MainPage: React.FC<{ contentJs: string }> = ({ contentJs }) => {
@@ -89,19 +89,28 @@ export const MainPage: React.FC<{ contentJs: string }> = ({ contentJs }) => {
   ])
 
   useEffect(() => {
-    supabase.auth.onAuthStateChange((event, session) => {
-      // console.log('onAuthStateChange', event, session)
-      auth$.assign({
-        loaded: true,
-        userId: session?.user.id,
-        userEmail: session?.user.email,
-        user: session?.user.user_metadata,
-        accessToken: session?.access_token,
+    // Sync is a build-time switch (lib/fork.ts) and off in this fork, so there is
+    // no session to watch: registering an auth listener here would construct the
+    // Supabase client (and the storage it probes) on every launch for a backend
+    // we never talk to. `loaded` still resolves, because the screens that show an
+    // account read it first.
+    if (FORK.syncEnabled) {
+      getSupabase().auth.onAuthStateChange((event, session) => {
+        // console.log('onAuthStateChange', event, session)
+        auth$.assign({
+          loaded: true,
+          userId: session?.user.id,
+          userEmail: session?.user.email,
+          user: session?.user.user_metadata,
+          accessToken: session?.access_token,
+        })
+        if (session && (event === 'INITIAL_SESSION' || event === 'SIGNED_IN')) {
+          void reconcileIosTransactions()
+        }
       })
-      if (session && (event === 'INITIAL_SESSION' || event === 'SIGNED_IN')) {
-        void reconcileIosTransactions()
-      }
-    })
+    } else {
+      auth$.loaded.set(true)
+    }
 
     feederLoop()
     return listenIosTransactions()
@@ -130,8 +139,7 @@ export const MainPage: React.FC<{ contentJs: string }> = ({ contentJs }) => {
           <ToolsModal />
           <ShareModal />
           {nIf(!isWeb, <TranslationCard />)}
-          <UndoToast />
-          <Toast />
+          <ToastHost />
         </>,
       )}
     </QueryClientProvider>

@@ -6,7 +6,7 @@ import { settings$ } from '@/states/settings'
 import { BaseModal } from './BaseModal'
 import { NouText } from '../NouText'
 import { NouButton } from '../button/NouButton'
-import { NouSwitch } from '../switch/NouSwitch'
+import { GlassSwitch } from '../glass/GlassSwitch'
 import { mainClient } from '@/lib/main-client'
 import { downloads$ } from '@/states/downloads'
 import { t } from 'i18next'
@@ -38,7 +38,7 @@ export const ToolsModal = () => {
   const [showAllFormats, setShowAllFormats] = useState(false)
   const activeDownloads = useValue(downloads$)
   const loadingUrlRef = useRef('')
-  const scrollRef = useRef<ScrollView>(null)
+  const scrollRef = useRef<React.ComponentRef<typeof ScrollView>>(null)
   const downloadsSectionYRef = useRef(0)
   const scrollToDownloadsRef = useRef(false)
   const isDark = useColorScheme() !== 'light'
@@ -205,11 +205,17 @@ export const ToolsModal = () => {
         {nIf(
           phase === 'idle' || phase === 'choosing' || phase === 'error',
           <View className="gap-1">
-            <NouSwitch
-              label={t('modals.downloadUseCookies')}
-              value={useCookies}
+            <Pressable
               onPress={() => settings$.downloadUseCookies.set(!settings$.downloadUseCookies.peek())}
-            />
+              accessibilityRole="switch"
+              accessibilityState={{ checked: useCookies }}
+              accessibilityLabel={t('modals.downloadUseCookies')}
+              accessibilityHint={t('modals.downloadUseCookiesHint')}
+              className="flex-row items-center justify-between gap-3 py-1"
+            >
+              <NouText className="flex-1 font-medium">{t('modals.downloadUseCookies')}</NouText>
+              <GlassSwitch value={useCookies} />
+            </Pressable>
             <NouText className="text-xs text-zinc-500 dark:text-zinc-400">
               {t('modals.downloadUseCookiesHint')}
             </NouText>

@@ -1,7 +1,7 @@
 {
   "name": "noutube-desktop",
   "productName": "NeoTube",
-  "version": "0.3.1",
+  "version": "0.3.3",
   "description": "YouTube and YouTube Music in a single app",
   "main": "./out/main/index.js",
   "author": "Nonbili Inc.",

@@ -50,6 +50,7 @@ import {
   SettingsSection,
   SettingsToggleRow,
 } from './settings/primitives'
+import { feederLoop } from '@/lib/feeder'
 
 // SettingsTree imports the row from this module.
 export { iconWrapCls, sectionLabelCls, SettingsActionRow, SettingsSection, SettingsToggleRow }
@@ -273,6 +274,7 @@ export const SettingsPreferencesContent = () => {
   // One subscription per key, not the whole object: writing any setting
   // re-renders only the section that shows it. See NouHeader for the same shape.
   const settings = {
+    forceLandscape: useValue(settings$.forceLandscape),
     keepHistory: useValue(settings$.keepHistory),
     proxyEnabled: useValue(settings$.proxyEnabled),
     proxyType: useValue(settings$.proxyType),
@@ -280,6 +282,8 @@ export const SettingsPreferencesContent = () => {
     replaceWatchNavigation: useValue(settings$.replaceWatchNavigation),
     restoreOnStart: useValue(settings$.restoreOnStart),
   }
+  // Authenticated proxies need iOS 17+ (NSURLSession); the fork's relay has the same floor.
+  const supportsProxy = !isIos || Number.parseInt(String(Platform.Version), 10) >= 17
 
   return (
     <View className="pb-4">
@@ -314,6 +318,17 @@ export const SettingsPreferencesContent = () => {
               icon="swap-horiz"
               value={settings.replaceWatchNavigation}
               onPress={() => settings$.replaceWatchNavigation.set(!settings.replaceWatchNavigation)}
+              isLast={!isAndroid}
+            />,
+          )}
+          {nIf(
+            isAndroid,
+            <SettingsToggleRow
+              label={t('settings.forceLandscape')}
+              description={t('settings.forceLandscapeDescription')}
+              icon="screen-lock-landscape"
+              value={settings.forceLandscape}
+              onPress={() => settings$.forceLandscape.set(!settings.forceLandscape)}
               isLast
             />,
           )}
@@ -325,9 +340,12 @@ export const SettingsPreferencesContent = () => {
           <View className={surfaceCls}>
             <SettingsToggleRow
               label={t('settings.proxy.enabled')}
+              description={supportsProxy ? undefined : t('settings.proxy.iosRequires17')}
               icon="settings-ethernet"
               value={settings.proxyEnabled}
-              onPress={() => settings$.proxyEnabled.set(!settings.proxyEnabled)}
+              onPress={() => {
+                settings$.proxyEnabled.set(!settings.proxyEnabled)
+              }}
               isLast={!settings.proxyEnabled}
             />
             {nIf(
@@ -339,7 +357,13 @@ export const SettingsPreferencesContent = () => {
                     options={['HTTP', 'SOCKS']}
                     selectedIndex={settings.proxyType === 'socks' ? 1 : 0}
                     size={1}
-                    onChange={(index) => settings$.proxyType.set(index === 1 ? 'socks' : 'http')}
+                    onChange={(index) => {
+                      if (index === 1 && !supportsProxy) {
+                        showToast(t('settings.proxy.iosRequires17'))
+                        return
+                      }
+                      settings$.proxyType.set(index === 1 ? 'socks' : 'http')
+                    }}
                   />
                 </View>
                 <View className="flex-row items-center justify-between gap-3 border-b border-zinc-300 px-4 py-4 dark:border-zinc-800">
@@ -365,7 +389,7 @@ export const SettingsPreferencesContent = () => {
                   />
                 </View>
                 {nIf(
-                  !isIos,
+                  supportsProxy,
                   (['proxyUsername', 'proxyPassword'] as const).map((key) => (
                     <View key={key} className="flex-row items-center justify-between gap-3 border-t border-zinc-300 px-4 py-4 dark:border-zinc-800">
                       <NouText className="w-24 font-medium">
@@ -383,8 +407,10 @@ export const SettingsPreferencesContent = () => {
                   )),
                 )}
                 {nIf(
-                  !isIos,
-                  <NouText className="px-4 pb-4 text-sm text-zinc-500">{t('settings.proxy.credentialsHint')}</NouText>,
+                  supportsProxy,
+                  <NouText className="px-4 pb-4 text-sm text-zinc-500">
+                    {t(isIos ? 'settings.proxy.credentialsHintIos' : 'settings.proxy.credentialsHint')}
+                  </NouText>,
                 )}
               </>,
             )}
@@ -685,6 +711,7 @@ export const SettingsAppearanceContent = () => {
     autoHideSidebar: useValue(settings$.autoHideSidebar),
     doubleTapToToggleHeader: useValue(settings$.doubleTapToToggleHeader),
     dynamicColor: useValue(settings$.dynamicColor),
+    feedPosts: useValue(settings$.feedPosts),
     feedsEnabled: useValue(settings$.feedsEnabled),
     glassTheme: useValue(settings$.glassTheme),
     headerPosition: useValue(settings$.headerPosition),
@@ -815,6 +842,19 @@ export const SettingsAppearanceContent = () => {
               value={settings.feedsEnabled}
               onPress={() => settings$.feedsEnabled.set(!settings.feedsEnabled)}
             />
+            {nIf(
+              settings.feedsEnabled,
+              <SettingsToggleRow
+                label={t('settings.feedPosts')}
+                description={t('settings.feedPostsDescription')}
+                icon="forum"
+                value={settings.feedPosts}
+                onPress={() => {
+                  settings$.feedPosts.set(!settings.feedPosts)
+                  if (!settings.feedPosts) void feederLoop()
+                }}
+              />,
+            )}
             {nIf(
               !isWeb && settings.feedsEnabled,
               <FeedNotificationsToggle />,

@@ -1,10 +1,12 @@
 import { observable } from '@legendapp/state'
 import { syncObservable } from '@legendapp/state/sync'
+import { SETTINGS_DEFAULTS } from '@/lib/settings-defaults'
 import { ObservablePersistMMKV } from '@legendapp/state/persist-plugins/mmkv'
 import { isWeb } from '@/lib/utils'
 import { normalizeAccent, type Accent } from '@/lib/accent'
 import { normalizeI18nLanguage, type SupportedI18nLanguage } from '@/lib/i18n'
 import type { DownloadPreset } from '@/lib/download-format'
+import type { LibrarySort } from '@/lib/library-sort'
 
 export interface SettingsSnapshot {
   language: SupportedI18nLanguage | null
@@ -18,12 +20,17 @@ export interface SettingsSnapshot {
   hideToolbarWhenScrolled: boolean
   headerPosition: 'top' | 'bottom'
   feedsEnabled: boolean
+  /* Opt-in: the About page asks GitHub about releases when it is opened. */
+  checkUpdates: boolean
   feedNotificationsEnabled: boolean
+  // Community posts are scraped from each channel's Posts tab, so they are opt-in.
+  feedPosts: boolean
   hideShorts: boolean
   hideShortsInNavbar: boolean
   hideMixPlaylist: boolean
   keepHistory: boolean
   replaceWatchNavigation: boolean
+  forceLandscape: boolean
   miniPlayer: boolean
   // Where the mini player was last dropped, as fractions of the room it can
   // move in, so it lands in the same spot after a rotation or resize.
@@ -62,6 +69,10 @@ export interface SettingsSnapshot {
   desktopMode: boolean
   desktopModeYT: boolean
   defaultZoom: number
+  // The Library remembers how you were looking at it: a sort order and the
+  // folder you had open survive closing the sheet and restarting the app.
+  librarySort: LibrarySort
+  libraryFolderId: string | null
   theme: null | 'dark' | 'light'
   dynamicColor: boolean
   accent: Accent
@@ -74,6 +85,10 @@ export interface SettingsSnapshot {
 }
 
 interface Store extends SettingsSnapshot {
+  // Persisted shape version, bumped by migrateSettings. Not part of the snapshot
+  // that sync and backups carry: it describes what this install has already
+  // migrated, not a preference.
+  settingsVersion: number
   // Credentials stay on this device; snapshots used by sync/backups omit them.
   proxyUsername: string
   proxyPassword: string
@@ -102,11 +117,40 @@ const getMiniPlayerPosition = (value: Partial<Store> | undefined): SettingsSnaps
   }
 }
 
+export const SETTINGS_VERSION = 1
+
+/*
+ * `showHistoryButtonInHeader` was rendered unconditionally, so the toggle never
+ * changed anything and every install kept whatever it was set to -- false, the
+ * default, for nearly all of them. Now that the header honours the setting, a
+ * stored false would take the only History entry point off the toolbar on
+ * upgrade, so each install is carried over to "on" exactly once.
+ */
+// What an install may have on disk: any subset of the preferences, plus the
+// shape version the migration reads.
+export type PersistedSettings = Partial<SettingsSnapshot> & { settingsVersion?: number }
+
+export const migrateSettings = <T extends PersistedSettings | undefined>(data: T) => {
+  if (!data) {
+    return data
+  }
+  if ((data.settingsVersion ?? 0) < SETTINGS_VERSION) {
+    if (!data.showHistoryButtonInHeader) {
+      data.showHistoryButtonInHeader = true
+    }
+    data.settingsVersion = SETTINGS_VERSION
+  }
+  return data
+}
+
 export const normalizeSettings = <T extends Partial<SettingsSnapshot> | undefined>(data: T) => {
   if (!data) {
     return data
   }
   data.language = normalizeI18nLanguage(data.language)
+  if (typeof data.forceLandscape !== 'boolean') {
+    data.forceLandscape = false
+  }
   if (data.headerPosition !== 'bottom') {
     data.headerPosition = 'top'
   }
@@ -114,7 +158,7 @@ export const normalizeSettings = <T extends Partial<SettingsSnapshot> | undefine
     data.showHomeButtonInHeader = false
   }
   if (typeof data.showHistoryButtonInHeader !== 'boolean') {
-    data.showHistoryButtonInHeader = false
+    data.showHistoryButtonInHeader = true
   }
   if (typeof data.showBackButtonInHeader !== 'boolean') {
     data.showBackButtonInHeader = false
@@ -224,6 +268,8 @@ export const normalizeSettings = <T extends Partial<SettingsSnapshot> | undefine
 
 export const getSettingsSnapshot = (value: Partial<Store> | undefined = settings$.get()): SettingsSnapshot => ({
   language: normalizeI18nLanguage(value?.language),
+  librarySort: value?.librarySort === 'oldest' || value?.librarySort === 'title' ? value.librarySort : 'newest',
+  libraryFolderId: typeof value?.libraryFolderId === 'string' ? value.libraryFolderId : null,
   home: value?.home === 'yt-music' ? 'yt-music' : 'yt',
 
   autoHideHeader: Boolean(value?.autoHideHeader),
@@ -237,12 +283,15 @@ export const getSettingsSnapshot = (value: Partial<Store> | undefined = settings
   hideToolbarWhenScrolled: Boolean(value?.hideToolbarWhenScrolled),
   headerPosition: value?.headerPosition === 'bottom' ? 'bottom' : 'top',
   feedsEnabled: typeof value?.feedsEnabled === 'boolean' ? value.feedsEnabled : true,
+  checkUpdates: Boolean(value?.checkUpdates),
   feedNotificationsEnabled: Boolean(value?.feedNotificationsEnabled),
+  feedPosts: Boolean(value?.feedPosts),
   hideShorts: typeof value?.hideShorts === 'boolean' ? value.hideShorts : true,
   hideShortsInNavbar: Boolean(value?.hideShortsInNavbar),
   hideMixPlaylist: Boolean(value?.hideMixPlaylist),
   keepHistory: typeof value?.keepHistory === 'boolean' ? value.keepHistory : true,
   replaceWatchNavigation: Boolean(value?.replaceWatchNavigation),
+  forceLandscape: value?.forceLandscape === true,
   miniPlayer: typeof value?.miniPlayer === 'boolean' ? value.miniPlayer : false,
   miniPlayerPosition: getMiniPlayerPosition(value),
   pictureInPicture: Boolean(value?.pictureInPicture),
@@ -313,12 +362,15 @@ export const settings$ = observable<Store>({
   hideToolbarWhenScrolled: false,
   headerPosition: 'top',
   feedsEnabled: true,
+  checkUpdates: false,
   feedNotificationsEnabled: false,
+  feedPosts: false,
   hideShorts: true,
   hideShortsInNavbar: false,
   hideMixPlaylist: false,
   keepHistory: true,
   replaceWatchNavigation: false,
+  forceLandscape: false,
   miniPlayer: false,
   miniPlayerPosition: { x: 1, y: 1 },
   pictureInPicture: false,
@@ -338,7 +390,7 @@ export const settings$ = observable<Store>({
   showBackButtonInHeader: false,
   showForwardButtonInHeader: false,
   showHomeButtonInHeader: false,
-  showHistoryButtonInHeader: false,
+  showHistoryButtonInHeader: true,
   showReloadButtonInHeader: false,
   showPlaybackSpeedControl: false,
   showPlaybackQualityControl: false,
@@ -355,7 +407,11 @@ export const settings$ = observable<Store>({
   desktopMode: false,
   desktopModeYT: false,
   defaultZoom: 100,
-  theme: isWeb ? 'dark' : null,
+  librarySort: 'newest',
+  libraryFolderId: null,
+  // Web used to force dark: the desktop build looked wrong in light mode, so
+  // the choice was removed instead of fixed. The theme setting is the fix.
+  theme: null,
   dynamicColor: false,
   accent: 'aurora',
   glassTheme: true,
@@ -370,6 +426,7 @@ export const settings$ = observable<Store>({
   downloadUseCookies: false,
   downloadPresets: [],
   lastYtDlpUpdate: 0,
+  settingsVersion: SETTINGS_VERSION,
 })
 
 syncObservable(settings$, {
@@ -377,9 +434,35 @@ syncObservable(settings$, {
     name: 'settings',
     plugin: ObservablePersistMMKV,
     transform: {
-      load: (data: Store) => normalizeSettings(data),
+      load: (data: Store) => normalizeSettings(migrateSettings(data)),
     },
   },
 })
+
+/*
+ * Puts every plain option back to the value it started with. Credentials,
+ * download paths and the persisted-shape version are left alone on purpose:
+ * they are device state, not preferences, and wiping them would silently sign
+ * the user out of their proxy.
+ */
+export function resetSettings(): Partial<SettingsSnapshot> {
+  const snapshot: Record<string, unknown> = {}
+  const store = settings$ as unknown as Record<string, { peek?: () => unknown; set: (value: unknown) => void }>
+  for (const [key, value] of Object.entries(SETTINGS_DEFAULTS)) {
+    const field = store[key]
+    if (!field?.set) continue
+    snapshot[key] = field.peek?.()
+    field.set(value)
+  }
+  return snapshot as Partial<SettingsSnapshot>
+}
+
+/** Undo for resetSettings: only the keys the reset touched come back. */
+export function restoreSettings(snapshot: Partial<SettingsSnapshot>) {
+  const store = settings$ as unknown as Record<string, { set: (value: unknown) => void } | undefined>
+  for (const [key, value] of Object.entries(snapshot)) {
+    if (value !== undefined && store[key]?.set) store[key].set(value)
+  }
+}
 
 export const ZOOM_PRESETS = [50, 75, 90, 100, 110, 125, 150, 175, 200, 250, 300]

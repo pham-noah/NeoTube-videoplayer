@@ -3,7 +3,20 @@
     "label": "Über",
     "code": "Quellcode",
     "donate": "Spenden",
-    "updates": "Aktualisierungen"
+    "updates": "Aktualisierungen",
+    "upstream": "Basiert auf NouTube",
+    "license": "Lizenz",
+    "licenseHint": "NeoTube ist freie Software unter der GNU AGPL v3.",
+    "supportUpstream": "Den NouTube-Entwickler unterstützen",
+    "credit": "Danksagung",
+    "madeBy": "Entwickelt von Noah Pham",
+    "source": "NeoTube auf GitHub",
+    "report": "Ein Problem melden",
+    "reportHint": "Ein Issue auf GitHub eröffnen",
+    "help": "Hilfe",
+    "faq": "FAQ",
+    "faqHint": "Antworten auf häufige Fragen",
+    "hint": "Versionsinfo, Updates, Quellcode und Support-Links."
   },
   "buttons": {
     "clear": "Löschen",
@@ -29,11 +42,19 @@
     "retry": "Erneut versuchen"
   },
   "library": {
+    "removedCount": "{{count}} entfernt",
+    "movedCount": "{{count}} verschoben",
+    "sort": "Sortieren",
+    "sortNewest": "Neueste zuerst",
+    "sortOldest": "Älteste zuerst",
+    "sortTitle": "Titel A–Z",
+    "selected": "{{count}} ausgewählt",
     "videos": "Videos",
     "channels": "Kanäle",
     "playlists": "Wiedergabelisten",
     "songs": "Lieder",
-    "artists": "Künstler"
+    "artists": "Künstler",
+    "newFolder": "Neuer Ordner"
   },
   "menus": {
     "edit": "Bearbeiten",
@@ -48,7 +69,10 @@
     "off": "Aus",
     "openInNewTab": "In neuem Tab öffnen",
     "unsubscribe": "Deabonnieren",
-    "moveTo": "Verschieben nach …"
+    "moveTo": "Verschieben nach …",
+    "moveUp": "Nach oben",
+    "moveDown": "Nach unten",
+    "playNext": "Als Nächstes"
   },
   "modals": {
     "editBookmark": "Lesezeichen bearbeiten",
@@ -78,9 +102,15 @@
     "downloadErrorSignIn": "YouTube verlangt für dieses Video, dass du angemeldet bist. Aktiviere die Option „Meine Cookies verwenden“ und versuche es erneut.",
     "downloadErrorFormat": "Dieses Format ist nicht mehr verfügbar. Lade die Formate erneut und wähle ein anderes aus.",
     "downloadErrorNetwork": "YouTube konnte nicht erreicht werden. Überprüfe deine Verbindung und versuche es erneut.",
-    "failedToLoadFormats": "Das Laden der Formate ist fehlgeschlagen"
+    "failedToLoadFormats": "Das Laden der Formate ist fehlgeschlagen",
+    "clearQueueConfirm": "Warteschlange leeren?",
+    "clearQueueBody": "Alle Videos werden entfernt. Das lässt sich rückgängig machen."
   },
   "settings": {
+    "resetAll": "Einstellungen zurücksetzen",
+    "resetAllBody": "Setzt alle Optionen auf den Standard zurück. Gespeicherte Videos, Verlauf und Downloads bleiben.",
+    "resetAllConfirm": "Zum Zurücksetzen erneut tippen",
+    "resetDone": "Einstellungen zurückgesetzt",
     "label": "Einstellungen",
     "general": "Allgemein",
     "restoreOnStart": "Letzte Sitzung beim Start wiederherstellen",
@@ -211,7 +241,33 @@
     "preferencesComments": "Kommentare",
     "sidebar": "Seitenleiste",
     "preferencesYouTubeHint": "YouTube-Voreinstellungen",
-    "preferencesNouTubeHint": "NouTube-Voreinstellungen"
+    "preferencesNouTubeHint": "NouTube-Voreinstellungen",
+    "accent": {
+      "label": "Akzentfarbe",
+      "hint": "Eine Akzentfarbe für die App und das Glas-Design von YouTube.",
+      "aurora": "Aurora",
+      "crimson": "Karminrot",
+      "purple": "Violett",
+      "cappuccino": "Cappuccino"
+    },
+    "glass": {
+      "label": "Liquid-Glass-Design",
+      "hint": "Milchige Glasleisten und abgerundete Karten auf YouTube."
+    },
+    "reduceEffects": {
+      "label": "Effekte reduzieren",
+      "hint": "Deckende Leisten statt weichgezeichneter. Auf älteren Geräten spürbar leichter."
+    },
+    "feedPosts": "Community-Beiträge im Feed",
+    "feedPostsDescription": "Prüft zusätzlich den Tab „Beiträge“ jedes gespeicherten Kanals. Häufigeres Aktualisieren braucht mehr Daten.",
+    "searchPlaceholder": "Einstellungen durchsuchen",
+    "searchEmpty": "Keine Einstellung passt zu „{{query}}“",
+    "searchHint": "Tippe ein Wort wie „Glas“ oder „Proxy“ ein.",
+    "changed": "Vom Standard abweichend",
+    "changedHint": "Einstellungen, die vom Standard abweichen.",
+    "changedNone": "Alles ist auf Standard",
+    "changedNoneHint": "Ändere eine Einstellung, dann erscheint sie hier.",
+    "resetOne": "Zurücksetzen"
   },
   "sync": {
     "label": "Synchronisieren",
@@ -242,7 +298,18 @@
     "checkHint": "Nachsehen, ob eine neuere Version verfügbar ist",
     "upToDate": "Du bist auf der neuesten Version",
     "error": "Die Überprüfung auf Aktualisierungen ist fehlgeschlagen",
-    "downloadedHint": "Version {{version}} wurde heruntergeladen. Möchtest du jetzt neu starten, um die Installation durchzuführen?"
+    "downloadedHint": "Version {{version}} wurde heruntergeladen. Möchtest du jetzt neu starten, um die Installation durchzuführen?",
+    "available": "Update verfügbar",
+    "fromTo": "Du hast v{{current}}; v{{next}} ist verfügbar.",
+    "size": "{{size}} · Android-Paket",
+    "notes": "Neuigkeiten",
+    "noNotes": "Für diese Version gibt es keine Versionshinweise.",
+    "later": "Später",
+    "get": "Update holen",
+    "openPage": "Release-Seite öffnen",
+    "auto": "Automatisch prüfen",
+    "autoHint": "Fragt GitHub, wenn du diese Seite öffnest.",
+    "noReleases": "Für dieses Repository wurde kein Release gefunden."
   },
   "feeds": {
     "updates": "Aktualisierungen",
@@ -265,7 +332,8 @@
     "emptyActionFetchNow": "Jetzt abrufen",
     "fetchToastRunning": "Auffrischen läuft bereits",
     "emptyActionAllFolders": "Alles anzeigen",
-    "removeTitle": "{{title}} entfernen?"
+    "removeTitle": "{{title}} entfernen?",
+    "communityPost": "Community-Beitrag"
   },
   "bookmarks": {
     "removed": "Lesezeichen entfernt",
@@ -273,6 +341,7 @@
     "movedToRoot": "Aus dem Ordner heraus verschoben"
   },
   "folders": {
+    "none": "Kein Ordner",
     "removed": "Ordner {{name}} entfernt"
   },
   "native": {
@@ -284,5 +353,54 @@
     "format_audio": "Audio ({{ext}})",
     "download_complete": "Herunterladen abgeschlossen",
     "download_failed": "Herunterladen fehlgeschlagen"
+  },
+  "a11y": {
+    "dragToReorder": "Zum Sortieren ziehen",
+    "library": "Bibliothek",
+    "back": "Zurück",
+    "forward": "Vorwärts",
+    "home": "Startseite",
+    "more": "Weitere Aktionen",
+    "rowActions": "Aktionen",
+    "selectAll": "Alle auswählen",
+    "deselectAll": "Auswahl aufheben",
+    "reorder": "Neu anordnen"
+  },
+  "error": {
+    "title": "Da ist etwas kaputtgegangen",
+    "body": "NeoTube ist auf einen Fehler gestoßen, von dem es sich nicht erholen konnte. Lesezeichen, Verlauf und Einstellungen sind sicher.",
+    "copy": "Details kopieren",
+    "copied": "Kopiert",
+    "retry": "Erneut versuchen",
+    "reload": "Neu starten"
+  },
+  "empty": {
+    "browse": "YouTube öffnen",
+    "clearSearch": "Suche löschen",
+    "library": "Noch nichts gespeichert",
+    "libraryHint": "Tippe unter einem Video auf das Lesezeichen, um es hier zu behalten.",
+    "history": "Noch kein Verlauf",
+    "historyHint": "Angesehene Videos erscheinen hier.",
+    "queue": "Die Warteschlange ist leer",
+    "queueHint": "Füge im Player Videos zur Warteschlange hinzu.",
+    "search": "Keine Treffer für „{{query}}“"
+  },
+  "search": {
+    "placeholder": "Suchen"
+  },
+  "history": {
+    "today": "Heute",
+    "yesterday": "Gestern",
+    "thisWeek": "Diese Woche",
+    "older": "Früher",
+    "removed": "Aus dem Verlauf entfernt"
+  },
+  "queue": {
+    "removed": "Aus der Warteschlange entfernt",
+    "cleared": "Warteschlange geleert"
+  },
+  "common": {
+    "on": "An",
+    "off": "Aus"
   }
 }

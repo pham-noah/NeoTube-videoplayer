@@ -35,3 +35,10 @@ export const supabase = createClient(
     },
   },
 )
+
+/**
+ * The app reaches the client through `getSupabase()` so a build with sync off
+ * never constructs one (lib/supabase/client.ts). The extension's own pages are
+ * the sync UI, so this replacement answers with the client it already built.
+ */
+export const getSupabase = () => supabase

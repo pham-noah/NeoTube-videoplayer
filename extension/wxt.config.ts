@@ -5,7 +5,14 @@ import reactNativeWeb from 'vite-plugin-react-native-web'
 import type { Plugin } from 'vite'
 
 const extensionDir = process.cwd()
-const rootDir = resolve(extensionDir, '..')
+// Vite reports ids with forward slashes on every platform, while resolve() gives
+// backslashes on Windows. Comparing the two unnormalised meant `id.startsWith`
+// and every `appReplacements` lookup below silently missed on Windows: app
+// modules resolved through WXT's own `@` (so `@/lib/feeder` became
+// extension/lib/feeder and the build died), and the app's own data layer was
+// bundled instead of the extension's seams. Normalise once, here.
+const rootDir = resolve(extensionDir, '..').replaceAll('\\', '/')
+const forward = (path: string) => path.replaceAll('\\', '/')
 
 /*
  * WXT owns the `@` alias and points it at this directory, but the content
@@ -33,14 +40,30 @@ const rewriteRootAliases = {
  * reaches these modules through both `@/lib/...` and relative paths, and an
  * alias only ever sees the specifier.
  */
-const persistMemory = resolve(extensionDir, 'lib/app/persist-memory.ts')
+const persistMemory = forward(resolve(extensionDir, 'lib/app/persist-memory.ts'))
 const appReplacements = new Map([
-  [resolve(rootDir, 'states/indexeddb.ts'), persistMemory],
-  [resolve(rootDir, 'lib/supabase/client.ts'), resolve(extensionDir, 'lib/app/supabase-client.ts')],
-  [resolve(rootDir, 'lib/main-client.ts'), resolve(extensionDir, 'lib/app/main-client.ts')],
-  [resolve(rootDir, 'lib/utils.ts'), resolve(extensionDir, 'lib/app/utils.ts')],
-  [resolve(rootDir, 'lib/toast.ts'), resolve(extensionDir, 'lib/app/toast.ts')],
+  [forward(resolve(rootDir, 'states/indexeddb.ts')), persistMemory],
+  [forward(resolve(rootDir, 'lib/supabase/client.ts')), forward(resolve(extensionDir, 'lib/app/supabase-client.ts'))],
+  [forward(resolve(rootDir, 'lib/main-client.ts')), forward(resolve(extensionDir, 'lib/app/main-client.ts'))],
+  [forward(resolve(rootDir, 'lib/utils.ts')), forward(resolve(extensionDir, 'lib/app/utils.ts'))],
+  [forward(resolve(rootDir, 'lib/toast.ts')), forward(resolve(extensionDir, 'lib/app/toast.ts'))],
 ])
+
+/*
+ * Copied from the desktop renderer: Expo Font's web server context imports
+ * node:async_hooks, which a browser bundle cannot resolve. The extension only
+ * needs the package's no-op context; browser font loading stays unchanged.
+ */
+const expoFontBrowserContext = (): Plugin => ({
+  name: 'expo-font-browser-context',
+  enforce: 'pre',
+  resolveId(source, importer) {
+    if (source === './serverContext' && importer?.replace(/\\/g, '/').includes('/expo-font/build/')) {
+      return resolve(importer, '../serverContext.js')
+    }
+    return null
+  },
+})
 
 /*
  * Copied from the desktop renderer: react-native-css-interop declares
@@ -86,6 +109,7 @@ export default defineConfig({
     plugins: [
       rewriteRootAliases,
       replaceAppModules,
+      expoFontBrowserContext(),
       keepCssInteropSideEffects(),
       react({
         babel: {

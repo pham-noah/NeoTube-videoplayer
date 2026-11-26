@@ -17,7 +17,12 @@ export interface Item {
   metaLabel?: string
 }
 
-export const NouMenu: React.FC<{ trigger: ReactNode; items: Item[]; triggerColor?: string }> = ({ trigger, items, triggerColor }) => {
+export const NouMenu: React.FC<{
+  trigger: ReactNode
+  items: Item[]
+  triggerColor?: string
+  side?: 'top' | 'right' | 'bottom' | 'left'
+}> = ({ trigger, items, triggerColor, side }) => {
   const tw = useTwColor()
   const colorScheme = useColorScheme()
   const isDark = colorScheme !== 'light'
@@ -25,6 +30,7 @@ export const NouMenu: React.FC<{ trigger: ReactNode; items: Item[]; triggerColor
   const resolvedTriggerColor = triggerColor ?? (isDark ? tw(colors.icon) : tw(colors.iconLight))
   const renderedTrigger =
     isValidElement(trigger) ? cloneElement(trigger as React.ReactElement<any>, { color: resolvedTriggerColor }) : trigger
+  const hasAnyIcon = items.some((item) => Boolean(item.icon))
 
   const menuItems = items.map((item, index) => {
     if (item.kind === 'separator') {
@@ -51,6 +57,8 @@ export const NouMenu: React.FC<{ trigger: ReactNode; items: Item[]; triggerColor
             <div className="flex h-5 w-5 shrink-0 items-center justify-center">
               {item.icon}
             </div>
+          ) : hasAnyIcon ? (
+            <div className="h-5 w-5 shrink-0" />
           ) : null}
           <div className="min-w-0 flex-1">
             <div className="truncate text-[13px] leading-[20px] text-zinc-900 dark:text-zinc-100">{item.label}</div>
@@ -65,7 +73,7 @@ export const NouMenu: React.FC<{ trigger: ReactNode; items: Item[]; triggerColor
   return (
     <DropdownMenu.Root open={open} onOpenChange={setOpen}>
       <DropdownMenu.Trigger>
-        <div className="flex min-w-0 shrink items-center justify-center">{renderedTrigger}</div>
+        <div tabIndex={0} className="flex min-w-0 shrink cursor-pointer items-center justify-center">{renderedTrigger}</div>
       </DropdownMenu.Trigger>
       {/* The page content lives in an out-of-process <webview>, which swallows pointer
           events before they reach the host document. Without this overlay, clicking the
@@ -77,7 +85,7 @@ export const NouMenu: React.FC<{ trigger: ReactNode; items: Item[]; triggerColor
             document.body,
           )
         : null}
-      <DropdownMenu.Content variant="soft" className="z-50 max-h-[70vh] overflow-auto rounded-xl border border-zinc-300/70 dark:border-zinc-800/80 shadow-xl shadow-zinc-900/15 dark:shadow-black/40">
+      <DropdownMenu.Content side={side} variant="soft" className="z-50 max-h-[70vh] overflow-auto rounded-xl border border-zinc-300/70 dark:border-zinc-800/80 shadow-xl shadow-zinc-900/15 dark:shadow-black/40">
         {menuItems}
       </DropdownMenu.Content>
     </DropdownMenu.Root>

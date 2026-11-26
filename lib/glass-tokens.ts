@@ -129,5 +129,26 @@ const buildGlassTokens = (scheme: Scheme, accent: string) => {
         },
       ] as Shadow,
     },
+    /**
+     * Elevation. The rim does the material work; these only tell the layers
+     * apart, which is why the dark values are heavy and the light ones thin:
+     * a black drop shadow on white paper reads as dirt, not depth.
+     */
+    shadowBar: [
+      {
+        offsetX: 0,
+        offsetY: dark ? 6 : 4,
+        blurRadius: dark ? 20 : 14,
+        color: dark ? 'rgba(0,0,0,0.35)' : 'rgba(15,23,42,0.10)',
+      },
+    ] as Shadow,
+    shadowSheet: [
+      {
+        offsetX: 0,
+        offsetY: dark ? 18 : 12,
+        blurRadius: dark ? 48 : 32,
+        color: dark ? 'rgba(0,0,0,0.45)' : 'rgba(15,23,42,0.14)',
+      },
+    ] as Shadow,
   }
 }

@@ -43,6 +43,8 @@ function setupChannel(): void {
 export function initUiChannel(): void {
   setupChannel()
   void mainClient.consumePendingDeeplinks().then((links) => {
-    links.forEach(handleDeeplink)
+    // consumePendingDeeplinks is untyped (see lib/main-client), so the link
+    // shape is spelled here: without it the desktop project did not typecheck.
+    links.forEach((link: { url: string; newTab?: boolean }) => handleDeeplink(link.url, link.newTab))
   })
 }

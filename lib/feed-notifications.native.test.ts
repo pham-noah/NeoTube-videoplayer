@@ -158,10 +158,10 @@ describe('mobile feed notifications', () => {
 
   it('defines and executes the headless task without mounting a route', async () => {
     await setFeedNotificationsEnabled(true)
-    settings$.language.set('ja')
+    settings$.language.set('de')
     expect(await task()).toBe(1)
     expect(feederLoop).toHaveBeenCalledTimes(1)
-    expect(i18n.language).toBe('ja')
+    expect(i18n.language).toBe('de')
     const payload = nativeSettings.mock.calls[0][0]
     expect(payload.proxyEnabled).toBe(settings$.proxyEnabled.get())
     expect(payload.playbackRate).toBe(settings$.playbackRate.get())

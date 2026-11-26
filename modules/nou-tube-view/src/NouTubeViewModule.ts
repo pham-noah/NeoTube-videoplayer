@@ -26,6 +26,7 @@ declare class NouTubeViewModule extends NativeModule {
     showMediaNotificationCloseButton?: boolean
     playbackRate?: number
     blockAds?: boolean
+    forceLandscape?: boolean
     discordPresence?: boolean
   }): void
   /* Emit a scroll event per gesture frame. Off by default: only the header

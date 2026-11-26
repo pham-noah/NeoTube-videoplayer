@@ -1,0 +1,7 @@
+- Redesigned lists: History grouped by day, Library sorting and multi-select
+- Swipe a row for its actions; every removal keeps an Undo within reach
+- Drag the queue into shape, and the list scrolls under your finger as you drag
+- Search inside Settings, plus a page showing only what you changed
+- A page that fails now says what failed and offers Retry
+- About: version, credit, source code, and a check for the app's own releases
+- New Galician, Italian, Polish, Turkish, Ukrainian and Vietnamese translations

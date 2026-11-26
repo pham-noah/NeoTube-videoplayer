@@ -1,13 +1,31 @@
-import { ActivityIndicator, Platform, Pressable, Switch, View, useColorScheme } from 'react-native'
-import { clsx, isWeb, nIf } from '@/lib/utils'
+import { ActivityIndicator, Pressable, View, useColorScheme } from 'react-native'
+import { clsx, nIf } from '@/lib/utils'
 import { NouText } from '../../NouText'
 import MaterialIcons, { type MaterialIconsIconName } from '@react-native-vector-icons/material-icons'
 import { useTwColor } from '@/lib/theme'
+import { dividerCls, text } from '@/lib/colors'
+import { GlassSwitch } from '../../glass/GlassSwitch'
 
-export const sectionLabelCls =
-  'mb-2 px-1 text-[11px] uppercase tracking-[0.18em] text-zinc-600 dark:text-zinc-500'
-export const iconWrapCls =
-  'h-10 w-10 items-center justify-center rounded-2xl bg-zinc-100 dark:bg-zinc-950'
+// Section label is the caption step of the type scale (11/14, +0.08em,
+// uppercase). 0.18em tracking on 11px opened the word up until it read as
+// letter-spaced noise; 0.08em keeps it a label. dark:text-zinc-400 clears 4.5:1
+// on a card, zinc-500 did not.
+export const sectionLabelCls = 'mb-2 px-1 text-caption font-semibold uppercase text-zinc-600 dark:text-zinc-400'
+// 36px chip at radius 12. At 40px/radius 16 it carried the same visual weight as
+// the row title next to it, and zinc-950 on a black sheet drew a black square on
+// black.
+export const iconWrapCls = 'h-9 w-9 items-center justify-center rounded-chip bg-black/[0.04] dark:bg-white/[0.06]'
+
+// The row is the touch target (56dp minimum) and, for toggles, it is also the
+// switch: role and state live here so assistive tech announces the row once as
+// "label, switch, on" instead of a row plus a nested control that could toggle
+// twice. Dividers are the 1px hairline token, not border-b-2.
+const rowCls = (isLast: boolean, disabled = false) =>
+  clsx(
+    'flex-row items-center gap-3 px-gutter py-rowY min-h-14 active:bg-black/[0.04] dark:active:bg-white/[0.06]',
+    !isLast && dividerCls,
+    disabled && 'opacity-70',
+  )
 
 export const SettingsSection: React.FC<React.PropsWithChildren<{ label?: string }>> = ({ label, children }) => {
   return (
@@ -32,34 +50,23 @@ export const SettingsToggleRow: React.FC<{
   return (
     <Pressable
       onPress={onPress}
-      className={clsx(
-        'flex-row items-center gap-3 px-4 py-4 active:bg-zinc-200/80 dark:active:bg-zinc-800/80',
-        !isLast && 'border-b-2 border-zinc-100 dark:border-zinc-950',
-      )}
+      accessibilityRole="switch"
+      accessibilityState={{ checked: value }}
+      accessibilityLabel={label}
+      accessibilityHint={description}
+      className={rowCls(isLast)}
     >
       <View className={iconWrapCls}>
         <MaterialIcons name={icon} color={isDark ? tw('zinc-300') : tw('slate-600')} size={18} />
       </View>
       <View className="flex-1">
-        <NouText className="font-medium">{label}</NouText>
+        <NouText className="text-headline font-semibold">{label}</NouText>
         {nIf(
           !!description,
-          <NouText className="mt-1 text-sm leading-5 text-zinc-600 dark:text-zinc-400">{description}</NouText>,
+          <NouText className={clsx('mt-1 text-label', text.secondary)}>{description}</NouText>,
         )}
       </View>
-      <View {...(isWeb ? { onClick: (e: any) => e.stopPropagation() } : {})}>
-        <Switch
-          value={value}
-          onValueChange={onPress}
-          trackColor={{ false: tw('zinc-600'), true: tw('blue-700') }}
-          thumbColor={value ? tw('blue-50') : tw('zinc-100')}
-          {...Platform.select({
-            web: {
-              activeThumbColor: tw('blue-50'),
-            },
-          })}
-        />
-      </View>
+      <GlassSwitch value={value} />
     </Pressable>
   )
 }
@@ -81,19 +88,19 @@ export const SettingsActionRow: React.FC<{
     <Pressable
       onPress={onPress}
       disabled={isDisabled}
-      className={clsx(
-        'flex-row items-center gap-3 px-4 py-4 active:bg-zinc-200/80 dark:active:bg-zinc-800/80',
-        isDisabled && 'opacity-70',
-        !isLast && 'border-b-2 border-zinc-100 dark:border-zinc-950',
-      )}
+      accessibilityRole="button"
+      accessibilityLabel={label}
+      accessibilityHint={description}
+      accessibilityState={{ disabled: isDisabled, busy: loading }}
+      className={rowCls(isLast, isDisabled)}
     >
       <View className={iconWrapCls}>
         <MaterialIcons name={icon} color={isDark ? tw('zinc-300') : tw('slate-600')} size={18} />
       </View>
       <View className="flex-1">
-        <NouText className="font-medium">{label}</NouText>
+        <NouText className="text-headline font-semibold">{label}</NouText>
         {description ? (
-          <NouText className="mt-1 text-sm leading-5 text-zinc-600 dark:text-zinc-400">{description}</NouText>
+          <NouText className={clsx('mt-1 text-label', text.secondary)}>{description}</NouText>
         ) : null}
       </View>
       {loading ? (
